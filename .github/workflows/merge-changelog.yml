@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout main branch
-        uses: actions/checkout@v4 # Usando v4 que é a mais recente
+        uses: actions/checkout@v5 # Usando v4 que é a mais recente
         with:
           ref: main
 
