@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Projeto: Catfeina
+  ~  Arquivo: strings.xml
+  ~
+  ~  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~
+  ~  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~
+  ~  Este arquivo faz parte do projeto Catfeina.
+  ~  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~  dele, é estritamente proibida.
+  ~
+  ~  Nota:
+  ~
+  -->
+
+<!--
+  ~
+  ~  Projeto: Catfeina
+  ~  Arquivo: strings.xml
+  ~
+  ~  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~
+  ~  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~
+  ~  Este arquivo faz parte do projeto Catfeina.
+  ~  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~  dele, é estritamente proibida.
+  ~
+  ~  Nota:
+  ~
+  ~
+  -->
+
+<!--
+  ~ // ===================================================================================
+  ~ //  Projeto: Catfeina
+  ~ //  Arquivo: strings.xml
+  ~ //
+  ~ //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~ //
+  ~ //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~ //
+  ~ //  Este arquivo faz parte do projeto Catfeina.
+  ~ //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~ //  dele, é estritamente proibida.
+  ~ // ===================================================================================
+  ~ //  Nota:
+  ~ //
+  ~ //
+  ~ // ===================================================================================
+  ~
+  -->
+
+<resources>
+
+    <!-- Metadados da Aplicação -->
+    <string name="app_name">Catfeína</string>
+    <string name="app_versao">Versão %s</string>
+    <string name="app_desenvolvido_por">Desenvolvido por Marin</string>
+
+    <!-- Navegação e Menus -->
+    <string name="menu_inicio">Início</string>
+    <string name="menu_favoritos">Favoritos</string>
+    <string name="menu_vozes">Vozes</string>
+    <string name="menu_navegacao_descricao">Menu de Navegação</string>
+    <string name="menu_poesias">Poesias</string>
+    <string name="menu_personagem">Personagem</string>
+    <string name="menu_marcadores">Marcadores</string>
+    <string name="menu_historico">Histórico</string>
+    <string name="menu_conquistas">Conquistas</string>
+
+    <string name="top_bar_change_dark_mode">Alterar modo de tema</string>
+    <string name="dark_mode_light">Claro</string>
+    <string name="dark_mode_dark">Escuro</string>
+    <string name="dark_mode_system">Sistema</string>
+    <string name="pref_title_seasonal_theme">Tema Sazonal</string>
+    <string name="pref_title_dark_mode">Modo de Exibição</string>
+    <string name="pref_dark_mode_light">Claro</string>
+    <string name="pref_dark_mode_dark">Escuro</string>
+    <string name="pref_dark_mode_system">Padrão do Sistema</string>
+
+
+    <string name="abrir_menu_de_navegacao">Abrir menu de navegação</string>
+    <string name="mais_opcoes">Mais opções</string>
+
+    <!-- Títulos de Telas/Seções -->
+    <string name="titulo_inicio">Início</string>
+    <string name="titulo_vozes">Vozes</string>
+    <string name="titulo_poesias">Poesias</string>
+    <string name="titulo_sobre">Sobre o CatFeína</string>
+    <string name="titulo_politica_privacidade">Política de Privacidade</string>
+
+    <!-- Botões Comuns -->
+    <string name="botao_ok">OK</string>
+    <string name="botao_salvar">Salvar</string>
+    <string name="botao_cancelar">Cancelar</string>
+    <string name="botao_confirmar">Confirmar</string>
+    <string name="botao_voltar">Voltar</string>
+    <string name="botao_novo">Novo</string>
+    <string name="botao_editar">Editar</string>
+    <string name="botao_excluir">Excluir</string>
+    <string name="botao_limpar">Limpar</string>
+    <string name="botao_fechar">Fechar</string>
+    <string name="botao_pesquisar">Pesquisar</string>
+    <string name="botao_compartilhar">Compartilhar</string>
+    <string name="botao_atualizar">Atualizar</string>
+    <string name="botao_exportar_pdf">Exportar para PDF</string>
+    <string name="botao_exportar_imagem">Exportar como Imagem</string>
+
+    <!-- Tema da Aplicação -->
+    <string name="tema_do_aplicativo">Tema</string>
+    <string name="tema_escuro">Escuro</string>
+    <string name="tema_claro">Claro</string>
+    <string name="tema_padrao_sistema">Automático</string>
+    <string name="tema_atual_selecionado_descricao">Indica que este é o tema atualmente selecionado</string>
+
+    <!-- Conteúdo Específico de Poesias -->
+    <string name="label_poesia">Poesia</string>
+    <string name="categoria_poesia">Poesia</string>
+    <string name="categoria_teatro">Teatro</string>
+    <string name="label_extras">Extras</string>
+
+    <string name="marcar_como_lido">Marcar como lido</string>
+    <string name="desmarcar_como_lido">Desmarcar como lido</string>
+    <string name="marcar_favorito">Marcar como favorito</string>
+    <string name="desmarcar_favorito">Desmarcar favorito</string>
+
+    <string name="capa_da_poesia">Capa da poesia: %s</string>
+    <string name="imagem_nao_disponivel">Imagem não disponível</string>
+    <string name="nenhuma_poesia_encontrada">Nenhuma poesia encontrada.</string>
+
+    <!-- Diálogo de Exclusão (Poesias) -->
+    <string name="dialogo_confirmar_exclusao_titulo">Confirmar Exclusão</string>
+    <string name="dialogo_confirmar_exclusao_mensagem">Tem certeza que deseja excluir a poesia \"%s\"?</string>
+    <string name="excluir_poesia">Excluir poesia: %s</string>
+
+
+    <!-- Mensagens Gerais para o Usuário -->
+    <string name="mensagem_carregando">Carregando…</string>
+    <string name="mensagem_excluido_com_sucesso">Excluído com sucesso!</string>
+    <string name="mensagem_sucesso_salvar">Salvo com sucesso!</string>
+    <string name="mensagem_confirma_exclusao">Tem certeza de que deseja excluir este item?</string>
+
+    <!-- Mensagens de Erro Específicas de Poesias (CRUD e Ações) -->
+    <string name="erro_desconhecido">Ocorreu um erro desconhecido</string>
+    <string name="erro_salvar_poesia">Falha ao salvar poesia</string>
+    <string name="erro_excluir_poesia">Falha ao excluir poesia</string>
+    <string name="erro_excluir_todas_poesias">Falha ao excluir todas as poesias</string>
+    <string name="erro_marcar_favorita">Falha ao marcar como favorita</string>
+    <string name="erro_desmarcar_favorita">Falha ao desmarcar como favorita</string>
+    <string name="erro_marcar_lida">Falha ao marcar como lida</string>
+    <string name="erro_desmarcar_lida">Falha ao desmarcar como lida</string>
+
+    <!-- Mensagens de Erro Relacionadas a Imagens -->
+    <string name="erro_salvar_imagem">Falha ao salvar imagem</string>
+    <string name="erro_excluir_imagem">Falha ao excluir imagem</string>
+    <string name="erro_excluir_imagens_poesia">Falha ao excluir imagens da poesia</string>
+    <string name="erro_excluir_todas_imagens">Falha ao excluir todas as imagens</string>
+    <string name="erro_carregar_registros">Falha ao carregar registros</string>
+    <string name="mensagem_poesia_favoritada">Agora essa poesia é sua favorita</string>
+    <string name="mensagem_poesia_desfavoritada">Você desmarcou essa poesia como favorita</string>
+    <string name="mensagem_poesia_marcada_lida">Parabéns! Você terminou de ler a poesia.</string>
+    <string name="mensagem_poesia_desmarcada_lida">Oba! Você vai ler de novo mais tarde…</string>
+
+    <string name="poesia_nao_encontrada">Poesia não encontrada.</string>
+    <string name="erro_ao_carregar_detalhes">Erro ao carregar detalhes da poesia.</string>
+    <string name="poesia_marcada_favorita">Poesia marcada como favorita.</string>
+    <string name="poesia_desmarcada_favorita">Poesia desmarcada como favorita.</string>
+    <string name="erro_atualizar_favorito">Erro ao atualizar favorito.</string>
+    <string name="poesia_marcada_lida">Poesia marcada como lida.</string>
+    <string name="poesia_desmarcada_lida">Poesia desmarcada como lida.</string>
+    <string name="erro_atualizar_leitura">Erro ao atualizar status de leitura.</string>
+    <string name="detalhes_da_poesia">Detalhes da Poesia</string>
+    <string name="informacoes_adicionais">Informações Adicionais</string>
+    <string name="audio">Áudio</string>
+    <string name="video">Vídeo</string>
+    <string name="notas">Notas</string>
+    <string name="link_1">Link 1</string>
+    <string name="link_2">Link 2</string>
+
+    <string name="mascote_nome">Mascote Catshito</string>
+    <string name="ops_algo_deu_errado">Ops! Algo deu errado.</string>
+    <string name="erro_abrir_link_generico">Não foi possível abrir o link.</string>
+    <string name="tamanho_da_fonte_conteudo">Tamanho do texto</string>
+    <string name="diminuir_fonte">Diminuir o texto</string>
+    <string name="aumentar_fonte">Aumentar o texto</string>
+    <string name="selecionar_tema">Selecionar Tema</string>
+    <string name="menu_temas">Temas</string>
+    <string name="menu_atelier">Atelier</string>
+
+</resources>

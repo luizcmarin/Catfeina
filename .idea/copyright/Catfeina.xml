@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value=" Projeto: Catfeina&#10; Arquivo: &amp;#36;file.fileName&#10;&#10; Direitos autorais (c) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year Marin. Todos os direitos reservados.&#10;&#10; Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin&#10;&#10; Este arquivo faz parte do projeto Catfeina.&#10; A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte&#10; dele, é estritamente proibida.&#10;&#10; Nota: &#10;" />
+    <option name="myName" value="Catfeina" />
+  </copyright>
+</component>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Projeto: Catfeina
+  ~  Arquivo: themes.xml
+  ~
+  ~  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~
+  ~  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~
+  ~  Este arquivo faz parte do projeto Catfeina.
+  ~  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~  dele, é estritamente proibida.
+  ~
+  ~  Nota:
+  ~
+  -->
+
+<!--
+  ~
+  ~  Projeto: Catfeina
+  ~  Arquivo: themes.xml
+  ~
+  ~  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~
+  ~  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~
+  ~  Este arquivo faz parte do projeto Catfeina.
+  ~  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~  dele, é estritamente proibida.
+  ~
+  ~  Nota:
+  ~
+  ~
+  -->
+
+<!--
+  ~ // ===================================================================================
+  ~ //  Projeto: Catfeina
+  ~ //  Arquivo: themes.xml
+  ~ //
+  ~ //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~ //
+  ~ //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~ //
+  ~ //  Este arquivo faz parte do projeto Catfeina.
+  ~ //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~ //  dele, é estritamente proibida.
+  ~ // ===================================================================================
+  ~ //  Nota:
+  ~ //
+  ~ //
+  ~ // ===================================================================================
+  ~
+  -->
+
+<resources>
+
+    <style name="Theme.Catfeina" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- NOVO: Tema do Splash Screen -->
+    <style name="Theme.Catfeina.Splash" parent="Theme.SplashScreen">
+        <!-- Cor de fundo do splash screen -->
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+
+        <!-- Ícone que aparecerá no centro (use seu ícone de launcher) -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+
+        <!-- Tema para o qual o app irá transicionar após o splash -->
+        <item name="postSplashScreenTheme">@style/Theme.Catfeina</item>
+    </style>
+</resources>
