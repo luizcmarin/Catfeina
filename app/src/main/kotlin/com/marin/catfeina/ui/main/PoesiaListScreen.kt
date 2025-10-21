@@ -65,7 +65,7 @@ fun PoesiaListScreen(
         ) {
             CatAnimation(
                 modifier = Modifier.size(200.dp),
-                animationResId = R.raw.cat_carregando
+                animationResId = R.raw.cat_aguarde
             )
         }
     } else if (uiState.todasAsPoesias.isEmpty()) {
@@ -75,7 +75,6 @@ fun PoesiaListScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Nenhuma poesia encontrada.")
-                Text(text = "Total de poesias no banco de dados: ${uiState.poesiasCount}")
             }
         }
     } else {
@@ -116,7 +115,7 @@ fun PoesiaListScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(poesia.titulo, fontWeight = FontWeight.Bold)
                             Text(
-                                text = poesia.texto,
+                                text = poesia.textoBase,
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis

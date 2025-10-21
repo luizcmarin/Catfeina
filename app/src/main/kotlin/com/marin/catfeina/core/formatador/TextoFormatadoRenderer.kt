@@ -10,63 +10,13 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
- *
+ *  Nota: Este arquivo é o coração da camada de apresentação de texto formatado. Ele contém
+ *        a lógica para desenhar parágrafos, cabeçalhos, imagens, citações e outros
+ *        elementos. O `RenderizarElementoConteudo` itera sobre os dados processados
+ *        pelo `ParserTextoFormatado` e aplica os estilos, anotações de link e
+ *        interações (como tooltips) correspondentes, garantindo que o texto seja
+ *        exibido de forma rica e interativa.
  */
-
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: TextoFormatadoRenderer.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: TextoFormatadoRenderer.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.TextoFormatadoRenderer.kt
-//
-// Descrição: Composable responsável por renderizar uma lista de `ElementoConteudo`
-//            na interface do usuário (UI), traduzindo a estrutura lógica do texto
-//            em componentes visuais do Jetpack Compose.
-//
-// Propósito:
-// Este arquivo é o coração da camada de apresentação de texto formatado. Ele contém
-// a lógica para desenhar parágrafos, cabeçalhos, imagens, citações e outros
-// elementos. O `RenderizarElementoConteudo` itera sobre os dados processados
-// pelo `ParserTextoFormatado` e aplica os estilos, anotações de link e
-// interações (como tooltips) correspondentes, garantindo que o texto seja
-// exibido de forma rica e interativa.
-// ===================================================================================
 
 package com.marin.catfeina.core.formatador
 

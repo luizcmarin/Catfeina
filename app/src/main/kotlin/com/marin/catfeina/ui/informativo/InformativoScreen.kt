@@ -169,7 +169,7 @@ fun InformativoScreen(
                     .fillMaxWidth()
                     .height(150.dp)
                     .padding(vertical = 16.dp),
-                animationResId = R.raw.cat_carregando
+                animationResId = R.raw.cat_aguarde
             )
         }
 

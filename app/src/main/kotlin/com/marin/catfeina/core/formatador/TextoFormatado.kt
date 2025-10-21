@@ -10,60 +10,12 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
- *
+ *  Nota: Este é o ponto de entrada principal para exibir texto formatado na UI. Ele
+ *        recebe o texto cru, utiliza o `ParserTextoFormatado` para dividi-lo em uma
+ *        lista de `ElementoConteudo` e, em seguida, itera sobre essa lista, delegando
+ *        a renderização de cada elemento individual para o `RenderizarElementoConteudo`.
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: TextoFormatado.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: TextoFormatado.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.TextoFormatado.kt
-//
-// Descrição: Composable de alto nível que orquestra o parsing e a renderização
-//            de texto formatado.
-//
-// Propósito:
-// Este é o ponto de entrada principal para exibir texto formatado na UI. Ele
-// recebe o texto cru, utiliza o `ParserTextoFormatado` para dividi-lo em uma
-// lista de `ElementoConteudo` e, em seguida, itera sobre essa lista, delegando
-// a renderização de cada elemento individual para o `RenderizarElementoConteudo`.
-// ===================================================================================
 package com.marin.catfeina.core.formatador
 
 import androidx.compose.foundation.layout.Column

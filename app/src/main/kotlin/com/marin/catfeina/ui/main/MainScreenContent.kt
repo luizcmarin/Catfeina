@@ -80,7 +80,7 @@ fun MainScreenContent(
         ) {
             CatAnimation(
                 modifier = Modifier.size(200.dp),
-                animationResId = R.raw.cat_carregando
+                animationResId = R.raw.cat_aguarde
             )
         }
     } else {
@@ -140,7 +140,7 @@ private fun PoesiaDestaque(poesia: GetPoesiaAleatoria, onPoesiaClick: () -> Unit
                     crossfade(true)
                 },
                 contentDescription = poesia.titulo,
-                modifier = Modifier.size(120.dp),
+                modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.Crop
             )
             Spacer(Modifier.height(16.dp))
@@ -200,7 +200,7 @@ private fun BlocoPoesias(poesias: List<GetPoesiasCompletas>, onPoesiaClick: (Lon
                 onClick = { onPoesiaClick(poesia.id) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(vertical = 4.dp)
             ) {
                 Row(
                     modifier = Modifier.padding(12.dp),
@@ -224,15 +224,11 @@ private fun BlocoPoesias(poesias: List<GetPoesiasCompletas>, onPoesiaClick: (Lon
 
                     Spacer(Modifier.width(16.dp))
 
+                    // Coluna para o título e subtítulo
                     Column(modifier = Modifier.weight(1f)) {
+                        Text(poesia.titulo, fontWeight = FontWeight.Bold)
                         Text(
-                            text = poesia.titulo,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = poesia.texto,
+                            text = poesia.textoBase,
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -241,6 +237,7 @@ private fun BlocoPoesias(poesias: List<GetPoesiasCompletas>, onPoesiaClick: (Lon
 
                     Spacer(Modifier.width(16.dp))
 
+                    // Ícones de estado
                     if (poesia.isFavorito == 1L) {
                         Icon(
                             imageVector = Icones.FavoritoCheio,
@@ -256,6 +253,7 @@ private fun BlocoPoesias(poesias: List<GetPoesiasCompletas>, onPoesiaClick: (Lon
                             contentDescription = "Já Lido",
                             tint = MaterialTheme.colorScheme.secondary
                         )
+                        Spacer(Modifier.width(8.dp))
                     }
                 }
             }

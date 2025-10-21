@@ -14,50 +14,13 @@
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: UserPreferencesRepository.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: UserPreferencesRepository.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
 package com.marin.catfeina.core.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.marin.catfeina.core.temas.ThemeModelKey
 import kotlinx.coroutines.flow.Flow
@@ -72,11 +35,11 @@ class UserPreferencesRepository @Inject constructor(private val dataStore: DataS
         val ONBOARDING_COMPLETO = booleanPreferencesKey("onboarding_completo")
         val SELECTED_THEME_KEY = stringPreferencesKey("selected_theme_key")
         val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
+        val TEXT_SIZE = floatPreferencesKey("text_size")
+        val IS_FULL_SCREEN = booleanPreferencesKey("is_full_screen")
     }
 
-    val onboardingCompleto: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.ONBOARDING_COMPLETO] ?: false
-    }
+    val onboardingCompleto: Flow<Boolean> = dataStore.data.map { it[Keys.ONBOARDING_COMPLETO] ?: false }
 
     val selectedThemeKey: Flow<ThemeModelKey> = dataStore.data.map { preferences ->
         val keyName = preferences[Keys.SELECTED_THEME_KEY] ?: ThemeModelKey.VERAO.name
@@ -87,25 +50,29 @@ class UserPreferencesRepository @Inject constructor(private val dataStore: DataS
         }
     }
 
-    val isDarkMode: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.IS_DARK_MODE] ?: false
-    }
+    val isDarkMode: Flow<Boolean> = dataStore.data.map { it[Keys.IS_DARK_MODE] ?: false }
+
+    val textSize: Flow<Float> = dataStore.data.map { it[Keys.TEXT_SIZE] ?: 0.5f }
+
+    val isFullScreen: Flow<Boolean> = dataStore.data.map { it[Keys.IS_FULL_SCREEN] ?: false }
 
     suspend fun setOnboardingCompleto(isCompleto: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.ONBOARDING_COMPLETO] = isCompleto
-        }
+        dataStore.edit { it[Keys.ONBOARDING_COMPLETO] = isCompleto }
     }
 
     suspend fun setSelectedThemeKey(themeKey: ThemeModelKey) {
-        dataStore.edit { preferences ->
-            preferences[Keys.SELECTED_THEME_KEY] = themeKey.name
-        }
+        dataStore.edit { it[Keys.SELECTED_THEME_KEY] = themeKey.name }
     }
 
     suspend fun setDarkMode(isDarkMode: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.IS_DARK_MODE] = isDarkMode
-        }
+        dataStore.edit { it[Keys.IS_DARK_MODE] = isDarkMode }
+    }
+
+    suspend fun setTextSize(size: Float) {
+        dataStore.edit { it[Keys.TEXT_SIZE] = size }
+    }
+
+    suspend fun setIsFullScreen(isFullScreen: Boolean) {
+        dataStore.edit { it[Keys.IS_FULL_SCREEN] = isFullScreen }
     }
 }

@@ -46,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -96,7 +95,7 @@ fun MenuDrawerContent(
                     color = DividerDefaults.color
                 )
             }
-            item { TextSettingsSection() }
+            item { TextSettingsSection(temasViewModel) }
             item {
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 16.dp),
@@ -257,9 +256,8 @@ private fun ThemeSettingsSection(viewModel: TemasViewModel) {
 }
 
 @Composable
-private fun TextSettingsSection() {
-    var textSize by remember { mutableFloatStateOf(0.5f) }
-    var isFullScreen by remember { mutableStateOf(false) }
+private fun TextSettingsSection(viewModel: TemasViewModel) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text("Configurações de texto", style = MaterialTheme.typography.titleSmall)
@@ -270,8 +268,8 @@ private fun TextSettingsSection() {
         ) {
             Text("A", fontSize = 12.sp)
             Slider(
-                value = textSize,
-                onValueChange = { textSize = it },
+                value = uiState.textSize,
+                onValueChange = { viewModel.onTextSizeChange(it) },
                 modifier = Modifier.weight(1f)
             )
             Text("A", fontSize = 20.sp)
@@ -279,7 +277,10 @@ private fun TextSettingsSection() {
         ListItem(
             headlineContent = { Text("Tela inteira") },
             trailingContent = {
-                Switch(checked = isFullScreen, onCheckedChange = { isFullScreen = it })
+                Switch(
+                    checked = uiState.isFullScreen,
+                    onCheckedChange = { viewModel.onFullScreenChange(it) }
+                )
             }
         )
     }

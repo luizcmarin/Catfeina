@@ -14,44 +14,6 @@
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: TemasViewModel.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: TemasViewModel.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
 package com.marin.catfeina.ui.temas
 
 import androidx.lifecycle.ViewModel
@@ -70,7 +32,9 @@ import javax.inject.Inject
 data class TemasUiState(
     val temasDisponiveis: Map<ThemeModelKey, ThemeModel> = emptyMap(),
     val temaAtualKey: ThemeModelKey = ThemeModelKey.VERAO,
-    val isDarkMode: Boolean = false
+    val isDarkMode: Boolean = false,
+    val textSize: Float = 0.5f,
+    val isFullScreen: Boolean = false
 )
 
 @HiltViewModel
@@ -78,16 +42,19 @@ open class TemasViewModel @Inject constructor(
     val gerenciadorTemas: GerenciadorTemas
 ) : ViewModel() {
 
-    // A inicialização agora é "preguiçosa" (lazy)
     open val uiState: StateFlow<TemasUiState> by lazy {
         combine(
             gerenciadorTemas.currentThemeKey,
-            gerenciadorTemas.isDarkMode
-        ) { themeKey, isDark ->
+            gerenciadorTemas.isDarkMode,
+            gerenciadorTemas.textSize,
+            gerenciadorTemas.isFullScreen
+        ) { themeKey, isDark, size, isFull ->
             TemasUiState(
                 temasDisponiveis = gerenciadorTemas.getAvailableThemes(),
                 temaAtualKey = themeKey,
-                isDarkMode = isDark
+                isDarkMode = isDark,
+                textSize = size,
+                isFullScreen = isFull
             )
         }.stateIn(
             scope = viewModelScope,
@@ -108,6 +75,18 @@ open class TemasViewModel @Inject constructor(
     fun onDarkModeChange(isDarkMode: Boolean) {
         viewModelScope.launch {
             gerenciadorTemas.setDarkMode(isDarkMode)
+        }
+    }
+
+    fun onTextSizeChange(size: Float) {
+        viewModelScope.launch {
+            gerenciadorTemas.setTextSize(size)
+        }
+    }
+
+    fun onFullScreenChange(isFullScreen: Boolean) {
+        viewModelScope.launch {
+            gerenciadorTemas.setFullScreen(isFullScreen)
         }
     }
 }
