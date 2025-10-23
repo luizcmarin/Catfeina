@@ -1,8 +1,0 @@
-blank_issues_enabled: true
-contact_links:
-  - name: Discussões sobre o Catfeina
-    url: ${{ github.repository_url }}/discussions
-    about: Faça perguntas gerais, compartilhe ideias ou discuta sobre o Catfeina.
-  - name: Stack Overflow (para desenvolvimento Android/Kotlin)
-    url: https://stackoverflow.com/questions/tagged/kotlin+android
-    about: Para dúvidas sobre como programar com Kotlin e Android.
