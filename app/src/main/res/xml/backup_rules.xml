@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~  Projeto: Catfeina
+  ~  Arquivo: backup_rules.xml
+  ~
+  ~  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~
+  ~  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~
+  ~  Este arquivo faz parte do projeto Catfeina.
+  ~  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~  dele, é estritamente proibida.
+  ~
+  ~  Nota:
+  ~
+  -->
+
+<!--
+  ~
+  ~  Projeto: Catfeina
+  ~  Arquivo: backup_rules.xml
+  ~
+  ~  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~
+  ~  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~
+  ~  Este arquivo faz parte do projeto Catfeina.
+  ~  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~  dele, é estritamente proibida.
+  ~
+  ~  Nota:
+  ~
+  ~
+  -->
+
+<!--
+  ~ // ===================================================================================
+  ~ //  Projeto: Catfeina
+  ~ //  Arquivo: backup_rules.xml
+  ~ //
+  ~ //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+  ~ //
+  ~ //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+  ~ //
+  ~ //  Este arquivo faz parte do projeto Catfeina.
+  ~ //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+  ~ //  dele, é estritamente proibida.
+  ~ // ===================================================================================
+  ~ //  Nota:
+  ~ //
+  ~ //
+  ~ // ===================================================================================
+  ~
+  -->
+
+<!--
+   Sample backup rules file; uncomment and customize as necessary.
+   See https://developer.android.com/guide/topics/data/autobackup
+   for details.
+   Note: This file is ignored for devices older than API 31
+   See https://developer.android.com/about/versions/12/backup-restore
+-->
+<full-backup-content>
+    <!--
+   <include domain="sharedpref" path="."/>
+   <exclude domain="sharedpref" path="device.xml"/>
+-->
+</full-backup-content>

@@ -1,0 +1,30 @@
+# .github/workflows/first-interaction.yml
+name: First Interaction Greeting (Bilingual)
+  yml
+# .github/workflows/first-interaction.ymlname: First Interaction Greeting
+
+on:
+  issues:
+    types: [ opened ]
+  pull_request_target:
+    types: [ opened ]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  greet:
+    name: "Greet New Contributor"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Greet on first issue or PR
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            👋 Olá @${{ github.actor }}! Obrigado por abrir sua primeira issue no Catfeina. / Thanks for opening your first issue!
+            Agradecemos sua contribuição. / We appreciate your contribution.
+          pr-message: |
+            🎉 Olá @${{ github.actor }}! Obrigado pelo seu primeiro Pull Request! / Thank you for your first Pull Request!
+            Certifique-se de que leu nosso [Guia de Contribuição](https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md). / Please make sure you've read our [Contribution Guide](https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md).

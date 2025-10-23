@@ -1,0 +1,50 @@
+name: Sugestão de Nova Funcionalidade para o Catfeina
+description: Tem uma ideia para melhorar o Catfeina ou uma nova funcionalidade?
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por suas ideias para o Catfeina!
+        Antes de submeter, por favor, verifique se já não existe uma sugestão similar aberta.
+  - type: textarea
+    attributes:
+      label: Qual problema esta funcionalidade resolveria?
+      description: |
+        Descreva o caso de uso ou o problema que você está enfrentando que
+        esta nova funcionalidade ajudaria a solucionar.
+        Por que esta funcionalidade seria útil para os usuários do Catfeina?
+      placeholder: |
+        Ex: Atualmente, não consigo categorizar meus poemas por tema, o que dificulta encontrá-los.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Descreva a Funcionalidade Proposta
+      description: |
+        Como você imagina que esta funcionalidade funcionaria?
+        Se possível, descreva a experiência do usuário.
+        Você pode incluir rascunhos, links para exemplos em outros apps, etc.
+      placeholder: |
+        Ex: Gostaria de uma opção na tela de edição de poemas para adicionar tags ou escolher categorias predefinidas. Na lista de poemas, deveria haver um filtro por essas tags/categorias.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Alternativas Consideradas (se houver)
+      description: Você pensou em outras formas de resolver o problema ou alguma solução temporária que está usando?
+      placeholder: |
+        Ex: Tentei usar prefixos no título dos poemas, mas não é prático.
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: Qual a importância desta funcionalidade para você?
+      description: (Opcional)
+      options:
+        - label: Crítica - Essencial para meu uso do aplicativo.
+        - label: Alta - Melhoraria significativamente minha experiência.
+        - label: Média - Seria legal ter.
+        - label: Baixa - Apenas uma ideia, não tão importante.
+    validations:
+      required: false
+

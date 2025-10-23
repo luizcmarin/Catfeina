@@ -1,0 +1,68 @@
+name: Sync CHANGELOG.md from Stable to Main
+
+on:
+  push:
+    branches: [ stable ]
+    paths:
+      - 'CHANGELOG.md'
+
+jobs:
+  sync-changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4 # Usando v4 que é a mais recente
+        with:
+          ref: main
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create sync branch
+        id: vars
+        run: |
+          BRANCH_NAME="bot/sync-changelog-$(date +%s)"
+          echo "branch_name=${BRANCH_NAME}" >> "$GITHUB_OUTPUT"
+          git checkout -b $BRANCH_NAME
+
+      - name: Merge CHANGELOG.md from stable
+        run: |
+          # Busca o branch stable para ter a referência localmente
+          git fetch origin stable
+          # Faz o merge usando a estratégia "ours" para tudo, exceto para o CHANGELOG.md
+          # E para o CHANGELOG.md, usa a estratégia "theirs", ou seja, aceita a versão do branch 'stable'
+          git merge origin/stable -s ours -m "Merge from stable"
+          git checkout origin/stable -- CHANGELOG.md
+
+      - name: Commit and Push if changes exist
+        id: commit_push
+        run: |
+          # Se não houver mudanças no CHANGELOG.md, o git status estará limpo
+          if git diff --quiet; then
+            echo "No changes to CHANGELOG.md. Skipping."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            git add CHANGELOG.md
+            git commit -m "chore: Sync CHANGELOG.md from stable"
+            git push origin ${{ steps.vars.outputs.branch_name }}
+          fi
+
+      - name: Create Pull Request
+        if: steps.commit_push.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_BRANCH: ${{ steps.vars.outputs.branch_name }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "$PR_BRANCH" \
+            --title "Chore: Sync CHANGELOG.md from stable" \
+            --body "Automated PR to sync \`CHANGELOG.md\` from the \`stable\` branch to \`main\`." \
+            --label "chore"
