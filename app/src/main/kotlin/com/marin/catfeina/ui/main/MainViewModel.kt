@@ -19,13 +19,12 @@ package com.marin.catfeina.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.core.data.repository.SincronizacaoRepository
-import com.marin.catfeina.ui.main.SyncState
+import com.marin.catfeina.core.ui.SyncState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,6 +34,8 @@ class MainViewModel @Inject constructor(
 
     private val _syncState = MutableStateFlow<SyncState>(SyncState.Ocioso)
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
+    private val _syncStatusMessage = MutableStateFlow<String?>(null)
+    val syncStatusMessage: StateFlow<String?> = _syncStatusMessage
 
     fun iniciarSincronizacao() {
         // Não inicia uma nova sincronização se uma já estiver em andamento.
@@ -42,20 +43,24 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             _syncState.value = SyncState.Executando
-            try {
-                sincronizacaoRepository.executarSincronizacao()
-                _syncState.value = SyncState.Sucesso("Dados sincronizados com sucesso!")
-            } catch (e: Exception) {
-                Timber.e(e, "Falha ao executar a sincronização a partir do ViewModel")
-                _syncState.value = SyncState.Falha("Falha ao sincronizar os dados.")
-            }
+
+            // Coleta as mensagens do fluxo do repositório e as envia para a UI.
+            sincronizacaoRepository.executarSincronizacao()
+                .collect { mensagem ->
+                    _syncStatusMessage.value = mensagem
+                }
+
+            // Ao final da coleta, a sincronização terminou (com sucesso ou falha).
+            // A mensagem final já foi enviada. Agora, apenas resetamos o estado do ícone.
+            _syncState.value = SyncState.Ocioso
         }
     }
 
     /**
-     * Reseta o estado da UI para Ocioso, permitindo que o usuário veja o ícone novamente.
+     * Limpa a mensagem de status da sincronização para que não seja exibida novamente.
+     * Deve ser chamado pela UI após a mensagem ter sido mostrada (ex: em um Snackbar).
      */
-    fun resetarSyncState() {
-        _syncState.value = SyncState.Ocioso
+    fun limparMensagemSincronizacao() {
+        _syncStatusMessage.value = null
     }
 }

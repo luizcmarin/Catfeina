@@ -14,48 +14,13 @@
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: SincronizacaoRepository.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: SincronizacaoRepository.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
 package com.marin.catfeina.core.data.repository
 
 import android.content.Context
 import com.marin.catfeina.BuildConfig
+import com.marin.catfeina.core.sync.AtelierSync
+import com.marin.catfeina.core.sync.InformativoSync
+import com.marin.catfeina.core.sync.PersonagemSync
 import com.marin.catfeina.core.sync.PoesiaSync
 import com.marin.catfeina.core.sync.SyncManifest
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -68,7 +33,9 @@ import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.copyAndClose
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import timber.log.Timber
@@ -84,52 +51,54 @@ class SincronizacaoRepository @Inject constructor(
     private val httpClient: HttpClient,
     private val json: Json,
     private val preferenciasRepository: PreferenciasUsuarioRepository,
-    private val poesiaRepository: PoesiaRepository
+    private val poesiaRepository: PoesiaRepository,
+    private val atelierRepository: AtelierRepository,
+    private val informativoRepository: InformativoRepository,
+    private val personagemRepository: PersonagemRepository
 ) {
 
-    suspend fun executarSincronizacao() {
-        Timber.i("Iniciando tarefa de sincronização de dados...")
-
+    /**
+     * Executa a sincronização e emite mensagens de status para a UI.
+     * @return Um Flow de Strings com as mensagens de progresso.
+     */
+    fun executarSincronizacao(): Flow<String> = flow {
         val zipFile = File(appContext.cacheDir, BuildConfig.SYNC_ZIP_FILE_NAME)
         val pastaDestino = File(appContext.cacheDir, "sync_temp")
 
         try {
-            Timber.d("Passo 1: Iniciando download...")
+            emit("Iniciando sincronização...")
+
+            emit("Baixando novos dados...")
             downloadArquivo(BuildConfig.SYNC_URL, zipFile)
-            Timber.d("Passo 1: Download concluído.")
 
-            Timber.d("Passo 2: Iniciando descompactação...")
+            emit("Preparando arquivos...")
             descompactarArquivo(zipFile, pastaDestino)
-            Timber.d("Passo 2: Descompactação concluída.")
 
-            Timber.d("Passo 3: Iniciando leitura do manifesto...")
+            emit("Verificando atualizações...")
             val manifesto = lerManifesto(pastaDestino)
-            Timber.i("Manifesto lido com sucesso: Versão=${manifesto.versao}, Nota='${manifesto.nota}'")
-            Timber.d("Passo 3: Leitura do manifesto concluída.")
 
-            Timber.d("Passo 4: Iniciando verificação de versão...")
             val ultimaSincronizacaoLocal = preferenciasRepository.ultimaSincronizacao.first()
-//            if (manifesto.versao <= ultimaSincronizacaoLocal) {
-//                Timber.i("Dados locais já estão atualizados. Versão local: $ultimaSincronizacaoLocal, Versão remota: ${manifesto.versao}. Sincronização não necessária.")
-//                return
-//            }
-            Timber.i("Nova versão de dados encontrada. Local: $ultimaSincronizacaoLocal, Remota: ${manifesto.versao}. Prosseguindo...")
-            Timber.d("Passo 4: Verificação de versão concluída.")
+            if (manifesto.versao <= ultimaSincronizacaoLocal) {
+                emit("Seus dados já estão atualizados.")
+                // Encerra o fluxo se não houver nada a fazer.
+                return@flow
+            }
 
-            Timber.d("Passo 5: Iniciando processamento dos dados...")
+            emit("Nova versão encontrada. Atualizando...")
             processarDados(pastaDestino, manifesto)
-            Timber.d("Passo 5: Processamento dos dados concluído.")
 
-            Timber.d("Passo 6: Iniciando processamento das imagens...")
+            emit("Atualizando imagens...")
             processarImagens(pastaDestino)
-            Timber.d("Passo 6: Processamento das imagens concluído.")
-            
-            Timber.d("Passo 8: Iniciando salvamento do timestamp...")
-            preferenciasRepository.salvarUltimaSincronizacao(manifesto.versao)
-            Timber.i("Timestamp da nova versão (${manifesto.versao}) salvo com sucesso.")
-            Timber.d("Passo 8: Salvamento do timestamp concluído.")
 
-            Timber.i("Sincronização concluída com sucesso!")
+            emit("Finalizando...")
+            preferenciasRepository.salvarUltimaSincronizacao(manifesto.versao)
+
+            emit("Sincronização concluída!")
+
+        } catch (e: Exception) {
+            Timber.e(e, "Falha na sincronização")
+            // Emite uma mensagem de erro para ser exibida ao usuário.
+            emit("Erro na sincronização: ${e.message ?: "Verifique sua conexão."}")
         } finally {
             Timber.d("Iniciando limpeza de arquivos temporários...")
             if (zipFile.exists()) zipFile.delete()
@@ -156,7 +125,10 @@ class SincronizacaoRepository @Inject constructor(
         }
     }
 
-    private suspend fun descompactarArquivo(arquivoZip: File, pastaDestino: File) {
+    private suspend fun descompactarArquivo(
+        arquivoZip: File,
+        pastaDestino: File
+    ) {
         withContext(Dispatchers.IO) {
             Timber.d("Descompactando ${arquivoZip.name} para ${pastaDestino.absolutePath}")
             if (pastaDestino.exists()) {
@@ -195,7 +167,8 @@ class SincronizacaoRepository @Inject constructor(
 
     private suspend fun lerManifesto(pastaManifesto: File): SyncManifest {
         return withContext(Dispatchers.IO) {
-            val arquivoManifesto = File(pastaManifesto, BuildConfig.SYNC_MANIFEST_NAME)
+            val arquivoManifesto =
+                File(pastaManifesto, BuildConfig.SYNC_MANIFEST_NAME)
             if (!arquivoManifesto.exists()) {
                 throw IOException("Arquivo de manifesto não encontrado na pasta de sincronização.")
             }
@@ -204,7 +177,10 @@ class SincronizacaoRepository @Inject constructor(
         }
     }
 
-    private suspend fun processarDados(pastaRaizSync: File, manifesto: SyncManifest) {
+    private suspend fun processarDados(
+        pastaRaizSync: File,
+        manifesto: SyncManifest
+    ) {
         val pastaDados = File(pastaRaizSync, BuildConfig.SYNC_DATA_FOLDER_NAME)
         if (!pastaDados.exists() || !pastaDados.isDirectory) {
             Timber.w("Pasta de dados não encontrada. Pulando etapa de processamento de dados.")
@@ -219,15 +195,40 @@ class SincronizacaoRepository @Inject constructor(
             }
 
             Timber.d("Processando arquivo de dados: $nomeArquivo")
-            val conteudoJson = withContext(Dispatchers.IO) { arquivoJson.readText() }
+            val conteudoJson =
+                withContext(Dispatchers.IO) { arquivoJson.readText() }
 
             when (nomeArquivo) {
                 "poesias.json" -> {
-                    val poesias = json.decodeFromString<List<PoesiaSync>>(conteudoJson)
+                    val poesias =
+                        json.decodeFromString<List<PoesiaSync>>(conteudoJson)
                     poesiaRepository.upsertPoesias(poesias)
                     Timber.i("${poesias.size} poesias foram inseridas/atualizadas.")
                 }
-                // TODO: Adicionar cases para outros arquivos de dados (personagens.json, etc.)
+
+                "atelier.json" -> {
+                    val ateliers =
+                        json.decodeFromString<List<AtelierSync>>(conteudoJson)
+                    atelierRepository.upsertAteliers(ateliers)
+                    Timber.i("${ateliers.size} notas do atelier foram inseridas/atualizadas.")
+                }
+
+                "informativos.json" -> {
+                    val informativos =
+                        json.decodeFromString<List<InformativoSync>>(
+                            conteudoJson
+                        )
+                    informativoRepository.upsertInformativos(informativos)
+                    Timber.i("${informativos.size} informativos foram inseridos/atualizados.")
+                }
+
+                "personagens.json" -> {
+                    val personagens =
+                        json.decodeFromString<List<PersonagemSync>>(conteudoJson)
+                    personagemRepository.upsertPersonagens(personagens)
+                    Timber.i("${personagens.size} personagens foram inseridos/atualizados.")
+                }
+
                 else -> {
                     Timber.w("Processamento para o arquivo '${nomeArquivo}' não implementado.")
                 }
@@ -237,13 +238,15 @@ class SincronizacaoRepository @Inject constructor(
 
     private suspend fun processarImagens(pastaRaizSync: File) {
         withContext(Dispatchers.IO) {
-            val pastaImagensOrigem = File(pastaRaizSync, BuildConfig.SYNC_IMAGE_FOLDER_NAME)
+            val pastaImagensOrigem =
+                File(pastaRaizSync, BuildConfig.SYNC_IMAGE_FOLDER_NAME)
             if (!pastaImagensOrigem.exists() || !pastaImagensOrigem.isDirectory) {
                 Timber.w("Pasta de imagens não encontrada no pacote de sincronização. Pulando etapa.")
                 return@withContext
             }
 
-            val pastaImagensDestino = File(appContext.filesDir, BuildConfig.SYNC_IMAGE_FOLDER_NAME)
+            val pastaImagensDestino =
+                File(appContext.filesDir, BuildConfig.SYNC_IMAGE_FOLDER_NAME)
             if (!pastaImagensDestino.exists()) {
                 pastaImagensDestino.mkdirs()
             }

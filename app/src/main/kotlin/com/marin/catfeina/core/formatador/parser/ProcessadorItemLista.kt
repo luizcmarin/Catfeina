@@ -10,60 +10,18 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Processador de tag especializado em converter tags de item de lista
+ *        (ex: {li|Texto do item com {n|negrito}}).
+ *
+ *  Propósito:
+ *  Esta classe isola a lógica para lidar com tags de itens de lista. Ela tem a
+ *  capacidade única de invocar uma instância do `ParserTextoFormatado`
+ *  para analisar o conteúdo *dentro* da tag {li|...}. Isso permite que itens
+ *  de lista contenham suas próprias formatações em linha (negrito, links, etc.),
+ *  criando uma estrutura de dados rica que será corretamente renderizada na UI.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ProcessadorItemLista.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ProcessadorItemLista.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================// Arquivo: com.marin.catfeina.core.formatador.parser.ProcessadorItemLista.kt
-//
-// Descrição: Processador de tag especializado em converter tags de item de lista
-//            (ex: {li|Texto do item com {n|negrito}}).
-//
-// Propósito:
-// Esta classe isola a lógica para lidar com tags de itens de lista. Ela tem a
-// capacidade única de invocar uma instância do `ParserTextoFormatado`
-// para analisar o conteúdo *dentro* da tag {li|...}. Isso permite que itens
-// de lista contenham suas próprias formatações em linha (negrito, links, etc.),
-// criando uma estrutura de dados rica que será corretamente renderizada na UI.
-// ===================================================================================
 package com.marin.catfeina.core.formatador.parser
 
 import com.marin.catfeina.core.formatador.ElementoConteudo

@@ -10,61 +10,18 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Processador de tag que lida com múltiplas tags de formatação de
+ *        estilo em linha (negrito, itálico, sublinhado, destaque).
+ *
+ *  Propósito:
+ *  Esta classe agrega a lógica para várias tags simples que resultam em uma
+ *  `AplicacaoSpanStyle`. Em vez de criar um arquivo para cada tag ({n|...},
+ *  {i|...}, etc.), este processador centraliza a conversão, tornando o sistema
+ *  mais conciso. Ele é registrado no `ParserModule` e converte o conteúdo da
+ *  tag em uma formatação que será aplicada a um trecho do parágrafo.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ProcessadorEstiloSimples.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ProcessadorEstiloSimples.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.parser.ProcessadorEstiloSimples.kt
-//
-// Descrição: Processador de tag que lida com múltiplas tags de formatação de
-//            estilo em linha (negrito, itálico, sublinhado, destaque).
-//
-// Propósito:
-// Esta classe agrega a lógica para várias tags simples que resultam em uma
-// `AplicacaoSpanStyle`. Em vez de criar um arquivo para cada tag ({n|...},
-// {i|...}, etc.), este processador centraliza a conversão, tornando o sistema
-// mais conciso. Ele é registrado no `ParserModule` e converte o conteúdo da
-// tag em uma formatação que será aplicada a um trecho do parágrafo.
-// ===================================================================================
 package com.marin.catfeina.core.formatador.parser
 
 import androidx.compose.ui.text.font.FontStyle

@@ -17,11 +17,12 @@
 
 package com.marin.catfeina.core.utils
 
+import android.text.format.DateUtils
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 val PT_BR_LOCALE: Locale = Locale.Builder().setLanguage("pt").setRegion("BR").build()
-val USER_PREFERENCES_NAME = "catfeina_user_preferences"
-
 
 /**
  * Enum para categorizar os tipos de poesia.
@@ -44,3 +45,36 @@ enum class TipoConteudoEnum {
     PERSONAGEM,
     INFORMATIVO
 }
+
+/**
+ * Converte um timestamp (Long) em uma string de data formatada.
+ *
+ * Transforma um valor de tempo Unix (em milissegundos) em uma data legível no
+ * formato "dd/MM/yyyy". Se o timestamp for inválido, retorna "Data inválida".
+ *
+ * @receiver Long O timestamp em milissegundos desde a época Unix.
+ * @return A data formatada como String ou "Data inválida" em caso de erro.
+ */
+fun Long.formataComoData(): String {
+    return try {
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val netDate = Date(this)
+        sdf.format(netDate)
+    } catch (e: Exception) {
+        "Data inválida"
+    }
+}
+
+/**
+ * Formata um timestamp (em milissegundos) como uma string de tempo relativo.
+ * Ex: "há 5 minutos", "ontem", "em 2 horas".
+ */
+fun Long.formataTempoRelativo(): String {
+    val now = System.currentTimeMillis()
+    return DateUtils.getRelativeTimeSpanString(
+        this,
+        now,
+        DateUtils.MINUTE_IN_MILLIS
+    ).toString()
+}
+

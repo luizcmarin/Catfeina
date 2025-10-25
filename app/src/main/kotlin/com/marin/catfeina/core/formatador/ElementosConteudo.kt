@@ -10,61 +10,17 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Define as classes de dados e interfaces que representam a estrutura
+ *        lógica de um texto formatado, após ser processado pelo parser.
+ *
+ * Propósito:
+ * Este arquivo é fundamental para a arquitetura do parser. Ele desacopla a lógica
+ * de análise da lógica de renderização. O `ParserTextoFormatado` converte o
+ * texto cru em uma lista de `ElementoConteudo` (Parágrafo, Imagem, etc.).
+ * O `TextoFormatadoRenderer` então consome essa lista para construir a UI em
+ * Jetpack Compose, sem precisar entender a sintaxe das tags originais.
  *
  */
-
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ElementosConteudo.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ElementosConteudo.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.ElementosConteudo.kt
-//
-// Descrição: Define as classes de dados e interfaces que representam a estrutura
-//            lógica de um texto formatado, após ser processado pelo parser.
-//
-// Propósito:
-// Este arquivo é fundamental para a arquitetura do parser. Ele desacopla a lógica
-// de análise da lógica de renderização. O `ParserTextoFormatado` converte o
-// texto cru em uma lista de `ElementoConteudo` (Parágrafo, Imagem, etc.).
-// O `TextoFormatadoRenderer` então consome essa lista para construir a UI em
-// Jetpack Compose, sem precisar entender a sintaxe das tags originais.
-// ===================================================================================
 
 package com.marin.catfeina.core.formatador
 

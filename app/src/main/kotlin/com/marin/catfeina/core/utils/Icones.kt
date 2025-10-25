@@ -18,15 +18,13 @@ package com.marin.catfeina.core.utils
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.BrokenImage
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -34,10 +32,8 @@ import androidx.compose.material.icons.filled.Headset
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.LocalAtm
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MilitaryTech
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NetworkWifi
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Pause
@@ -48,10 +44,8 @@ import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SignalWifiOff
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.ThumbUp
@@ -59,14 +53,10 @@ import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.Diamond
-import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Pets
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.ui.graphics.vector.ImageVector
 
 object Icones {
     // 🎧 Player de TTS (Text-to-Speech)
@@ -80,14 +70,13 @@ object Icones {
     val Inicio = Icons.Filled.Home
     val Menu = Icons.Filled.Menu
     val Voltar = Icons.AutoMirrored.Filled.ArrowBack
-    val TresPontosVertical = Icons.Filled.MoreVert
     val Pesquisa = Icons.Filled.Search
     val Mais = Icons.Filled.Add
     val Menos = Icons.Filled.Remove
     val Atualizar = Icons.Filled.Sync
+    val Prefacio = Icons.Filled.Description
 
-    // 🧩 Conteúdo e Categorias
-    val Categoria = Icons.Filled.Category
+    // 🧩 Conteúdo
     val Atelier = Icons.Outlined.AutoStories
     val Personagem = Icons.Outlined.Pets
     val Poesia = Icons.Outlined.Pets
@@ -106,6 +95,7 @@ object Icones {
     val Copiar = Icons.Outlined.ContentCopy
     val Compartilhar = Icons.Default.Share
     val QrCode = Icons.Filled.QrCode
+    val Salvar = Icons.Outlined.Check
 
     // 📌 Marcadores e Favoritos
     val MarcadorVazio = Icons.Filled.BookmarkBorder
@@ -131,7 +121,6 @@ object Icones {
     // 🏆 Conquistas e Recompensas
     val Conquista = Icons.Filled.MilitaryTech
     val Diamante = Icons.Filled.Diamond
-    val Dinheiro = Icons.Filled.LocalAtm
     val Like = Icons.Default.ThumbUp
 
     // 🖼️ Recursos Visuais

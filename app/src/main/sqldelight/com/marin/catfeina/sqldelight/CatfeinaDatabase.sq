@@ -46,7 +46,7 @@ CREATE TABLE personagens (
     id INTEGER NOT NULL PRIMARY KEY,
     nome TEXT NOT NULL UNIQUE,
     descricao TEXT NOT NULL,
-    imagem_url TEXT,
+    imagem TEXT,
     dataCriacao INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX idx_personagem_nome ON personagens(nome);
@@ -69,8 +69,8 @@ CREATE TABLE historico (
     id INTEGER NOT NULL PRIMARY KEY,
     tipoConteudo TEXT AS TipoConteudoEnum NOT NULL,
     conteudoId INTEGER NOT NULL,
-    tituloDisplay TEXT NOT NULL,
-    imagemDisplay TEXT,
+    titulo TEXT NOT NULL,
+    imagem TEXT,
     dataVisita INTEGER NOT NULL
 );
 
@@ -116,7 +116,7 @@ getAtelierById: SELECT * FROM atelier WHERE id = ?;
 -- =============================================
 -- Queries para Personagens
 -- =============================================
-upsertPersonagem: INSERT OR REPLACE INTO personagens(id, nome, descricao, imagem_url, dataCriacao) VALUES (?, ?, ?, ?, ?);
+upsertPersonagem: INSERT OR REPLACE INTO personagens(id, nome, descricao, imagem, dataCriacao) VALUES (?, ?, ?, ?, ?);
 deletePersonagemById: DELETE FROM personagens WHERE id = ?;
 getAllPersonagens: SELECT * FROM personagens ORDER BY nome ASC;
 getPersonagemById: SELECT * FROM personagens WHERE id = ?;
@@ -131,7 +131,7 @@ getInformativoByChave: SELECT * FROM informativos WHERE chave = ?;
 -- =============================================
 -- Queries para Histórico
 -- =============================================
-upsertHistorico: INSERT OR REPLACE INTO historico(id, tipoConteudo, conteudoId, tituloDisplay, imagemDisplay, dataVisita) VALUES (?, ?, ?, ?, ?, ?);
+upsertHistorico: INSERT OR REPLACE INTO historico(id, tipoConteudo, conteudoId, titulo, imagem, dataVisita) VALUES (?, ?, ?, ?, ?, ?);
 limparHistorico: DELETE FROM historico;
 getHistoricoCompleto: SELECT * FROM historico ORDER BY dataVisita DESC;
 

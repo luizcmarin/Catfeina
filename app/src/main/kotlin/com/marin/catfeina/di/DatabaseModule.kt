@@ -14,44 +14,6 @@
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: DatabaseModule.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: DatabaseModule.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
 package com.marin.catfeina.di
 
 import android.content.Context
@@ -75,7 +37,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    // region ADAPTADORES DE TIPO
     private val categoriaPoesiaEnumAdapter = object : ColumnAdapter<CategoriaPoesiaEnum, String> {
         override fun decode(databaseValue: String): CategoriaPoesiaEnum = CategoriaPoesiaEnum.valueOf(databaseValue)
         override fun encode(value: CategoriaPoesiaEnum): String = value.name
@@ -85,7 +46,6 @@ object DatabaseModule {
         override fun decode(databaseValue: String): TipoConteudoEnum = TipoConteudoEnum.valueOf(databaseValue)
         override fun encode(value: TipoConteudoEnum): String = value.name
     }
-    // endregion
 
     @Provides
     @Singleton

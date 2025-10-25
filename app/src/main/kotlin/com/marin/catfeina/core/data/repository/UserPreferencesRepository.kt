@@ -22,7 +22,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.marin.catfeina.core.temas.ThemeModelKey
+import com.marin.catfeina.core.temas.TemaModelKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -41,12 +41,12 @@ class UserPreferencesRepository @Inject constructor(private val dataStore: DataS
 
     val onboardingCompleto: Flow<Boolean> = dataStore.data.map { it[Keys.ONBOARDING_COMPLETO] ?: false }
 
-    val selectedThemeKey: Flow<ThemeModelKey> = dataStore.data.map { preferences ->
-        val keyName = preferences[Keys.SELECTED_THEME_KEY] ?: ThemeModelKey.VERAO.name
+    val selectedThemeKey: Flow<TemaModelKey> = dataStore.data.map { preferences ->
+        val keyName = preferences[Keys.SELECTED_THEME_KEY] ?: TemaModelKey.VERAO.name
         try {
-            ThemeModelKey.valueOf(keyName)
+            TemaModelKey.valueOf(keyName)
         } catch (e: IllegalArgumentException) {
-            ThemeModelKey.VERAO
+            TemaModelKey.VERAO
         }
     }
 
@@ -60,7 +60,7 @@ class UserPreferencesRepository @Inject constructor(private val dataStore: DataS
         dataStore.edit { it[Keys.ONBOARDING_COMPLETO] = isCompleto }
     }
 
-    suspend fun setSelectedThemeKey(themeKey: ThemeModelKey) {
+    suspend fun setSelectedThemeKey(themeKey: TemaModelKey) {
         dataStore.edit { it[Keys.SELECTED_THEME_KEY] = themeKey.name }
     }
 

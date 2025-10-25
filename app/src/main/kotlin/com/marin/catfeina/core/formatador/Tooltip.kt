@@ -10,52 +10,10 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Composable de UI para exibir um balão de dica (Tooltip) na tela.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: Tooltip.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: Tooltip.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// =============================================================================
-// Arquivo: com.marin.catfeina.core.formatador.Tooltip.kt
-// Descrição: Composable de UI para exibir um balão de dica (Tooltip) na tela.
-// =============================================================================
 package com.marin.catfeina.core.formatador
 
 import androidx.compose.foundation.background

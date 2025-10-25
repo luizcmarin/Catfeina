@@ -23,10 +23,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.marin.catfeina.core.temas.CatfeinaTheme
+import com.marin.catfeina.core.temas.CatfeinaTema
 import com.marin.catfeina.ui.main.MainScreenViewModel
 import com.marin.catfeina.ui.main.MainViewModel
-import com.marin.catfeina.ui.temas.TemasViewModel
+import com.marin.catfeina.core.temas.TemasViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            CatfeinaTheme(gerenciadorTemas = temasViewModel.gerenciadorTemas) {
+            CatfeinaTema(gerenciadorTemas = temasViewModel.gerenciadorTemas) {
                 CatfeinaApp(temasViewModel)
             }
         }

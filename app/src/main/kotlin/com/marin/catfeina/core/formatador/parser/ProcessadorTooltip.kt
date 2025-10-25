@@ -10,62 +10,11 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Processador de tag especializado em converter tags de tooltip (dica)
+ *        (ex: {dica|texto base|texto que aparece na dica}) em uma anotação.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ProcessadorTooltip.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ProcessadorTooltip.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.parser.ProcessadorTooltip.kt
-//
-// Descrição: Processador de tag especializado em converter tags de tooltip (dica)
-//            (ex: {dica|texto base|texto que aparece na dica}) em uma anotação.
-//
-// Propósito:
-// Esta classe isola a lógica para lidar com tags de tooltip. Registrada no
-// `ParserModule`, ela é invocada pelo `ParserTextoFormatado` ao encontrar a
-// palavra-chave "dica". Sua responsabilidade é extrair o texto que ficará no
-// parágrafo e o texto que será exibido no tooltip, criando uma
-// `AplicacaoAnotacaoTooltip` que o `TextoFormatadoRenderer` usará para
-// implementar a interatividade na UI.
-// ===================================================================================
 package com.marin.catfeina.core.formatador.parser
 
 import com.marin.catfeina.core.formatador.AplicacaoAnotacaoTooltip

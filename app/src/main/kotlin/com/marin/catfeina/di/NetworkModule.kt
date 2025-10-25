@@ -14,44 +14,6 @@
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: NetworkModule.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: NetworkModule.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
 package com.marin.catfeina.di
 
 import com.marin.catfeina.BuildConfig
@@ -86,9 +48,15 @@ object NetworkModule {
     @Singleton
     fun provideHttpClient(json: Json): HttpClient {
         return HttpClient(OkHttp) {
-            // Configuração do motor OkHttp, se necessário
             engine {
-                // timeouts, interceptors, etc.
+                config {
+                    // Define o tempo máximo para estabelecer uma conexão com o servidor
+                    connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                    // Define o tempo máximo de espera para ler dados do servidor
+                    readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                    // Define o tempo máximo de espera para enviar dados para o servidor
+                    writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                }
             }
 
             // Instala o plugin de negociação de conteúdo para JSON

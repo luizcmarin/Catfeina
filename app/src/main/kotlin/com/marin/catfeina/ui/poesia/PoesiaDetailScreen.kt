@@ -1,3 +1,18 @@
+/*
+ *  Projeto: Catfeina
+ *  Arquivo: PoesiaDetailScreen.kt
+ *
+ *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+ *
+ *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+ *
+ *  Este arquivo faz parte do projeto Catfeina.
+ *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+ *  dele, é estritamente proibida.
+ *
+ *  Nota:
+ *
+ */
 
 package com.marin.catfeina.ui.poesia
 
@@ -5,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.speech.tts.TextToSpeech
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -14,7 +28,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,19 +67,17 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.request.ImageRequest
-import com.github.panpf.sketch.transform.CircleCropTransformation
 import com.marin.catfeina.BuildConfig
-import com.marin.catfeina.R
 import com.marin.catfeina.core.formatador.ElementoConteudo
 import com.marin.catfeina.core.formatador.RenderizarElementoConteudo
 import com.marin.catfeina.core.formatador.TextoFormatadoViewModel
 import com.marin.catfeina.core.formatador.TooltipHandler
 import com.marin.catfeina.core.formatador.parser.ParserTextoFormatado
+import com.marin.catfeina.core.temas.TemasViewModel
 import com.marin.catfeina.core.ui.CatAnimation
 import com.marin.catfeina.core.utils.Icones
 import com.marin.catfeina.core.utils.PT_BR_LOCALE
 import com.marin.catfeina.sqldelight.GetPoesiaCompletaById
-import com.marin.catfeina.ui.temas.TemasViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -129,7 +140,9 @@ fun PoesiaDetailScreen(
 
                     scrollBehavior = scrollBehavior,
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                        containerColor = MaterialTheme.colorScheme.surface.copy(
+                            alpha = 0.8f
+                        )
                     )
                 )
             }
@@ -142,24 +155,60 @@ fun PoesiaDetailScreen(
             ) {
                 BottomAppBar {
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        IconButton(onClick = {
-                            val text = uiState.poesia?.let { p ->
-                                val ttsText = StringBuilder()
-                                ttsText.append(p.titulo).append(". ")
-                                ttsText.append(textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(p.textoBase)).append(". ")
-                                ttsText.append(textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(p.texto)).append(". ")
-                                p.textoFinal?.let { tf ->
-                                    ttsText.append("Para meditar: ${textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(tf)}").append(". ")
-                                }
-                                p.nota?.let { n ->
-                                    ttsText.append("Informação adicional: ${textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(n)}").append(". ")
-                                }
-                                ttsText.toString()
-                            } ?: ""
-                            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-                        }, modifier = Modifier.weight(1f)) { Icon(Icones.TocarTTS, "Ouvir") }
                         IconButton(
-                            onClick = { uiState.poesia?.let { sharePoesia(context, it, textoFormatadoViewModel.parser) } },
+                            onClick = {
+                                val text = uiState.poesia?.let { p ->
+                                    val ttsText = StringBuilder()
+                                    ttsText.append(p.titulo).append(". ")
+                                    ttsText.append(
+                                        textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(
+                                            p.textoBase
+                                        )
+                                    ).append(". ")
+                                    ttsText.append(
+                                        textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(
+                                            p.texto
+                                        )
+                                    ).append(". ")
+                                    p.textoFinal?.let { tf ->
+                                        ttsText.append(
+                                            "Para meditar: ${
+                                                textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(
+                                                    tf
+                                                )
+                                            }"
+                                        ).append(". ")
+                                    }
+                                    p.nota?.let { n ->
+                                        ttsText.append(
+                                            "Informação adicional: ${
+                                                textoFormatadoViewModel.parser.extrairTextoPuroParaTTS(
+                                                    n
+                                                )
+                                            }"
+                                        ).append(". ")
+                                    }
+                                    ttsText.toString()
+                                } ?: ""
+                                tts?.speak(
+                                    text,
+                                    TextToSpeech.QUEUE_FLUSH,
+                                    null,
+                                    null
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) { Icon(Icones.TocarTTS, "Ouvir") }
+                        IconButton(
+                            onClick = {
+                                uiState.poesia?.let {
+                                    sharePoesia(
+                                        context,
+                                        it,
+                                        textoFormatadoViewModel.parser
+                                    )
+                                }
+                            },
                             modifier = Modifier.weight(1f)
                         ) { Icon(Icones.Compartilhar, "Compartilhar") }
                         IconButton(
@@ -229,12 +278,17 @@ private fun PoesiaDetailContent(
     val context = LocalContext.current
     val baseFontSize = 16.sp
     val finalFontSize = baseFontSize * (1 + textSizeMultiplier)
-    
+
     val tooltipHandler = remember { TooltipHandler {} }
 
-    var notaUsuario by remember(poesia.notaUsuario) { mutableStateOf(poesia.notaUsuario ?: "") }
+    var notaUsuario by remember(poesia.notaUsuario) {
+        mutableStateOf(
+            poesia.notaUsuario ?: ""
+        )
+    }
 
-    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", PT_BR_LOCALE) }
+    val dateFormat =
+        remember { SimpleDateFormat("dd/MM/yyyy HH:mm", PT_BR_LOCALE) }
 
     LazyColumn(
         state = lazyListState,
@@ -319,8 +373,14 @@ private fun PoesiaDetailContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.Start
             ) {
-                Text("Autor: ${poesia.autor}", style = MaterialTheme.typography.bodySmall)
-                Text("Categoria: ${poesia.categoria}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "Autor: ${poesia.autor}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    "Categoria: ${poesia.categoria}",
+                    style = MaterialTheme.typography.bodySmall
+                )
                 Text(
                     "Data: ${dateFormat.format(Date(poesia.dataCriacao))}",
                     style = MaterialTheme.typography.bodySmall
@@ -354,17 +414,28 @@ private val ElementoConteudo.textoParaLeitura: String
         is ElementoConteudo.LinhaHorizontal -> ""
     }
 
-private fun sharePoesia(context: Context, poesia: GetPoesiaCompletaById, parser: ParserTextoFormatado) {
+private fun sharePoesia(
+    context: Context,
+    poesia: GetPoesiaCompletaById,
+    parser: ParserTextoFormatado
+) {
     val shareText = """
 *${poesia.titulo}*
 
-${parser.parse(poesia.textoBase).joinToString(separator = "") { it.textoParaLeitura }}
+${
+        parser.parse(poesia.textoBase)
+            .joinToString(separator = "") { it.textoParaLeitura }
+    }
 
-${parser.parse(poesia.texto).joinToString(separator = "") { it.textoParaLeitura }}
+${
+        parser.parse(poesia.texto)
+            .joinToString(separator = "") { it.textoParaLeitura }
+    }
 
 ${
         poesia.textoFinal?.let {
-            "" + parser.parse(it).joinToString(separator = "") { item -> item.textoParaLeitura }
+            "" + parser.parse(it)
+                .joinToString(separator = "") { item -> item.textoParaLeitura }
         } ?: ""
     }
 

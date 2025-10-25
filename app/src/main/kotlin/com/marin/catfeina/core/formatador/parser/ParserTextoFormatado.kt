@@ -10,69 +10,19 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Classe principal responsável por converter uma string de texto cru,
+ *        contendo tags customizadas, em uma estrutura de dados de UI.
+ *
+ *  Propósito:
+ *  Este parser é o motor central do sistema de texto formatado. Ele recebe uma lista
+ *  de `ProcessadorTag` (injetada via Hilt) e uma string de entrada. Sua função é
+ *  iterar sobre o texto, identificar as tags (ex: {b|texto}, {img|...}), delegar o
+ *  processamento para o `ProcessadorTag` apropriado e construir uma lista ordenada
+ *  de `ElementoConteudo`. Esta lista é então usada pela camada de UI para
+ *  renderizar o texto de forma rica e interativa.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ParserTextoFormatado.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ParserTextoFormatado.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-/*
- * Arquivo: com.marin.catfeina.ui.componentes.formatacao.parser.ParserTextoFormatado.kt
- * @project Catfeina
- * @description
- * Parser principal responsável por converter uma string de texto cru com tags
- * customizadas (formato {chave|conteúdo} ou {chave}) em uma lista de [ElementoConteudo].
- */
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.parser.ParserTextoFormatado.kt
-//
-// Descrição: Classe principal responsável por converter uma string de texto cru,
-//            contendo tags customizadas, em uma estrutura de dados de UI.
-//
-// Propósito:
-// Este parser é o motor central do sistema de texto formatado. Ele recebe uma lista
-// de `ProcessadorTag` (injetada via Hilt) e uma string de entrada. Sua função é
-// iterar sobre o texto, identificar as tags (ex: {b|texto}, {img|...}), delegar o
-// processamento para o `ProcessadorTag` apropriado e construir uma lista ordenada
-// de `ElementoConteudo`. Esta lista é então usada pela camada de UI para
-// renderizar o texto de forma rica e interativa.
-// ===================================================================================
 package com.marin.catfeina.core.formatador.parser
 
 import com.marin.catfeina.core.formatador.AplicacaoEmLinha

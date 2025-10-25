@@ -27,23 +27,23 @@ import javax.inject.Singleton
 class GerenciadorTemas @Inject constructor(
     private val themePreferences: UserPreferencesRepository
 ) {
-    private val availableThemes: Map<ThemeModelKey, ThemeModel> = TemasPredefinidos.get()
+    private val availableThemes: Map<TemaModelKey, TemaModel> = TemasPredefinidos.get()
 
     val colorScheme: Flow<ColorScheme> = combine(
         themePreferences.selectedThemeKey,
         themePreferences.isDarkMode
     ) { themeKey, isDark ->
-        val themeModel = availableThemes[themeKey] ?: availableThemes.getValue(ThemeModelKey.VERAO)
-        if (isDark) themeModel.colorPalette.darkModeColors else themeModel.colorPalette.lightModeColors
+        val temaModel = availableThemes[themeKey] ?: availableThemes.getValue(TemaModelKey.VERAO)
+        if (isDark) temaModel.colorPalette.darkModeColors else temaModel.colorPalette.lightModeColors
     }
 
-    fun getAvailableThemes(): Map<ThemeModelKey, ThemeModel> = availableThemes
+    fun getAvailableThemes(): Map<TemaModelKey, TemaModel> = availableThemes
 
-    suspend fun setTheme(key: ThemeModelKey) {
+    suspend fun setTheme(key: TemaModelKey) {
         themePreferences.setSelectedThemeKey(key)
     }
 
-    val currentThemeKey: Flow<ThemeModelKey> = themePreferences.selectedThemeKey
+    val currentThemeKey: Flow<TemaModelKey> = themePreferences.selectedThemeKey
     val isDarkMode: Flow<Boolean> = themePreferences.isDarkMode
     val textSize: Flow<Float> = themePreferences.textSize
     val isFullScreen: Flow<Boolean> = themePreferences.isFullScreen

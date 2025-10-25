@@ -10,61 +10,18 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Processador de tag especializado em converter tags de link/URL
+ *        (ex: {link|https://exemplo.com|Clique aqui}) em uma anotação em linha.
+ *
+ *  Propósito:
+ *  Esta classe isola a lógica para lidar com tags de hiperlink. Registrada no
+ *  `ParserModule`, ela é invocada pelo `ParserTextoFormatado` ao encontrar as
+ *  palavras-chave "link" ou "url". Sua responsabilidade é extrair a URL e o
+ *  texto do link, criando uma `AplicacaoAnotacaoLink` que será usada pelo
+ *  `TextoFormatadoRenderer` para criar um trecho de texto clicável na UI.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ProcessadorLink.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ProcessadorLink.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.parser.ProcessadorLink.kt
-//
-// Descrição: Processador de tag especializado em converter tags de link/URL
-//            (ex: {link|https://exemplo.com|Clique aqui}) em uma anotação em linha.
-//
-// Propósito:
-// Esta classe isola a lógica para lidar com tags de hiperlink. Registrada no
-// `ParserModule`, ela é invocada pelo `ParserTextoFormatado` ao encontrar as
-// palavras-chave "link" ou "url". Sua responsabilidade é extrair a URL e o
-// texto do link, criando uma `AplicacaoAnotacaoLink` que será usada pelo
-// `TextoFormatadoRenderer` para criar um trecho de texto clicável na UI.
-// ===================================================================================
 package com.marin.catfeina.core.formatador.parser
 
 import com.marin.catfeina.core.formatador.AplicacaoAnotacaoLink

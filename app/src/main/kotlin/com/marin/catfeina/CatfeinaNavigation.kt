@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.marin.catfeina.core.utils.Icones
 
 object AppDestinationsArgs {
+    const val ATELIER_NOTE_ID_ARG = "noteId"
     const val POESIA_ID_ARG = "poesiaId"
     const val INFORMATIVO_CHAVE_ARG = "informativoChave"
 }
@@ -28,17 +29,23 @@ object AppDestinations {
     const val INICIO_ROUTE = "inicio"
     const val PESQUISA_ROUTE = "pesquisa"
     const val ATELIER_ROUTE = "atelier"
+    const val ATELIER_EDIT_ROUTE = "atelier_edit"
+    const val ATELIER_EDIT_WITH_ARG_ROUTE = "${ATELIER_EDIT_ROUTE}/{${AppDestinationsArgs.ATELIER_NOTE_ID_ARG}}"
+    const val PERSONAGENS_ROUTE_HORIZONTAL = "personagens_horizontal_route"
+    const val PERSONAGENS_ROUTE_VERTICAL = "personagens_vertical_route"
+    const val PERSONAGEM_DETAIL_ROUTE = "personagem_detail"
     const val POESIAS_ROUTE = "poesias"
     const val POESIA_DETAIL_ROUTE = "poesia_detail"
     const val INFORMATIVO_DETAIL_ROUTE = "informativo_detail"
     const val POESIA_DETAIL_WITH_ARG_ROUTE = "${POESIA_DETAIL_ROUTE}/{${AppDestinationsArgs.POESIA_ID_ARG}}"
     const val INFORMATIVO_DETAIL_WITH_ARG_ROUTE = "${INFORMATIVO_DETAIL_ROUTE}/{${AppDestinationsArgs.INFORMATIVO_CHAVE_ARG}}"
-    const val PREFACIO_ROUTE = "prefacio"
 }
 
 object AppScreenRoutes {
+    fun atelierEdit(noteId: Long) = "${AppDestinations.ATELIER_EDIT_ROUTE}/$noteId"
     fun poesiaDetail(poesiaId: Long) = "${AppDestinations.POESIA_DETAIL_ROUTE}/$poesiaId"
     fun informativoDetail(chave: String) = "${AppDestinations.INFORMATIVO_DETAIL_ROUTE}/$chave"
+    fun personagemDetail(personagemId: Long) = "${AppDestinations.PERSONAGEM_DETAIL_ROUTE}/$personagemId"
 }
 
 data class NavMenuItem(
@@ -58,5 +65,7 @@ val drawerNavItems = listOf(
     NavMenuItem(AppDestinations.INICIO_ROUTE, "Início", Icones.Inicio),
     NavMenuItem(AppDestinations.POESIAS_ROUTE, "Poesias", Icones.Poesia),
     NavMenuItem(AppDestinations.ATELIER_ROUTE, "Atelier", Icones.Atelier),
-    NavMenuItem(AppDestinations.PREFACIO_ROUTE, "Prefácio", Icones.QrCode)
+    NavMenuItem(AppDestinations.PERSONAGENS_ROUTE_VERTICAL, "Personagens V", Icones.Personagem),
+    NavMenuItem(AppDestinations.PERSONAGENS_ROUTE_HORIZONTAL, "Personagens H", Icones.Personagem),
+    NavMenuItem(AppScreenRoutes.informativoDetail("prefacio"), "Prefácio", Icones.Prefacio)
 )

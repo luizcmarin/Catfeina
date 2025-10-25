@@ -10,61 +10,18 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota:
+ *  Nota: Define a interface principal e as classes de dados de suporte para o
+ *        mecanismo de análise (parsing) de tags de formatação.
+ *
+ *  Propósito:
+ *  Este arquivo é o pilar da arquitetura do parser. A interface `ProcessadorTag`
+ *  estabelece um contrato que permite a criação de processadores especializados
+ *  para cada tipo de tag (ex: negrito, imagem, link). O `ParserTextoFormatado`
+ *  utiliza uma coleção desses processadores para identificar e converter as tags
+ *  do texto cru nos `ElementoConteudo` ou `AplicacaoEmLinha` correspondentes.
  *
  */
 
-/*
- *
- *  Projeto: Catfeina
- *  Arquivo: ProcessadorTag.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota:
- *
- *
- */
-
-/*
- * // ===================================================================================
- * //  Projeto: Catfeina
- * //  Arquivo: ProcessadorTag.kt
- * //
- * //  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- * //
- * //  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- * //
- * //  Este arquivo faz parte do projeto Catfeina.
- * //  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- * //  dele, é estritamente proibida.
- * // ===================================================================================
- * //  Nota:
- * //
- * //
- * // ===================================================================================
- *
- */
-
-// ===================================================================================
-// Arquivo: com.marin.catfeina.core.formatador.parser.ProcessadorTag.kt
-//
-// Descrição: Define a interface principal e as classes de dados de suporte para o
-//            mecanismo de análise (parsing) de tags de formatação.
-//
-// Propósito:
-// Este arquivo é o pilar da arquitetura do parser. A interface `ProcessadorTag`
-// estabelece um contrato que permite a criação de processadores especializados
-// para cada tipo de tag (ex: negrito, imagem, link). O `ParserTextoFormatado`
-// utiliza uma coleção desses processadores para identificar e converter as tags
-// do texto cru nos `ElementoConteudo` ou `AplicacaoEmLinha` correspondentes.
-// ===================================================================================
 package com.marin.catfeina.core.formatador.parser
 
 import com.marin.catfeina.core.formatador.AplicacaoEmLinha

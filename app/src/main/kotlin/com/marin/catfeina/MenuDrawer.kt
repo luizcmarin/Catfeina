@@ -1,7 +1,6 @@
 /*
  *  Projeto: Catfeina
- *  Arquivo: MenuDrawer.kt
- *
+ *  Arquivo: MenuDrawer.kt *
  *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
  *
  *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
@@ -16,6 +15,7 @@
 
 package com.marin.catfeina
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -38,7 +38,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,9 +68,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import com.marin.catfeina.core.temas.TemasViewModel
 import com.marin.catfeina.core.ui.CatAnimation
 import com.marin.catfeina.core.utils.Icones
-import com.marin.catfeina.ui.temas.TemasViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -81,69 +80,46 @@ fun MenuDrawerContent(
     temasViewModel: TemasViewModel,
     onCloseDrawer: () -> Unit
 ) {
+    // Lista de seções do Drawer para facilitar a organização.
+    val drawerSections = remember {
+        listOf<@Composable () -> Unit>(
+            { NavigationDrawerSection(navController, currentRoute, onCloseDrawer) },
+            { ThemeSettingsSection(temasViewModel) },
+            { TextSettingsSection(temasViewModel) },
+            { PrivacySection() },
+            { ContactSection() },
+            { AboutSection() },
+            { LegalSection(navController = navController, onCloseDrawer = onCloseDrawer) }
+        )
+    }
+
     ModalDrawerSheet {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(top = 12.dp)
         ) {
             item { DrawerHeader(onCloseDrawer) }
-            item {
-                NavigationDrawerSection(
-                    navController = navController,
-                    currentRoute = currentRoute,
-                    onCloseDrawer = onCloseDrawer
-                )
-            }
-            item { HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp)) }
 
-            item { ThemeSettingsSection(temasViewModel) }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    thickness = DividerDefaults.Thickness,
-                    color = DividerDefaults.color
-                )
+            // Itera sobre as seções, adicionando um divisor entre elas.
+            items(drawerSections.size) { index ->
+                if (index > 0) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                }
+                drawerSections[index]()
             }
-            item { TextSettingsSection(temasViewModel) }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    thickness = DividerDefaults.Thickness,
-                    color = DividerDefaults.color
-                )
-            }
-            item { PrivacySection() }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    thickness = DividerDefaults.Thickness,
-                    color = DividerDefaults.color
-                )
-            }
-            item { ContactSection() }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    thickness = DividerDefaults.Thickness,
-                    color = DividerDefaults.color
-                )
-            }
-            item {
-                LegalSection(
-                    navController = navController,
-                    onCloseDrawer = onCloseDrawer
-                )
-            }
-            item {
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    thickness = DividerDefaults.Thickness,
-                    color = DividerDefaults.color
-                )
-            }
-            item { AboutSection() }
+
             item { Spacer(Modifier.height(24.dp)) }
         }
+    }
+}
+
+private fun NavController.navigateToScreen(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }
 
@@ -185,15 +161,8 @@ private fun NavigationDrawerSection(
                 selected = currentRoute == screen.route,
                 onClick = {
                     scope.launch {
-                        onCloseDrawer() // Fecha o drawer
-                        // Navega para a tela clicada
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        onCloseDrawer()
+                        navController.navigateToScreen(screen.route)
                     }
                 },
                 modifier = Modifier.padding(horizontal = 12.dp)
@@ -205,13 +174,11 @@ private fun NavigationDrawerSection(
 @Composable
 private fun ThemeSettingsSection(viewModel: TemasViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    // Convertemos o mapa para uma lista para ter uma ordem estável
     val themes = uiState.temasDisponiveis.entries.toList()
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text("Tema e Aparência", style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.height(8.dp))
-
         ListItem(
             headlineContent = { Text("Modo Escuro") },
             trailingContent = {
@@ -221,10 +188,7 @@ private fun ThemeSettingsSection(viewModel: TemasViewModel) {
                 )
             }
         )
-
         Spacer(Modifier.height(12.dp))
-
-        // --- Início do Grupo de Botões do tema ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -238,7 +202,6 @@ private fun ThemeSettingsSection(viewModel: TemasViewModel) {
         ) {
             themes.forEachIndexed { index, (themeKey, _) ->
                 val isSelected = uiState.temaAtualKey == themeKey
-
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -251,15 +214,13 @@ private fun ThemeSettingsSection(viewModel: TemasViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = themeKey.name.take(3), // Ex: VER, OUT, INV, PRI
+                        text = themeKey.name.take(3),
                         color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
                         else MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     )
                 }
-
-                // Adiciona uma divisória vertical entre os botões
                 if (index < themes.size - 1) {
                     VerticalDivider(
                         modifier = Modifier.height(32.dp),
@@ -268,7 +229,6 @@ private fun ThemeSettingsSection(viewModel: TemasViewModel) {
                 }
             }
         }
-        // --- Fim do Grupo de Botões ---
     }
 }
 
@@ -314,21 +274,17 @@ private fun ContactSection() {
         Text(
             "CONTATO",
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(start = 16.dp, bottom = 4.dp),
             color = MaterialTheme.colorScheme.primary
         )
         ListItem(
             headlineContent = { Text("Enviar uma sugestão") },
             leadingContent = {
-                Icon(
-                    Icons.Filled.Email,
-                    contentDescription = "E-mail"
-                )
+                Icon(Icons.Filled.Email, contentDescription = "E-mail")
             },
             modifier = Modifier.clickable {
                 val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                    data =
-                        "mailto:".toUri() // Only email apps should handle this
+                    data = "mailto:".toUri()
                     putExtra(Intent.EXTRA_EMAIL, arrayOf("luizcmarin@gmail.com"))
                     putExtra(
                         Intent.EXTRA_SUBJECT,
@@ -337,11 +293,9 @@ private fun ContactSection() {
                 }
                 try {
                     context.startActivity(emailIntent)
-                } catch (e: Exception) {
+                } catch (e: ActivityNotFoundException) {
                     Toast.makeText(
-                        context,
-                        "Nenhum aplicativo de e-mail encontrado.",
-                        Toast.LENGTH_SHORT
+                        context, "Nenhum aplicativo de e-mail encontrado.", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -349,23 +303,15 @@ private fun ContactSection() {
         ListItem(
             headlineContent = { Text("Saiba mais em jw.org") },
             leadingContent = {
-                Icon(
-                    Icons.Filled.Language,
-                    contentDescription = "jw.org"
-                )
+                Icon(Icons.Filled.Language, contentDescription = "jw.org")
             },
             modifier = Modifier.clickable {
-                val webIntent = Intent(
-                    Intent.ACTION_VIEW,
-                    "https://jw.org".toUri()
-                )
+                val webIntent = Intent(Intent.ACTION_VIEW, "https://jw.org".toUri())
                 try {
                     context.startActivity(webIntent)
-                } catch (e: Exception) {
+                } catch (e: ActivityNotFoundException) {
                     Toast.makeText(
-                        context,
-                        "Nenhum navegador encontrado para abrir o link.",
-                        Toast.LENGTH_SHORT
+                        context, "Nenhum navegador encontrado para abrir o link.", Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -399,65 +345,9 @@ private fun PrivacySection() {
         )
         ListItem(
             headlineContent = { Text("Enviar informações de uso") },
-            supportingContent = { Text("Ajuda-nos a melhorar o design, o desempenho e a estabilidade.") },
+            supportingContent = { Text("Ajude-nos a melhorar o design, o desempenho e a estabilidade.") },
             trailingContent = {
                 Switch(checked = usageEnabled, onCheckedChange = { usageEnabled = it })
-            }
-        )
-    }
-}
-
-@Composable
-private fun LegalSection(
-    navController: NavController,
-    onCloseDrawer: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-        Text(
-            "LEGAL",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "Algumas informações essenciais podem ser transferidas entre nós e o seu dispositivo para que o aplicativo funcione corretamente. Nenhuma dessas informações vai ser vendida ou usada para fazer propaganda.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        ListItem(
-            headlineContent = { Text("Termos de uso") },
-            modifier = Modifier.clickable {
-                scope.launch {
-                    onCloseDrawer()
-                    navController.navigate(AppScreenRoutes.informativoDetail("termos_de_uso"))
-                }
-            }
-        )
-        ListItem(
-            headlineContent = { Text("Política de privacidade") },
-            modifier = Modifier.clickable {
-                scope.launch {
-                    onCloseDrawer()
-                    navController.navigate(AppScreenRoutes.informativoDetail("politica_de_privacidade"))
-                }
-            }
-        )
-        ListItem(
-            headlineContent = { Text("Aviso de Isenção de Responsabilidade") },
-            modifier = Modifier.clickable {
-                scope.launch {
-                    onCloseDrawer()
-                    navController.navigate(AppScreenRoutes.informativoDetail("aviso-isencao-responsabilidade"))
-                }
-            }
-        )
-        ListItem(
-            headlineContent = { Text("Licenças de código aberto") },
-            modifier = Modifier.clickable {
-                context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
             }
         )
     }
@@ -506,6 +396,82 @@ private fun AboutSection() {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun LegalSection(
+    navController: NavController,
+    onCloseDrawer: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+        Text(
+            "LEGAL",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "Algumas informações essenciais podem ser transferidas entre nós e o seu dispositivo para que o aplicativo funcione corretamente. Nenhuma dessas informações vai ser vendida ou usada para fazer propaganda.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        ListItem(
+            headlineContent = { Text("Termos de Uso") },
+            modifier = Modifier.clickable {
+                scope.launch {
+                    onCloseDrawer()
+                    navController.navigate(AppScreenRoutes.informativoDetail("termos_de_uso"))
+                }
+            }
+        )
+        ListItem(
+            headlineContent = { Text("Política de Privacidade") },
+            modifier = Modifier.clickable {
+                scope.launch {
+                    onCloseDrawer()
+                    navController.navigate(AppScreenRoutes.informativoDetail("politica_de_privacidade"))
+                }
+            }
+        )
+        ListItem(
+            headlineContent = { Text("Isenção de Responsabilidade") },
+            modifier = Modifier.clickable {
+                scope.launch {
+                    onCloseDrawer()
+                    navController.navigate(AppScreenRoutes.informativoDetail("isencao-de-responsabilidade"))
+                }
+            }
+        )
+        ListItem(
+            headlineContent = { Text("Declaração de Conformidade") },
+            modifier = Modifier.clickable {
+                scope.launch {
+                    onCloseDrawer()
+                    navController.navigate(AppScreenRoutes.informativoDetail("declaracao-de-conformidade"))
+                }
+            }
+        )
+        ListItem(
+            headlineContent = { Text("Aviso de Conteúdo") },
+            modifier = Modifier.clickable {
+                scope.launch {
+                    onCloseDrawer()
+                    navController.navigate(AppScreenRoutes.informativoDetail("aviso-de-conteudo"))
+                }
+            }
+        )
+        ListItem(
+            headlineContent = { Text("Licenças de código aberto") },
+            modifier = Modifier.clickable {
+                context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
+            }
+        )
+
         Spacer(Modifier.height(8.dp))
 
         Text(
@@ -513,7 +479,5 @@ private fun AboutSection() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-
-        Spacer(Modifier.height(16.dp))
     }
 }

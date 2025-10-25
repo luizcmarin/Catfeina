@@ -17,7 +17,6 @@
 package com.marin.catfeina
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
@@ -53,15 +52,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.marin.catfeina.core.temas.TemasViewModel
+import com.marin.catfeina.core.ui.SyncState
 import com.marin.catfeina.core.utils.Icones
+import com.marin.catfeina.ui.atelier.AtelierEditScreen
+import com.marin.catfeina.ui.atelier.AtelierListScreen
+import com.marin.catfeina.ui.personagens.PersonagensScreenHorizontal
+import com.marin.catfeina.ui.personagens.PersonagensScreenVertical
 import com.marin.catfeina.ui.informativo.InformativoScreen
 import com.marin.catfeina.ui.main.MainScreenContent
 import com.marin.catfeina.ui.main.MainScreenViewModel
 import com.marin.catfeina.ui.main.MainViewModel
-import com.marin.catfeina.ui.main.PoesiaListScreen
-import com.marin.catfeina.ui.main.SyncState
 import com.marin.catfeina.ui.poesia.PoesiaDetailScreen
-import com.marin.catfeina.ui.temas.TemasViewModel
+import com.marin.catfeina.ui.poesia.PoesiaListScreen
+import com.marin.catfeina.ui.search.SearchScreen
 import kotlinx.coroutines.launch
 
 
@@ -84,18 +88,12 @@ fun CatfeinaApp(
     val shouldShowBottomBar = currentRoute in routesWithBottomBar
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val syncMessage by mainViewModel.syncStatusMessage.collectAsStateWithLifecycle()
 
-    LaunchedEffect(syncState) {
-        when (val state = syncState) {
-            is SyncState.Sucesso -> {
-                snackbarHostState.showSnackbar(state.mensagem)
-                mainViewModel.resetarSyncState()
-            }
-            is SyncState.Falha -> {
-                snackbarHostState.showSnackbar(state.erro)
-                mainViewModel.resetarSyncState()
-            }
-            else -> { /* Não faz nada */ }
+    LaunchedEffect(syncMessage) {
+        if (syncMessage != null) {
+            snackbarHostState.showSnackbar(syncMessage!!)
+            mainViewModel.limparMensagemSincronizacao()
         }
     }
 
@@ -172,6 +170,45 @@ fun CatfeinaApp(
                         }
                     )
                 }
+                composable(AppDestinations.PESQUISA_ROUTE) {
+                    SearchScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToResult = { tipo, id ->
+                            // Como sua busca atualmente só retorna poesias,
+                            // navegamos diretamente para o detalhe da poesia.
+                            if (tipo == com.marin.catfeina.core.utils.TipoConteudoEnum.POESIA) {
+                                navController.navigate(AppScreenRoutes.poesiaDetail(id))
+                            }
+                        }
+                    )
+                }
+                composable(AppDestinations.ATELIER_ROUTE) {
+                    AtelierListScreen(
+                        onNavigateToEdit = { noteId ->
+                            navController.navigate(AppScreenRoutes.atelierEdit(noteId))
+                        }
+                    )
+                }
+                composable(
+                    route = AppDestinations.ATELIER_EDIT_WITH_ARG_ROUTE,
+                    arguments = listOf(navArgument(AppDestinationsArgs.ATELIER_NOTE_ID_ARG) { type = NavType.LongType })
+                ) {
+                    AtelierEditScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )
+                }
+                composable(
+                    route = AppDestinations.INFORMATIVO_DETAIL_WITH_ARG_ROUTE,
+                    arguments = listOf(
+                        navArgument(AppDestinationsArgs.INFORMATIVO_CHAVE_ARG) {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+                    InformativoScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )
+                }
                 composable(AppDestinations.POESIAS_ROUTE) {
                     val viewModel: MainScreenViewModel = hiltViewModel()
                     PoesiaListScreen(
@@ -181,27 +218,25 @@ fun CatfeinaApp(
                         }
                     )
                 }
-
-                composable(AppDestinations.PESQUISA_ROUTE) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Tela de Pesquisa") } }
-                composable(AppDestinations.ATELIER_ROUTE) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Tela do Atelier") } }
-
                 composable(
                     route = AppDestinations.POESIA_DETAIL_WITH_ARG_ROUTE,
                     arguments = listOf(navArgument(AppDestinationsArgs.POESIA_ID_ARG) { type = NavType.LongType })
                 ) {
                     PoesiaDetailScreen(onNavigateBack = { navController.navigateUp() })
                 }
-                composable(
-                    route = AppDestinations.INFORMATIVO_DETAIL_WITH_ARG_ROUTE,
-                    arguments = listOf(navArgument(AppDestinationsArgs.INFORMATIVO_CHAVE_ARG) { type = NavType.StringType })
-                ) {
-                    InformativoScreen(onNavigateBack = { navController.navigateUp() })
+                composable(route = AppDestinations.PERSONAGENS_ROUTE_HORIZONTAL) {
+                    PersonagensScreenHorizontal(
+                        onNavigateToPersonagemDetail = { personagemId ->
+                            navController.navigate(AppScreenRoutes.personagemDetail(personagemId))
+                        }
+                    )
                 }
-                composable(
-                    route = AppDestinations.PREFACIO_ROUTE,
-                    arguments = listOf(navArgument(AppDestinationsArgs.INFORMATIVO_CHAVE_ARG) { type = NavType.StringType })
-                ) {
-                    InformativoScreen(onNavigateBack = { navController.navigateUp() })
+                composable(route = AppDestinations.PERSONAGENS_ROUTE_VERTICAL) {
+                    PersonagensScreenVertical(
+                        onNavigateToPersonagemDetail = { personagemId ->
+                            navController.navigate(AppScreenRoutes.personagemDetail(personagemId))
+                        }
+                    )
                 }
             }
         }
