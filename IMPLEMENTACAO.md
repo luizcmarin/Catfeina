@@ -12,6 +12,13 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 6 - UI da Busca**
+- Adicionadas as queries de busca `searchPoesias` e `searchPersonagens` aos respectivos DAOs e Repositórios, corrigindo uma omissão da Fase 3.
+- Criada a feature de Busca (`State`, `ViewModel` e `Screen`).
+- O `BuscaViewModel` implementa uma lógica de debounce para evitar buscas excessivas enquanto o usuário digita.
+- A `BuscaScreen` foi conectada à navegação principal na `ShellScreen`.
+- Criado um teste unitário para o `BuscaViewModel` para validar a lógica de busca e debounce.
+
 **2025-10-28: Fase 5 - UI - Telas Principais e Navegação**
 - Implementada a `ShellScreen` com a `BottomNavigationBar` para servir como estrutura de navegação principal do aplicativo.
 - A `ShellScreen` foi definida como a tela inicial no `main.dart`.
@@ -127,7 +134,7 @@ Após concluir cada fase, eu irei:
 
 ## Fase 6: UI - Funcionalidades Adicionais
 
-- [ ] Criar a UI da tela de Busca e implementar sua lógica.
+- [x] Criar a UI da tela de Busca e implementar sua lógica.
 - [ ] Criar a UI da tela de Configurações para tema, fonte, etc., lendo os valores padrão da
   `AppConfig`. (Verificar os itens a colocar conforme '/legado/,,,/MenuDrawer.kt')
 
