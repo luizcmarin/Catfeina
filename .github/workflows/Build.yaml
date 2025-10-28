@@ -120,7 +120,7 @@ jobs:
 
       - name: Fazer o upload dos relatórios de teste de instrumentação do :app
         if: always() # Mantido, pois estes são os resultados diretos do job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app-instrumentation-test-reports-${{ matrix.api-level }}
           path: 'app/build/reports/androidTests/connected'
