@@ -12,6 +12,15 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 5 - UI - Telas Principais e Navegação**
+- Implementada a `ShellScreen` com a `BottomNavigationBar` para servir como estrutura de navegação principal do aplicativo.
+- A `ShellScreen` foi definida como a tela inicial no `main.dart`.
+- Criada a `ListaPoesiasScreen`, que consome o `ListaPoesiasViewModel` para exibir o estado de carregamento, erro ou sucesso com a lista de poesias.
+- A `ListaPoesiasScreen` foi conectada à segunda aba da `BottomNavigationBar`.
+- Criada a `LeitorPoesiaScreen` para exibir os detalhes de uma única poesia, com seu respectivo `State` e `ViewModel` (`family` provider).
+- Implementada a navegação da `ListaPoesiasScreen` para a `LeitorPoesiaScreen` ao tocar em um item, passando o ID da poesia.
+- Criado um teste de widget para a `ListaPoesiasScreen` para garantir a correta renderização dos diferentes estados.
+
 **2025-10-28: Fase 4 - Lógica de Negócios e ViewModels**
 - Implementada a estrutura inicial para o `SyncRepository`, que irá lidar com a sincronização de dados da API externa.
 - Criado o arquivo `data_providers.dart` para centralizar a injeção de dependência de toda a camada de dados (Banco, DAOs, Repositórios) com Riverpod.
@@ -110,11 +119,11 @@ Após concluir cada fase, eu irei:
 
 ## Fase 5: UI - Telas Principais e Navegação
 
-- [ ] Implementar a estrutura de navegação principal (ex: `BottomNavigationBar`, será comum em todas
+- [x] Implementar a estrutura de navegação principal (ex: `BottomNavigationBar`, será comum em todas
   as telas).
-- [ ] Criar a UI da tela de cada tabela, conectando-a à navegação (exceto a tabela 'PoesiaNotas'
+- [x] Criar a UI da tela de cada tabela, conectando-a à navegação (exceto a tabela 'PoesiaNotas'
   cujo campo 'nota' será anexado ao final de cada poesia para alguma anotação do usuário).
-- [ ] Implementar a navegação entre listas e as telas de detalhes.
+- [x] Implementar a navegação entre listas e as telas de detalhes.
 
 ## Fase 6: UI - Funcionalidades Adicionais
 

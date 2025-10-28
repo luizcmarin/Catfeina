@@ -21,9 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 void run(AppConfig appConfig) {
   runApp(
     ProviderScope(
-      overrides: [
-        appConfigProvider.overrideWithValue(appConfig),
-      ],
+      overrides: [appConfigProvider.overrideWithValue(appConfig)],
       child: const CatfeinaApp(),
     ),
   );
