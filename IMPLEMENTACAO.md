@@ -12,6 +12,14 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 3 - Modelos de Dados e Repositórios**
+- Definidas todas as tabelas do banco de dados (`Poesias`, `Personagens`, etc.) em `tabelas_db.dart` usando a sintaxe do Drift.
+- Configurada a classe principal `AppDatabase` e os `DAOs` (Data Access Objects) para cada tabela.
+- A ferramenta `build_runner` foi executada para gerar todo o código necessário para o Drift.
+- Criadas as interfaces (`i_*_repository.dart`) e implementações (`*_repository.dart`) para todos os repositórios, estabelecendo a camada de abstração de dados.
+- Configurado o `PreferenciasRepository` para gerenciar dados simples com `shared_preferences`.
+- A camada de dados está agora totalmente estruturada, pronta para ser usada pela lógica de negócios na próxima fase.
+
 **2025-10-28: Fase 2 - Configuração de Flavors**
 - Adicionados os `productFlavors` (`catverso`, `catmoney`, `catpersonal`) ao `android/app/build.gradle.kts`.
 - Criados os pontos de entrada `main_<flavor>.dart` para cada flavor.
@@ -78,13 +86,13 @@ Após concluir cada fase, eu irei:
 
 ## Fase 3: Modelos de Dados e Repositórios
 
-- [ ] Criar todos os modelos de dados e tabelas do Drift em Dart (`.dart`) conforme a estrutura
+- [x] Criar todos os modelos de dados e tabelas do Drift em Dart (`.dart`) conforme a estrutura
   definida no `Anexo 1` deste documento.
-- [ ] Implementar a camada de repositório (`abstract class` e implementação), como
+- [x] Implementar a camada de repositório (`abstract class` e implementação), como
   `PoesiasRepository`, `SyncRepository`, etc.
-- [ ] Configurar o serviço de banco de dados (`Drift`) e os `DAOs` (Data Access Objects) para as
+- [x] Configurar o serviço de banco de dados (`Drift`) e os `DAOs` (Data Access Objects) para as
   queries.
-- [ ] Configurar o serviço de `shared_preferences` para as configurações do usuário.
+- [x] Configurar o serviço de `shared_preferences` para as configurações do usuário.
 
 ## Fase 4: Lógica de Negócios e ViewModels
 
