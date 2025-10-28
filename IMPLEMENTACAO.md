@@ -12,6 +12,13 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 6 - UI de Configurações**
+- Criada a feature de Configurações, incluindo `ConfiguracoesState`, `ConfiguracoesViewModel` e `ConfiguracoesScreen`.
+- O `ConfiguracoesViewModel` agora carrega e salva a preferência de tema do usuário usando o `IPreferenciasRepository`.
+- O `MaterialApp` principal foi atualizado para reagir às mudanças de tema, proporcionando uma experiência de usuário dinâmica.
+- A `ConfiguracoesScreen` foi implementada com um `SegmentedButton` para a seleção de tema e foi conectada à `AppBar` da tela principal.
+- Adicionado um teste unitário para o `ConfiguracoesViewModel` para validar a lógica de carregamento e salvamento de tema.
+
 **2025-10-28: Fase 6 - UI da Busca**
 - Adicionadas as queries de busca `searchPoesias` e `searchPersonagens` aos respectivos DAOs e Repositórios, corrigindo uma omissão da Fase 3.
 - Criada a feature de Busca (`State`, `ViewModel` e `Screen`).
@@ -135,7 +142,7 @@ Após concluir cada fase, eu irei:
 ## Fase 6: UI - Funcionalidades Adicionais
 
 - [x] Criar a UI da tela de Busca e implementar sua lógica.
-- [ ] Criar a UI da tela de Configurações para tema, fonte, etc., lendo os valores padrão da
+- [x] Criar a UI da tela de Configurações para tema, fonte, etc., lendo os valores padrão da
   `AppConfig`. (Verificar os itens a colocar conforme '/legado/,,,/MenuDrawer.kt')
 
 ## Fase 7: Funcionalidades Específicas (TTS e Debug)
