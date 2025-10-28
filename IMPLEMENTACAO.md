@@ -12,6 +12,13 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 4 - Lógica de Negócios e ViewModels**
+- Implementada a estrutura inicial para o `SyncRepository`, que irá lidar com a sincronização de dados da API externa.
+- Criado o arquivo `data_providers.dart` para centralizar a injeção de dependência de toda a camada de dados (Banco, DAOs, Repositórios) com Riverpod.
+- Criado o primeiro ViewModel da aplicação (`ListaPoesiasViewModel`) com seu respectivo estado (`ListaPoesiasState`), seguindo os padrões do Riverpod.
+- Adicionada a dependência `equatable` para facilitar a comparação de objetos de estado.
+- Adicionada a dependência de desenvolvimento `mockito` e criado o primeiro teste unitário para um ViewModel, simulando o repositório e testando a lógica de negócios de forma isolada.
+
 **2025-10-28: Fase 3 - Modelos de Dados e Repositórios**
 - Definidas todas as tabelas do banco de dados (`Poesias`, `Personagens`, etc.) em `tabelas_db.dart` usando a sintaxe do Drift.
 - Configurada a classe principal `AppDatabase` e os `DAOs` (Data Access Objects) para cada tabela.
@@ -96,10 +103,10 @@ Após concluir cada fase, eu irei:
 
 ## Fase 4: Lógica de Negócios e ViewModels
 
-- [ ] Implementar a lógica de portabilidade da sincronização de dados no `SyncRepository`, fazendo
+- [x] Implementar a lógica de portabilidade da sincronização de dados no `SyncRepository`, fazendo
   com que ele leia a URL da API a partir da `AppConfig` fornecida pelo provider de flavors.
-- [ ] Criar os ViewModels que usarão os repositórios para obter e gerenciar os dados.
-- [ ] Configurar a injeção de dependência com Riverpod para fornecer os repositórios aos ViewModels.
+- [x] Criar os ViewModels que usarão os repositórios para obter e gerenciar os dados.
+- [x] Configurar a injeção de dependência com Riverpod para fornecer os repositórios aos ViewModels.
 
 ## Fase 5: UI - Telas Principais e Navegação
 
