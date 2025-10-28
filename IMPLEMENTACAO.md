@@ -12,6 +12,13 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 7 - Integração do Som Ambiente**
+- Declarada a pasta `assets/audio/` no `pubspec.yaml` para o som de chuva.
+- Criado o `SomAmbienteViewModel` para encapsular a lógica de controle do `just_audio`.
+- O ViewModel carrega o arquivo de áudio, o configura para tocar em loop e expõe controles de `tocar`/`parar`.
+- Um botão de controle para o som ambiente foi adicionado à `AppBar` da `LeitorPoesiaScreen`.
+- Criado um teste unitário para o `SomAmbienteViewModel`, usando um mock do `AudioPlayer` para validar a lógica de controle.
+
 **2025-10-28: Fase 7 - Integração do Text-to-Speech (TTS)**
 - Criada uma feature dedicada para o TTS, com `TtsState` e `TtsViewModel` para encapsular a lógica de interação com o `flutter_tts`.
 - O `TtsViewModel` gerencia os estados de reprodução (play, pause, stop) e se integra aos listeners do plugin.
@@ -156,7 +163,7 @@ Após concluir cada fase, eu irei:
 
 - [x] Integrar o `flutter_tts` na tela de leitura, com controles de play/pause/stop gerenciados por
   um ViewModel.
-- [ ] Integrar o `just_audio` para os sons de ambiente.
+- [x] Integrar o `just_audio` para os sons de ambiente.
 - [ ] Criar a tela de Depuração (`DebugScreen`) e seu `DebugViewModel`, exibindo o status da
   sincronização e outras informações internas.
 
