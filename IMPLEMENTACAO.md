@@ -12,6 +12,13 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 7 - Integração do Text-to-Speech (TTS)**
+- Criada uma feature dedicada para o TTS, com `TtsState` e `TtsViewModel` para encapsular a lógica de interação com o `flutter_tts`.
+- O `TtsViewModel` gerencia os estados de reprodução (play, pause, stop) e se integra aos listeners do plugin.
+- Desenvolvido um widget reutilizável `TtsPlayerWidget` com os controles de UI para a funcionalidade.
+- O `TtsPlayerWidget` foi integrado à `AppBar` da `LeitorPoesiaScreen`, permitindo ao usuário ouvir as poesias.
+- Criado um teste unitário para o `TtsViewModel`, usando um mock do `FlutterTts` para validar a lógica de controle de estado.
+
 **2025-10-28: Fase 6 - UI de Configurações**
 - Criada a feature de Configurações, incluindo `ConfiguracoesState`, `ConfiguracoesViewModel` e `ConfiguracoesScreen`.
 - O `ConfiguracoesViewModel` agora carrega e salva a preferência de tema do usuário usando o `IPreferenciasRepository`.
@@ -147,7 +154,7 @@ Após concluir cada fase, eu irei:
 
 ## Fase 7: Funcionalidades Específicas (TTS e Debug)
 
-- [ ] Integrar o `flutter_tts` na tela de leitura, com controles de play/pause/stop gerenciados por
+- [x] Integrar o `flutter_tts` na tela de leitura, com controles de play/pause/stop gerenciados por
   um ViewModel.
 - [ ] Integrar o `just_audio` para os sons de ambiente.
 - [ ] Criar a tela de Depuração (`DebugScreen`) e seu `DebugViewModel`, exibindo o status da
