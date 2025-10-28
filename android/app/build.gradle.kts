@@ -37,6 +37,26 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    flavorDimensions += "app"
+
+    productFlavors {
+        create("catverso") {
+            dimension = "app"
+            applicationIdSuffix = ".catverso"
+            resValue("string", "app_name", "Catverso")
+        }
+        create("catmoney") {
+            dimension = "app"
+            applicationIdSuffix = ".catmoney"
+            resValue("string", "app_name", "Catmoney")
+        }
+        create("catpersonal") {
+            dimension = "app"
+            applicationIdSuffix = ".catpersonal"
+            resValue("string", "app_name", "Catfeina")
+        }
+    }
 }
 
 flutter {

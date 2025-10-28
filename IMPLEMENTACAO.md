@@ -12,6 +12,14 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 2 - Configuração de Flavors**
+- Adicionados os `productFlavors` (`catverso`, `catmoney`, `catpersonal`) ao `android/app/build.gradle.kts`.
+- Criados os pontos de entrada `main_<flavor>.dart` para cada flavor.
+- Implementada a classe base `AppConfig` e as configurações específicas para cada flavor.
+- Configurado o `appConfigProvider` com Riverpod para injeção de dependência da configuração.
+- A estrutura principal do app foi refatorada para aceitar a configuração via `ProviderScope`.
+- A fase foi concluída conforme o plano, preparando o app para ter múltiplas versões.
+
 **2025-10-28: Fase 1 - Configuração do Projeto**
 - O projeto Flutter foi inicializado.
 - O código boilerplate foi removido e substituído por uma estrutura mínima.
@@ -56,16 +64,16 @@ Após concluir cada fase, eu irei:
 
 ## Fase 2: Configuração de Flavors
 
-- [ ] Definir os `productFlavors` no arquivo `android/app/build.gradle` (ex: `catverso`, `catmoney`,
+- [x] Definir os `productFlavors` no arquivo `android/app/build.gradle` (ex: `catverso`, `catmoney`,
   `catpersonal`).
-- [ ] Criar arquivos de ponto de entrada separados em `lib/` para cada flavor.
-- [ ] Criar uma classe de configuração `AppConfig` que conterá variáveis específicas do flavor (nome
+- [x] Criar arquivos de ponto de entrada separados em `lib/` para cada flavor.
+- [x] Criar uma classe de configuração `AppConfig` que conterá variáveis específicas do flavor (nome
   do app, cores, URL da API, etc).
-- [ ] Criar um `Provider` no Riverpod para disponibilizar a instância de `AppConfig` para todo o
+- [x] Criar um `Provider` no Riverpod para disponibilizar a instância de `AppConfig` para todo o
   aplicativo.
-- [ ] Atualizar cada arquivo `main_<flavor>.dart` para inicializar a `AppConfig` correta e passá-la
+- [x] Atualizar cada arquivo `main_<flavor>.dart` para inicializar a `AppConfig` correta e passá-la
   para o `Provider` antes de executar o app.
-- [ ] Criar as configurações de execução (Launch configurations) na IDE para rodar e depurar cada
+- [x] Criar as configurações de execução (Launch configurations) na IDE para rodar e depurar cada
   flavor separadamente.
 
 ## Fase 3: Modelos de Dados e Repositórios
