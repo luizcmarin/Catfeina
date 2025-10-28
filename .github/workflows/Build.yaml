@@ -64,7 +64,7 @@ jobs:
         run: ./gradlew :app:lintRelease --no-daemon
 
       - name: Enviar os resultados do Lint para o Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: app/build/reports/lint-results-release.sarif
 
