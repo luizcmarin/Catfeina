@@ -12,6 +12,18 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 8 - Refinamento das Configurações**
+- Adicionada a funcionalidade de ajuste de tamanho da fonte em todo o aplicativo.
+- O `ConfiguracoesState` e `ConfiguracoesViewModel` foram atualizados para gerenciar o `fatorEscalaTexto`.
+- A preferência de tamanho de fonte agora é salva no SharedPreferences e carregada na inicialização.
+- O `MaterialApp` principal foi configurado para usar a propriedade `textScaler` com base no estado do ViewModel.
+- Um `Slider` foi adicionado à tela de Configurações para permitir que o usuário ajuste o tamanho da fonte visualmente.
+- O teste unitário do `ConfiguracoesViewModel` foi atualizado para cobrir a nova lógica de carregamento e salvamento da escala de texto.
+
+**2025-10-28: Fase 8 - Testes de Widget**
+- Explicado o conceito e a utilidade dos testes de widget no Flutter.
+- Criado um teste de widget para a `LeitorPoesiaScreen`, validando a renderização correta da UI para os estados de `loading`, `success` e `failure`.
+
 **2025-10-28: Fase 7 - Tela de Depuração**
 - Criada a feature de Depuração, incluindo `DepuracaoState`, `DepuracaoViewModel` e `DepuracaoScreen`.
 - O `DepuracaoViewModel` coleta informações do `AppConfig` (nome do flavor, URL da API) e as expõe para a UI.
@@ -175,8 +187,8 @@ Após concluir cada fase, eu irei:
 
 ## Fase 8: Finalização e Testes
 
-- [ ] Escrever testes de widget para as telas principais (e me explique como usar).
-- [ ] Refinar a implementação de troca de tema e tamanho de fonte.
+- [x] Escrever testes de widget para as telas principais (e me explique como usar).
+- [x] Refinar a implementação de troca de tema e tamanho de fonte.
 - [ ] Realizar uma revisão completa do código e da UI.
 - [ ] Pedir a sua inspeção final do aplicativo e do código para garantir que tudo está conforme o
   esperado e realizar os ajustes necessários.

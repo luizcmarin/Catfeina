@@ -15,13 +15,17 @@ Ponto de entrada principal e widget raiz para o aplicativo Catfeina.
 */
 import 'package:catfeina/app/core/di/app_config.dart';
 import 'package:catfeina/app/core/di/app_providers.dart';
+import 'package:catfeina/app/features/configuracoes/configuracoes_viewmodel.dart';
+import 'package:catfeina/app/features/shell/shell_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void run(AppConfig appConfig) {
   runApp(
     ProviderScope(
-      overrides: [appConfigProvider.overrideWithValue(appConfig)],
+      overrides: [
+        appConfigProvider.overrideWithValue(appConfig),
+      ],
       child: const CatfeinaApp(),
     ),
   );
@@ -33,11 +37,15 @@ class CatfeinaApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final config = ref.watch(appConfigProvider);
+    final configuracoesState = ref.watch(configuracoesViewModelProvider);
 
     return MaterialApp(
       title: config.appName,
       theme: config.theme,
-      home: Container(), // Placeholder for the home screen
+      darkTheme: ThemeData.dark(), // Um tema escuro padrão, pode ser personalizado
+      themeMode: configuracoesState.themeMode,
+      textScaler: TextScaler.linear(configuracoesState.fatorEscalaTexto),
+      home: const ShellScreen(),
     );
   }
 }

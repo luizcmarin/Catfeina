@@ -12,7 +12,7 @@ dele, é estritamente proibida.
 
 Descrição:
 Define a tela (View) de configurações, permitindo ao usuário personalizar
-aspectos do aplicativo, como o modo de tema.
+aspectos do aplicativo, como o modo de tema e o tamanho da fonte.
 */
 
 import 'package:catfeina/app/features/configuracoes/configuracoes_viewmodel.dart';
@@ -61,6 +61,22 @@ class ConfiguracoesScreen extends ConsumerWidget {
             selected: {state.themeMode},
             onSelectionChanged: (Set<ThemeMode> newSelection) {
               viewModel.mudarTema(newSelection.first);
+            },
+          ),
+          const Divider(height: 40),
+          Text(
+            'Tamanho do Texto',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Slider(
+            value: state.fatorEscalaTexto,
+            min: 0.8,
+            max: 1.5,
+            divisions: 7,
+            label: state.fatorEscalaTexto.toStringAsFixed(1),
+            onChanged: (value) {
+              viewModel.mudarEscalaTexto(value);
             },
           ),
           const Divider(height: 40),
