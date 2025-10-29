@@ -12,6 +12,12 @@ CADA BIBLIOTECA E DO FLUTTER PORQUE VOCE TEM INFORMAÇÕES DESATUALIZADAS SOBRE 
 
 ## Diário
 
+**2025-10-28: Fase 7 - Tela de Depuração**
+- Criada a feature de Depuração, incluindo `DepuracaoState`, `DepuracaoViewModel` e `DepuracaoScreen`.
+- O `DepuracaoViewModel` coleta informações do `AppConfig` (nome do flavor, URL da API) e as expõe para a UI.
+- A `DepuracaoScreen` foi integrada à tela de Configurações para um acesso mais discreto.
+- Criado um teste unitário para o `DepuracaoViewModel` para validar o carregamento dos dados de configuração.
+
 **2025-10-28: Fase 7 - Integração do Som Ambiente**
 - Declarada a pasta `assets/audio/` no `pubspec.yaml` para o som de chuva.
 - Criado o `SomAmbienteViewModel` para encapsular a lógica de controle do `just_audio`.
@@ -164,7 +170,7 @@ Após concluir cada fase, eu irei:
 - [x] Integrar o `flutter_tts` na tela de leitura, com controles de play/pause/stop gerenciados por
   um ViewModel.
 - [x] Integrar o `just_audio` para os sons de ambiente.
-- [ ] Criar a tela de Depuração (`DebugScreen`) e seu `DebugViewModel`, exibindo o status da
+- [x] Criar a tela de Depuração (`DebugScreen`) e seu `DebugViewModel`, exibindo o status da
   sincronização e outras informações internas.
 
 ## Fase 8: Finalização e Testes
