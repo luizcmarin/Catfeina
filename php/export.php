@@ -11,11 +11,15 @@ $sync_manifest_name = 'manifest.json';
 $sync_data_folder = 'data/';
 $sync_images_folder = 'images/';
 
+// --- INFORMAÇÕES DA VERSÃO DO APP (OTA) ---
+$version_code = 210;
+$version_name = "2.1.0-catverso";
+
 $app_update_info = [
-    "versionCode" => 210,
-    "versionName" => "2.1.0-catverso",
+    "versionCode" => $version_code,
+    "versionName" => $version_name,
     "changelog" => "• Correção de bugs na tela de leitura.\n• Novas poesias de Outono!",
-    "url" => "https://seuservidor.com/atualizacoes/catfeina-v2.1.0.apk"
+    "url" => "https://github.com/luizcmarin/Catfeina/releases/download/{$version_name}/catfeina-{$version_name}.apk"
 ];
 
 $modules = [
@@ -29,104 +33,103 @@ $modules = [
 $log_messages = [];
 $zip_extension_enabled = class_exists('ZipArchive');
 
-// Lógica de gerenciamento de versão
+// --- LÓGICA UNIFICADA PARA TRATAMENTO DE FORMULÁRIOS ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // Ação: Incrementar Versão
         if (isset($_POST['increment_module'])) {
             $module = $_POST['increment_module'];
             $stmt = $pdo->prepare('UPDATE tbl_versoes SET versao = versao + 1 WHERE modulo = :modulo');
             $stmt->execute([':modulo' => $module]);
             header('Location: export.php?status=version_incremented');
             exit;
+
+        // Ação: Resetar Versão
         } elseif (isset($_POST['reset_module'])) {
             $module = $_POST['reset_module'];
             $stmt = $pdo->prepare('UPDATE tbl_versoes SET versao = MAX(100, versao - 1) WHERE modulo = :modulo');
             $stmt->execute([':modulo' => $module]);
             header('Location: export.php?status=version_reset');
             exit;
-        }
-    } catch (PDOException $e) {
-        $log_messages[] = ['type' => 'danger', 'text' => 'Erro ao gerenciar versão: ' . $e->getMessage()];
-    }
-}
 
-// Lógica de exportação
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export'])) {
-    if (!$zip_extension_enabled) {
-        $log_messages[] = ['type' => 'danger', 'text' => 'Erro Crítico: A extensão ZipArchive do PHP não está habilitada.'];
-    } else {
-        try {
-            if (!file_exists($sync_export_dir)) mkdir($sync_export_dir, 0777, true);
-
-            // 1. Gerar e salvar o manifest.json independente
-            $stmt = $pdo->query("SELECT modulo, versao FROM tbl_versoes");
-            $versions_from_db = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-            $manifest_modulos = [];
-            foreach ($modules as $name => $info) {
-                $manifest_modulos[] = ['nome' => $name, 'versao' => (int)($versions_from_db[$name] ?? 100), 'arquivo' => $sync_data_folder . $info['file']];
-            }
-            $manifest_imagens = ['versao' => (int)($versions_from_db['imagens'] ?? 100), 'arquivo' => $sync_images_folder];
-            $manifest_content_array = ['modulos' => $manifest_modulos, 'imagens' => $manifest_imagens, 'app_update' => $app_update_info];
-            $manifest_json_content = json_encode($manifest_content_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-            file_put_contents($sync_export_dir . '/' . $sync_manifest_name, $manifest_json_content);
-            $log_messages[] = ['type' => 'success', 'text' => "Arquivo '{$sync_manifest_name}' gerado com sucesso."];
-
-            // 2. Gerar e salvar o CatfeinaSync.zip com os dados e imagens
-            $final_zip_path = $sync_export_dir . '/' . $final_zip_name;
-            $zip = new ZipArchive();
-            
-            // Nota de compactação: ZipArchive usa o método DEFLATE por padrão, que já é um excelente
-            // algoritmo de compressão (semelhante ao de um ZIP padrão). Não é possível setar um "nível" (1-9)
-            // de compressão, mas o padrão já oferece o melhor balanço entre tamanho e velocidade.
-            if ($zip->open($final_zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                // Adicionar arquivos JSON na pasta 'data/'
-                $zip->addEmptyDir($sync_data_folder);
-                foreach ($modules as $name => $info) {
-                    $stmt = $pdo->query("SELECT * FROM {$info['table']}");
-                    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    $processed_data = array_map(function($row) {
-                        if (isset($row['atualizadoem'])) { $row['atualizadoem'] = strtotime($row['atualizadoem']) * 1000; }
-                        if (isset($row['fixada'])) { $row['fixada'] = (bool)$row['fixada']; }
-                        return $row;
-                    }, $data);
-                    $zip->addFromString($sync_data_folder . $info['file'], json_encode($processed_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                }
-                $log_messages[] = ['type' => 'info', 'text' => count($modules) . " arquivos JSON adicionados à pasta '{$sync_data_folder}' no ZIP."];
-
-                // Adicionar imagens na pasta 'images/'
-                if (is_dir($source_images_dir)) {
-                    $zip->addEmptyDir($sync_images_folder);
-                    $image_files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source_images_dir), RecursiveIteratorIterator::LEAVES_ONLY);
-                    $image_count = 0;
-                    foreach ($image_files as $name => $file) {
-                        if (!$file->isDir()) {
-                            $filePath = $file->getRealPath();
-                            $relativePath = substr($filePath, strlen(realpath($source_images_dir)) + 1);
-                            $zip->addFile($filePath, $sync_images_folder . $relativePath);
-                            $image_count++;
-                        }
-                    }
-                    $log_messages[] = ['type' => 'info', 'text' => "{$image_count} imagens adicionadas à pasta '{$sync_images_folder}' no ZIP."];
-                } else {
-                    $log_messages[] = ['type' => 'warning', 'text' => "Pasta de imagens de origem '{$source_images_dir}' não encontrada."];
-                }
-
-                $zip->close();
-                $log_messages[] = ['type' => 'success', 'text' => "Arquivo '{$final_zip_name}' gerado com sucesso."];
+        // Ação: Exportar Arquivos
+        } elseif (isset($_POST['export'])) {
+            if (!$zip_extension_enabled) {
+                $log_messages[] = ['type' => 'danger', 'text' => 'Erro Crítico: A extensão ZipArchive do PHP não está habilitada.'];
             } else {
-                $log_messages[] = ['type' => 'danger', 'text' => "Falha ao criar o arquivo ZIP final."];
+                if (!file_exists($sync_export_dir)) mkdir($sync_export_dir, 0777, true);
+
+                // 1. Gerar manifest.json
+                $stmt = $pdo->query("SELECT modulo, versao FROM tbl_versoes");
+                $versions_from_db = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+                $manifest_modulos = [];
+                foreach ($modules as $name => $info) {
+                    $manifest_modulos[] = ['nome' => $name, 'versao' => (int)($versions_from_db[$name] ?? 100), 'arquivo' => $sync_data_folder . $info['file']];
+                }
+                $manifest_imagens = ['versao' => (int)($versions_from_db['imagens'] ?? 100), 'arquivo' => $sync_images_folder];
+                $manifest_content_array = ['modulos' => $manifest_modulos, 'imagens' => $manifest_imagens, 'app_update' => $app_update_info];
+                $manifest_json_content = json_encode($manifest_content_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                file_put_contents($sync_export_dir . '/' . $sync_manifest_name, $manifest_json_content);
+                $log_messages[] = ['type' => 'success', 'text' => "Arquivo '{$sync_manifest_name}' gerado com sucesso."];
+
+                // 2. Gerar CatfeinaSync.zip
+                $final_zip_path = $sync_export_dir . '/' . $final_zip_name;
+                $zip = new ZipArchive();
+                if ($zip->open($final_zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                    $zip->addEmptyDir($sync_data_folder);
+                    foreach ($modules as $name => $info) {
+                        $stmt = $pdo->query("SELECT * FROM {$info['table']}");
+                        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        $processed_data = array_map(function($row) {
+                            if (isset($row['atualizadoem'])) { $row['atualizadoem'] = strtotime($row['atualizadoem']) * 1000; }
+                            if (isset($row['fixada'])) { $row['fixada'] = (bool)$row['fixada']; }
+                            return $row;
+                        }, $data);
+                        $zip->addFromString($sync_data_folder . $info['file'], json_encode($processed_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                    }
+                    $log_messages[] = ['type' => 'info', 'text' => count($modules) . " arquivos JSON adicionados à pasta '{$sync_data_folder}' no ZIP."];
+
+                    if (is_dir($source_images_dir)) {
+                        $zip->addEmptyDir($sync_images_folder);
+                        $image_files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source_images_dir), RecursiveIteratorIterator::LEAVES_ONLY);
+                        $image_count = 0;
+                        foreach ($image_files as $name => $file) {
+                            if (!$file->isDir()) {
+                                $filePath = $file->getRealPath();
+                                $relativePath = substr($filePath, strlen(realpath($source_images_dir)) + 1);
+                                $zip->addFile($filePath, $sync_images_folder . $relativePath);
+                                $image_count++;
+                            }
+                        }
+                        $log_messages[] = ['type' => 'info', 'text' => "{$image_count} imagens adicionadas à pasta '{$sync_images_folder}' no ZIP."];
+                    } else {
+                        $log_messages[] = ['type' => 'warning', 'text' => "Pasta de imagens de origem '{$source_images_dir}' não encontrada."];
+                    }
+
+                    $zip->close();
+                    $log_messages[] = ['type' => 'success', 'text' => "Arquivo '{$final_zip_name}' gerado com sucesso."];
+                } else {
+                    $log_messages[] = ['type' => 'danger', 'text' => "Falha ao criar o arquivo ZIP final."];
+                }
             }
-        } catch (Exception $e) {
-            $log_messages[] = ['type' => 'danger', 'text' => 'Erro durante a exportação: ' . $e->getMessage()];
         }
+    } catch (Exception $e) {
+        $log_messages[] = ['type' => 'danger', 'text' => 'Erro durante a execução: ' . $e->getMessage()];
     }
 }
 
 $versions_for_display = $pdo->query('SELECT modulo, versao, descricao FROM tbl_versoes ORDER BY modulo')->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!-- O HTML do Dashboard permanece o mesmo -->
 <div class="container">
+    <div class="container-fluid">
+        <?php if (!$zip_extension_enabled): ?>
+            <div class="alert alert-danger" role="alert">
+                <strong>Atenção:</strong> A extensão <code>ZipArchive</code> do PHP não está habilitada. A geração de arquivos está desativada.
+            </div>
+        <?php endif; ?>
+    </div>
+
     <div class="row">
         <div class="col-lg-5">
             <div class="card mb-3">

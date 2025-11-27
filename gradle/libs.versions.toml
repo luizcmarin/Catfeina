@@ -33,7 +33,9 @@ jvmTarget = "21"
 # ==============================================================================
 # Configurações da Funcionalidade de Sincronização
 # ==============================================================================
-syncUrl = "https://drive.google.com/uc?export=download&id=11EsvjeU4z9fGTkwgR0NrNPN8eh8pNcbt"
+# URL base para os arquivos de sincronização hospedados no GitHub.
+# O app irá concatenar os nomes dos arquivos (manifest.json, CatfeinaSync.zip) a esta URL.
+syncUrl = "https://raw.githubusercontent.com/luizcmarin/Catfeina/master/php/export/"
 syncZipFileName = "CatfeinaSync.zip"
 syncManifestName = "manifest.json"
 syncImageFolderName = "images"
