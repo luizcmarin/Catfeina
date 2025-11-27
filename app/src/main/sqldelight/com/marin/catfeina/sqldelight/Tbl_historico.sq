@@ -1,0 +1,34 @@
+--  Projeto: Catfeina/Catverso
+--  Arquivo: app/src/main/sqldelight/com/marin/catfeina/sqldelight/Tbl_historico.sq
+--
+--  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+--
+--  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+--
+--  Este arquivo faz parte do projeto Catfeina.
+--  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+--  dele, é estritamente proibida.
+--
+--  Nota: Schema e queries para a tabela de histórico (tbl_historico).
+
+-- Criação da Tabela
+CREATE TABLE tbl_historico (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    nometabela TEXT NOT NULL,
+    conteudoid INTEGER NOT NULL,
+    titulo TEXT NOT NULL,
+    vistoem INTEGER NOT NULL
+);
+
+CREATE INDEX idx_historico_vistoem ON tbl_historico(vistoem DESC);
+ 
+-- Queries
+insertHistorico: INSERT INTO tbl_historico(nometabela, conteudoid, titulo, vistoem) VALUES (?, ?, ?, ?);
+
+deleteHistorico: DELETE FROM tbl_historico WHERE id = ?;
+
+deleteHistoricos: DELETE FROM tbl_historico;
+
+countHistoricos: SELECT COUNT(*) FROM tbl_historico;
+
+getHistoricos: SELECT * FROM tbl_historico ORDER BY vistoem DESC;

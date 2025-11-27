@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    *  Projeto: Catfeina/Catverso
+    *  Arquivo: app/src/main/res/values/colors.xml
+    *
+    *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+    *
+    *  Nota: Definição de cores base para o tema XML (legado).
+    -->
+    <color name="background_splash">#FFFFFF</color>
+</resources>

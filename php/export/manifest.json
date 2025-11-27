@@ -1,0 +1,39 @@
+{
+    "modulos": [
+        {
+            "nome": "poesias",
+            "versao": 100,
+            "arquivo": "data\/poesias.json"
+        },
+        {
+            "nome": "personagens",
+            "versao": 100,
+            "arquivo": "data\/personagens.json"
+        },
+        {
+            "nome": "meows",
+            "versao": 100,
+            "arquivo": "data\/meows.json"
+        },
+        {
+            "nome": "informativos",
+            "versao": 100,
+            "arquivo": "data\/informativos.json"
+        },
+        {
+            "nome": "atelier",
+            "versao": 100,
+            "arquivo": "data\/atelier.json"
+        }
+    ],
+    "imagens": {
+        "versao": 100,
+        "arquivo": "images\/"
+    },
+    "app_update": {
+        "versionCode": 210,
+        "versionName": "2.1.0-catverso",
+        "changelog": "• Correção de bugs na tela de leitura.\n• Novas poesias de Outono!",
+        "url": "https:\/\/seuservidor.com\/atualizacoes\/catfeina-v2.1.0.apk"
+    }
+}

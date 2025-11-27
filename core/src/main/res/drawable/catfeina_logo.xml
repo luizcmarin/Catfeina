@@ -1,0 +1,60 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="640dp"
+    android:height="640dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+  <path
+      android:name="borda"
+      android:pathData="M120,120m-116,0a116,116 0,1 1,232 0a116,116 0,1 1,-232 0"
+      android:strokeLineJoin="round"
+      android:strokeWidth="8"
+      android:fillColor="#00000000"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
+  <path
+      android:name="xicara"
+      android:pathData="m80,153.33c0,12.52 9.85,22.67 22,22.67 8.88,0 12,-6.12 20,-6.12 8,0 11.12,6.12 20,6.12 12.15,0 22,-10.15 22,-22.67 0,-10.38 -6.78,-19.14 -16.02,-21.82 0.01,-0.28 0.02,-0.56 0.02,-0.85 0,-12.52 -9.88,-22.67 -26,-22.67 -16.12,0 -26,10.15 -26,22.67 0,0.28 0.01,0.57 0.02,0.85C86.78,134.2 80,142.95 80,153.33Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="8"
+      android:fillColor="#fa9310"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
+  <path
+      android:name="orelha_esquerda"
+      android:pathData="m108.39,98.1c12.91,-5.48 11.13,-12.4 7.32,-21.14 -3.81,-8.73 -13.86,-15.18 -21.71,-12.23 -4.88,1.83 -6.15,5.14 -6.72,10.78 -0.56,5.64 -1.44,8.8 0,12.11 3.81,8.73 8.19,15.97 21.11,10.49z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="8"
+      android:fillColor="#ffd474"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
+  <path
+      android:name="orelha_direita"
+      android:pathData="M140.61,98.1C127.7,92.61 129.48,85.69 133.29,76.96 137.1,68.22 147.15,61.78 155,64.72c4.88,1.83 6.15,5.14 6.72,10.78 0.56,5.64 1.44,8.8 0,12.11 -3.81,8.73 -8.19,15.97 -21.11,10.49z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="8"
+      android:fillColor="#ffd474"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
+  <path
+      android:name="pata_esquerda"
+      android:pathData="M63.67,120.33a16.17,11.42 45,1 0,16.15 -16.15a16.17,11.42 45,1 0,-16.15 16.15z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="7.99992"
+      android:fillColor="#ffd474"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
+  <path
+      android:name="pata_direita"
+      android:pathData="m162.18,125.02c4.15,4.77 12.8,3.7 19.32,-2.38 6.52,-6.09 8.45,-14.88 4.3,-19.66 -4.15,-4.77 -12.8,-3.7 -19.32,2.38 -6.52,6.09 -8.45,14.89 -4.3,19.66z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="8"
+      android:fillColor="#ffd474"
+      android:strokeColor="#000000"
+      android:fillType="evenOdd"
+      android:strokeLineCap="round"/>
+</vector>

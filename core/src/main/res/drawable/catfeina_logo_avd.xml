@@ -1,0 +1,28 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/catfeina_logo">
+
+    <target
+        android:name="borda"
+        android:animation="@animator/catfeina_logo_animator" />
+
+    <target
+        android:name="xicara"
+        android:animation="@animator/catfeina_logo_animator" />
+
+    <target
+        android:name="orelha_esquerda"
+        android:animation="@animator/catfeina_logo_animator" />
+
+    <target
+        android:name="orelha_direita"
+        android:animation="@animator/catfeina_logo_animator" />
+
+    <target
+        android:name="pata_esquerda"
+        android:animation="@animator/catfeina_logo_animator" />
+
+    <target
+        android:name="pata_direita"
+        android:animation="@animator/catfeina_logo_animator" />
+
+</animated-vector>

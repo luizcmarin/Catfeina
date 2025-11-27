@@ -1,0 +1,53 @@
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Animação da borda (existente) -->
+    <objectAnimator
+        android:duration="1500"
+        android:interpolator="@android:interpolator/fast_out_slow_in"
+        android:propertyName="trimPathEnd"
+        android:valueFrom="0"
+        android:valueTo="1" />
+
+    <!-- Fade-in para a xícara, começando um pouco depois -->
+    <objectAnimator
+        android:startOffset="500"
+        android:duration="1000"
+        android:propertyName="fillAlpha"
+        android:targetName="xicara"
+        android:valueFrom="0"
+        android:valueTo="1" />
+
+    <!-- Fade-in para as orelhas e patas, junto com a xícara -->
+    <objectAnimator
+        android:startOffset="500"
+        android:duration="1000"
+        android:propertyName="fillAlpha"
+        android:targetName="orelha_esquerda"
+        android:valueFrom="0"
+        android:valueTo="1" />
+
+    <objectAnimator
+        android:startOffset="500"
+        android:duration="1000"
+        android:propertyName="fillAlpha"
+        android:targetName="orelha_direita"
+        android:valueFrom="0"
+        android:valueTo="1" />
+
+    <objectAnimator
+        android:startOffset="500"
+        android:duration="1000"
+        android:propertyName="fillAlpha"
+        android:targetName="pata_esquerda"
+        android:valueFrom="0"
+        android:valueTo="1" />
+
+    <objectAnimator
+        android:startOffset="500"
+        android:duration="1000"
+        android:propertyName="fillAlpha"
+        android:targetName="pata_direita"
+        android:valueFrom="0"
+        android:valueTo="1" />
+
+</set>

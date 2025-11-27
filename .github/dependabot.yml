@@ -1,0 +1,28 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  # Manter GitHub Actions atualizadas
+  - package-ecosystem: "github-actions"
+    directory: "/" # Procura em .github/workflows/
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Manter dependências Gradle atualizadas
+  - package-ecosystem: "gradle"
+    directory: "/" # Onde os arquivos build.gradle.kts e libs.versions.toml estão
+    schedule:
+      interval: "weekly"
+    groups:
+      gradle-dependencies: # Agrupa todas as dependências do Gradle
+        patterns:
+          - "*" # Padrão para pegar todas as dependências do Gradle
+    labels:
+      - "dependencies"
+      - "kotlin"
+
+# Opcional: Configurar limites para o número de PRs abertos pelo Dependabot
+# open-pull-requests-limit: 10

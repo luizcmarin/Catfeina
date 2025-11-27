@@ -1,0 +1,34 @@
+--  Projeto: Catfeina/Catverso
+--  Arquivo: app/src/main/sqldelight/com/marin/catfeina/sqldelight/Tbl_personagem.sq
+--
+--  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+--
+--  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+--
+--  Este arquivo faz parte do projeto Catfeina.
+--  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+--  dele, é estritamente proibida.
+--
+--  Nota: Schema e queries para a tabela de personagens (tbl_personagem).
+
+-- Criação da Tabela
+CREATE TABLE tbl_personagem (
+    id INTEGER NOT NULL PRIMARY KEY,
+    nome TEXT NOT NULL UNIQUE,
+    biografia TEXT NOT NULL,
+    imagem TEXT,
+    atualizadoem INTEGER NOT NULL
+);
+
+-- Queries
+upsertPersonagem: INSERT OR REPLACE INTO tbl_personagem(id, nome, biografia, imagem, atualizadoem) VALUES (?, ?, ?, ?, ?);
+
+deletePersonagem: DELETE FROM tbl_personagem WHERE id = ?;
+
+deletePersonagens: DELETE FROM tbl_personagem;
+
+countPersonagens: SELECT COUNT(*) FROM tbl_personagem;
+
+getPersonagens: SELECT * FROM tbl_personagem ORDER BY nome ASC;
+
+getPersonagem: SELECT * FROM tbl_personagem WHERE id = ?;

@@ -1,0 +1,68 @@
+--  Projeto: Catfeina/Catverso
+--  Arquivo: app/src/main/sqldelight/com/marin/catfeina/sqldelight/Tbl_poesia.sq
+--
+--  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+--
+--  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+--
+--  Este arquivo faz parte do projeto Catfeina.
+--  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+--  dele, é estritamente proibida.
+--
+--  Nota: Schema e queries para a tabela de poesias (tbl_poesia).
+
+-- Criação da Tabela
+CREATE TABLE tbl_poesia (
+    id INTEGER NOT NULL PRIMARY KEY,
+    titulo TEXT NOT NULL UNIQUE,
+    textobase TEXT NOT NULL,
+    texto TEXT NOT NULL,
+    textofinal TEXT,
+    imagem TEXT,
+    autor TEXT,
+    nota TEXT,
+    anterior INTEGER,
+    proximo INTEGER,
+    atualizadoem INTEGER NOT NULL
+);
+
+-- Queries
+upsertPoesia: INSERT OR REPLACE INTO tbl_poesia(id, titulo, textobase, texto, textofinal, imagem, autor, nota, anterior, proximo, atualizadoem) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deletePoesia: DELETE FROM tbl_poesia WHERE id = ?;
+
+deletePoesias: DELETE FROM tbl_poesia;
+
+countPoesias: SELECT COUNT(id) FROM tbl_poesia;
+
+getPoesias:
+SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
+FROM tbl_poesia AS p
+LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
+ORDER BY p.atualizadoem DESC
+LIMIT :limit OFFSET :offset;
+
+getPoesia:
+SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
+FROM tbl_poesia AS p
+LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
+WHERE p.id = ?;
+
+getPoesiaAleatoria:
+SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
+FROM tbl_poesia AS p
+LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
+ORDER BY RANDOM() LIMIT 1;
+
+getPoesiasFavoritas:
+SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
+FROM tbl_poesia AS p
+INNER JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
+WHERE pn.favorita = 1
+ORDER BY pn.dataleitura DESC;
+
+buscarPoesias:
+SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
+FROM tbl_poesia AS p
+LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
+WHERE p.titulo LIKE '%' || :termo || '%' OR p.texto LIKE '%' || :termo || '%';

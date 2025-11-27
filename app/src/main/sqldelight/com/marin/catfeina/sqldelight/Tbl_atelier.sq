@@ -1,0 +1,34 @@
+--  Projeto: Catfeina/Catverso
+--  Arquivo: app/src/main/sqldelight/com/marin/catfeina/sqldelight/Tbl_atelier.sq
+--
+--  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+--
+--  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+--
+--  Este arquivo faz parte do projeto Catfeina.
+--  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+--  dele, é estritamente proibida.
+--
+--  Nota: Schema e queries para a tabela do atelier (tbl_atelier).
+
+-- Criação da Tabela
+CREATE TABLE tbl_atelier (
+    id INTEGER NOT NULL PRIMARY KEY,
+    titulo TEXT NOT NULL,
+    texto TEXT NOT NULL,
+    atualizadoem INTEGER NOT NULL,
+    fixada INTEGER NOT NULL DEFAULT 0
+);
+
+-- Queries
+upsertAtelier: INSERT OR REPLACE INTO tbl_atelier(id, titulo, texto, atualizadoem, fixada) VALUES (?, ?, ?, ?, ?);
+
+deleteAtelier: DELETE FROM tbl_atelier WHERE id = ?;
+
+deleteAteliers: DELETE FROM tbl_atelier;
+
+countAteliers: SELECT COUNT(*) FROM tbl_atelier;
+
+getAteliers: SELECT * FROM tbl_atelier ORDER BY fixada DESC, atualizadoem DESC;
+
+getAtelier: SELECT * FROM tbl_atelier WHERE id = ?;

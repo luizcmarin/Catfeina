@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Catverso</string>
+
+    <!-- Tempo Relativo -->
+    <string name="tempo_agora_mesmo">agora mesmo</string>
+    <plurals name="tempo_minutos_atras">
+        <item quantity="one">há 1 minuto</item>
+        <item quantity="other">há %d minutos</item>
+    </plurals>
+    <plurals name="tempo_horas_atras">
+        <item quantity="one">há 1 hora</item>
+        <item quantity="other">há %d horas</item>
+    </plurals>
+    <string name="tempo_ontem">ontem</string>
+
+    <!-- Botões Globais -->
+    <string name="salvar">Salvar</string>
+    <string name="cancelar">Cancelar</string>
+
+    <!-- Tela do Histórico -->
+    <string name="historico_titulo">Histórico</string>
+    <string name="historico_erro">Ocorreu um erro ao carregar o histórico.</string>
+    <string name="historico_vazio">Seu histórico de leitura está vazio.</string>
+
+    <!-- Tela do Atelier -->
+    <string name="atelier_adicionar_nota">Adicionar nova nota</string>
+    <string name="atelier_erro">Ocorreu um erro ao carregar as notas.</string>
+    <string name="atelier_sem_notas">Nenhuma nota ainda. Que tal criar uma?</string>
+    <string name="atelier_nova_nota_titulo">Nova Nota</string>
+    <string name="atelier_nova_nota_campo_titulo">Título</string>
+    <string name="atelier_nova_nota_campo_texto">Sua nota aqui...</string>
+
+    <!-- Tela de Busca -->
+    <string name="busca_placeholder">Buscar por título ou texto...</string>
+    <string name="busca_ociosa">Use a busca para encontrar poesias.</string>
+    <string name="busca_erro">Ocorreu um erro ao realizar a busca.</string>
+    <string name="busca_sem_resultados">Nenhuma poesia encontrada.</string>
+
+    <!-- Tela de Depuração -->
+    <string name="debug_titulo">Menu de Depuração</string>
+    <string name="debug_build_info">Informações da Build</string>
+    <string name="debug_db_stats">Estatísticas do Banco de Dados</string>
+
+    <!-- Diálogo de Atualização -->
+    <string name="dialogo_atualizacao_titulo">Nova versão disponível</string>
+    <string name="dialogo_atualizacao_mensagem">Uma nova versão (%s) está disponível. Deseja atualizar agora?</string>
+    <string name="dialogo_atualizacao_confirmar">Atualizar</string>
+    <string name="dialogo_atualizacao_cancelar">Mais tarde</string>
+
+    <!-- Tela de Configurações -->
+    <string name="configuracoes_titulo">Configurações</string>
+    <string name="configuracoes_voltar">Voltar</string>
+    <string name="configuracoes_aparencia_titulo">Aparência</string>
+    <string name="configuracoes_modo_escuro_titulo">Modo Escuro</string>
+    <string name="configuracoes_modo_escuro_descricao">Reduz o brilho para uma leitura mais confortável à noite</string>
+    <string name="configuracoes_tema_sazonal_titulo">Tema Sazonal</string>
+    <string name="configuracoes_tema_sazonal_descricao">Altere as cores do aplicativo de acordo com a estação</string>
+
+    <!-- Erros -->
+    <string name="erro_ocorreu">Ocorreu um erro: %1$s</string>
+    <string name="erro_carregar_dados">Ocorreu um erro ao carregar os dados.</string>
+
+    <!-- Tela do Leitor de Poesia -->
+    <string name="leitor_poesia_falar">Ler poesia em voz alta</string>
+    <string name="leitor_poesia_erro">Ocorreu um erro ao carregar a poesia.</string>
+
+    <!-- IntentHelper -->
+    <string name="intent_helper_nenhum_navegador">Nenhum navegador encontrado.</string>
+    <string name="intent_helper_compartilhar_via">Compartilhar via</string>
+    <string name="intent_helper_nenhum_app_compartilhamento">Nenhum app de compartilhamento encontrado.</string>
+    <string name="intent_helper_nenhum_app_email">Nenhum app de e-mail encontrado.</string>
+
+    <!-- Menu Lateral (Drawer) -->
+    <string name="drawer_voltar">Voltar</string>
+    <string name="drawer_logo_descricao">Logo do Catfeina</string>
+    <string name="drawer_tema_aparencia">Tema e Aparência</string>
+    <string name="drawer_modo_escuro">Modo Escuro</string>
+    <string name="drawer_configuracoes_texto">Configurações de texto</string>
+    <string name="drawer_tela_cheia">Tela cheia</string>
+    <string name="drawer_contato">CONTATO</string>
+    <string name="drawer_enviar_sugestao">Enviar uma sugestão</string>
+    <string name="drawer_contato_email">E-mail</string>
+    <string name="drawer_saiba_mais_jw">Saiba mais em jw.org</string>
+    <string name="drawer_link_jw">Link para jw.org</string>
+    <string name="drawer_privacidade">PRIVACIDADE</string>
+    <string name="drawer_privacidade_descricao">Algumas informações essenciais precisam ser transferidas entre nós e o seu dispositivo para que o aplicativo funcione corretamente. Nenhuma dessas informações vai ser vendida ou usada para fazer propaganda.</string>
+    <string name="drawer_enviar_diagnostico">Enviar informações de diagnóstico</string>
+    <string name="drawer_enviar_diagnostico_descricao">Este aplicativo coleta informações de diagnóstico e uso para melhorar sua experiência. Você pode escolher se deseja compartilhar esses dados. Nenhuma informação será vendida ou usada para fins publicitários.</string>
+    <string name="drawer_enviar_uso">Enviar informações de uso</string>
+    <string name="drawer_enviar_uso_descricao">Ajude-nos a melhorar o design, o desempenho e a estabilidade.</string>
+    <string name="drawer_sobre">SOBRE</string>
+    <string name="drawer_sobre_descricao_longa">As obras aqui expostas têm um valor artístico, literário, baseado nas crenças das Testemunhas de Jeová. Seu objetivo é enaltecer a Jeová, o verdadeiro Deus e legítimo Soberano Universal, fortalecer a esperança em Suas maravilhosas e incomparáveis promessas, ocupar nossos pensamentos com “tudo que é verdadeiro, tudo que é de séria preocupação, tudo que é justo, tudo que é casto, tudo que é amável, tudo de que se fala bem, tudo que é virtuoso e tudo que é digno de louvor.” (Fil 4:8) A glória por qualquer benefício daqui derivado cabe a Jeová, o dador de todo presente perfeito, inclusive nossa capacidade de pensar e amar.\n\nTodos os personagens usados nesta obra são fictícios. Os nomes referem-se às raças de gatos conhecidas, não de pessoas.\n\nObra produzida sem fins lucrativos.</string>
+    <string name="drawer_legal">LEGAL</string>
+    <string name="drawer_termos_uso">Termos de Uso</string>
+    <string name="drawer_politica_privacidade">Política de Privacidade</string>
+    <string name="drawer_isencao_responsabilidade">Isenção de Responsabilidade</string>
+    <string name="drawer_declaracao_conformidade">Declaração de Conformidade</string>
+    <string name="drawer_aviso_conteudo">Aviso de Conteúdo</string>
+    <string name="drawer_direitos_reservados">© 2025 Marin. Todos os direitos reservados.</string>
+    <string name="drawer_debug">DEBUG</string>
+    <string name="drawer_menu_depuracao">Menu de Depuração</string>
+
+</resources>

@@ -1,0 +1,35 @@
+--  Projeto: Catfeina/Catverso
+--  Arquivo: app/src/main/sqldelight/com/marin/catfeina/sqldelight/Tbl_informativo.sq
+--
+--  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+--
+--  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+--
+--  Este arquivo faz parte do projeto Catfeina.
+--  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+--  dele, é estritamente proibida.
+--
+--  Nota: Schema e queries para a tabela de informativos (tbl_informativo).
+
+-- Criação da Tabela
+CREATE TABLE tbl_informativo (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    chave TEXT NOT NULL UNIQUE,
+    titulo TEXT NOT NULL,
+    conteudo TEXT NOT NULL,
+    imagem TEXT,
+    atualizadoem INTEGER NOT NULL
+);
+
+-- Queries
+upsertInformativo: INSERT OR REPLACE INTO tbl_informativo(chave, titulo, conteudo, imagem, atualizadoem) VALUES (?, ?, ?, ?, ?);
+
+deleteInformativo: DELETE FROM tbl_informativo WHERE id = ?;
+
+deleteInformativos: DELETE FROM tbl_informativo;
+
+countInformativos: SELECT COUNT(*) FROM tbl_informativo;
+
+getInformativos: SELECT * FROM tbl_informativo ORDER BY chave ASC;
+
+getInformativo: SELECT * FROM tbl_informativo WHERE chave = ?;

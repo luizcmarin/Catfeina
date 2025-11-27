@@ -1,0 +1,34 @@
+--  Projeto: Catfeina/Catverso
+--  Arquivo: app/src/main/sqldelight/com/marin/catfeina/sqldelight/Tbl_meow.sq
+--
+--  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
+--
+--  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
+--
+--  Este arquivo faz parte do projeto Catfeina.
+--  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
+--  dele, é estritamente proibida.
+--
+--  Nota: Schema e queries para a tabela de frases do mascote (tbl_meow).
+
+-- Criação da Tabela
+CREATE TABLE tbl_meow (
+    id INTEGER NOT NULL PRIMARY KEY,
+    texto TEXT NOT NULL UNIQUE,
+    atualizadoem INTEGER NOT NULL
+);
+
+-- Queries
+upsertMeow: INSERT OR REPLACE INTO tbl_meow(id, texto, atualizadoem) VALUES (?, ?, ?);
+
+deleteMeow: DELETE FROM tbl_meow WHERE id = ?;
+
+deleteMeows: DELETE FROM tbl_meow;
+
+countMeows: SELECT count(*) FROM tbl_meow;
+
+getMeows: SELECT * FROM tbl_meow ORDER BY atualizadoem DESC;
+
+getMeow: SELECT * FROM tbl_meow WHERE id = ?;
+
+getMeowAleatorio: SELECT texto FROM tbl_meow ORDER BY RANDOM() LIMIT 1;
