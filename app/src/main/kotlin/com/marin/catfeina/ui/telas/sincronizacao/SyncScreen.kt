@@ -24,13 +24,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marin.core.ui.UiState
 
 @Composable
 fun SyncScreen(
@@ -39,34 +39,35 @@ fun SyncScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState) {
-        if (uiState is SyncUiState.Success) {
-            onSyncComplete()
-        }
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (val state = uiState) {
-            is SyncUiState.Idle -> {
+            is UiState.Idle -> {
                 Text("Pronto para sincronizar os dados.")
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { viewModel.startSync() }) {
                     Text("Iniciar Sincronização")
                 }
             }
-            is SyncUiState.Syncing -> {
+            is UiState.Loading -> {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Sincronizando dados...")
+                val message = state.message
+                if (message != null) {
+                    Text(message)
+                }
             }
-            is SyncUiState.Success -> {
-                Text(state.message)
+            is UiState.Success -> {
+                Text("Sincronização concluída com sucesso!")
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = onSyncComplete) {
+                    Text("Voltar")
+                }
             }
-            is SyncUiState.Error -> {
+            is UiState.Error -> {
                 Text(state.message)
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { viewModel.startSync() }) {

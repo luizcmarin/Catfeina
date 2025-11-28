@@ -24,7 +24,8 @@ import com.marin.catfeina.data.sync.MeowSync
 import com.marin.catfeina.data.sync.PersonagemSync
 import com.marin.catfeina.data.sync.PoesiaSync
 import com.marin.catfeina.data.sync.toDomain
-import com.marin.core.sync.SyncState
+import com.marin.catfeina.usecases.ResultadoVerificacao
+import com.marin.core.ui.UiState
 import com.marin.core.util.CatLog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
@@ -48,8 +49,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface SyncRepository {
-    fun executarSincronizacao(): Flow<SyncState>
+    fun executarSincronizacao(): Flow<UiState<Unit>>
     suspend fun syncAll(): Result<Unit>
+    suspend fun verificarAtualizacoes(): ResultadoVerificacao
 }
 
 @Singleton
@@ -66,65 +68,78 @@ class SyncRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : SyncRepository {
 
-    override fun executarSincronizacao(): Flow<SyncState> = flow {
-        emit(SyncState.Executando("Iniciando sincronização..."))
-        val result = syncAll()
-        if (result.isSuccess) {
-            emit(SyncState.Sucesso("Sincronização concluída com sucesso!"))
-        } else {
-            val error = result.exceptionOrNull()
-            CatLog.e("Falha ao executar sincronização para a UI", error)
-            emit(SyncState.Falha(error?.message ?: "Erro desconhecido"))
-        }
+    override fun executarSincronizacao(): Flow<UiState<Unit>> = flow {
+        emit(UiState.Loading("Iniciando sincronização..."))
+        syncAll().fold(
+            onSuccess = { emit(UiState.Success(Unit)) },
+            onFailure = { emit(UiState.Error(it.message ?: "Erro desconhecido")) }
+        )
     }
 
     override suspend fun syncAll(): Result<Unit> = withContext(ioDispatcher) {
         try {
-            CatLog.d("Iniciando sincronização... Obtendo manifesto.")
+            CatLog.d("Iniciando syncAll... Obtendo manifesto.")
             val manifest = fetchManifest()
 
-            // Processar módulos de dados
             for (modulo in manifest.modulos) {
                 val versaoLocal = prefs.getModuloVersao(modulo.nome).first()
                 if (modulo.versao > versaoLocal) {
                     CatLog.i("Módulo '${modulo.nome}' precisa ser atualizado (local: $versaoLocal, servidor: ${modulo.versao}).")
-                    processarModulo(modulo.nome, modulo.arquivo, modulo.versao)
+                    processarModulo(modulo.nome, BuildConfig.SYNC_URL + modulo.arquivo, modulo.versao)
                 } else {
                     CatLog.d("Módulo '${modulo.nome}' está atualizado.")
                 }
             }
 
-            // Processar pacote de imagens
             manifest.imagens?.let { imagens ->
                 val versaoImagensLocal = prefs.getModuloVersao("imagens").first()
                 if (imagens.versao > versaoImagensLocal) {
                     CatLog.i("Pacote de imagens precisa ser atualizado (local: $versaoImagensLocal, servidor: ${imagens.versao}).")
-                    processarPacoteImagens(imagens.arquivo, imagens.versao)
+                    processarPacoteImagens(BuildConfig.SYNC_URL + imagens.arquivo, imagens.versao)
                 } else {
                     CatLog.d("Pacote de imagens está atualizado.")
                 }
             }
 
-            // Lidar com atualização do app
-            manifest.appUpdate?.let { appUpdate ->
-                val versaoAppLocal = BuildConfig.VERSION_CODE
-                if (appUpdate.versionCode > versaoAppLocal) {
-                    CatLog.i("Nova versão do app disponível: ${appUpdate.versionName}. Changelog: ${appUpdate.changelog}")
-                    prefs.setAppUpdateInfo(appUpdate)
-                }
+            manifest.appUpdate?.let {
+                if (it.versionCode > BuildConfig.VERSION_CODE) prefs.setAppUpdateInfo(it) else prefs.setAppUpdateInfo(null)
             }
 
-            CatLog.i("Sincronização concluída com sucesso!")
+            CatLog.i("syncAll concluído com sucesso!")
             Result.success(Unit)
 
         } catch (e: Exception) {
-            CatLog.e("Falha catastrófica na sincronização", e)
+            CatLog.e("Falha catastrófica no syncAll", e)
             Result.failure(e)
         }
     }
 
+   override suspend fun verificarAtualizacoes(): ResultadoVerificacao = withContext(ioDispatcher) {
+        try {
+            CatLog.d("Verificando atualizações...")
+            val manifest = fetchManifest()
+
+            val dadosDisponiveis = manifest.modulos.any { modulo ->
+                modulo.versao > prefs.getModuloVersao(modulo.nome).first()
+            } || manifest.imagens?.let { it.versao > prefs.getModuloVersao("imagens").first() } == true
+
+            val appDisponivel = manifest.appUpdate?.let { appUpdate ->
+                appUpdate.versionCode > BuildConfig.VERSION_CODE
+            } ?: false
+
+            CatLog.i("Verificação de atualizações concluída. Dados: $dadosDisponiveis, App: $appDisponivel")
+            ResultadoVerificacao(
+                atualizacaoDeDadosDisponivel = dadosDisponiveis,
+                atualizacaoDeAppDisponivel = appDisponivel
+            )
+        } catch (e: Exception) {
+            CatLog.e("Falha ao verificar atualizações. Presumindo que não há novidades.", e)
+            ResultadoVerificacao(atualizacaoDeDadosDisponivel = false, atualizacaoDeAppDisponivel = false)
+        }
+    }
+
     private suspend fun fetchManifest(): ManifestDto {
-        val manifestUrl = BuildConfig.SYNC_URL + "manifest.json"
+        val manifestUrl = BuildConfig.SYNC_URL + BuildConfig.SYNC_MANIFEST_NAME
         val response = httpClient.get(manifestUrl)
         if (!response.status.isSuccess()) {
             throw IOException("Falha ao baixar o manifesto: ${response.status}")
@@ -133,64 +148,28 @@ class SyncRepositoryImpl @Inject constructor(
         return json.decodeFromString(manifestJson)
     }
 
-    private suspend fun processarModulo(nome: String, arquivo: String, novaVersao: Int) {
-        try {
-            val url = BuildConfig.SYNC_URL + arquivo
-            CatLog.d("Baixando dados do módulo '$nome' de $url")
-            val response = httpClient.get(url)
-            if (!response.status.isSuccess()) {
-                throw IOException("Falha ao baixar o arquivo do módulo '$nome': ${response.status}")
-            }
-            val conteudoJson = response.bodyAsText()
+    private suspend fun processarModulo(nome: String, url: String, novaVersao: Int) {
+        val response = httpClient.get(url)
+        if (!response.status.isSuccess()) throw IOException("Falha ao baixar o arquivo do módulo '$nome': ${response.status}")
+        val conteudoJson = response.bodyAsText()
 
-            when (nome) {
-                "poesias" -> {
-                    val dtos = json.decodeFromString<List<PoesiaSync>>(conteudoJson)
-                    poesiaRepository.upsertPoesias(dtos.map { it.toDomain() })
-                }
-                "atelier" -> {
-                    val dtos = json.decodeFromString<List<AtelierSync>>(conteudoJson)
-                    atelierRepository.upsertAteliers(dtos.map { it.toDomain() })
-                }
-                "informativos" -> {
-                    val dtos = json.decodeFromString<List<InformativoSync>>(conteudoJson)
-                    informativoRepository.upsertInformativos(dtos.map { it.toDomain() })
-                }
-                "personagens" -> {
-                    val dtos = json.decodeFromString<List<PersonagemSync>>(conteudoJson)
-                    personagemRepository.upsertPersonagens(dtos.map { it.toDomain() })
-                }
-                "meow" -> {
-                    val dtos = json.decodeFromString<List<MeowSync>>(conteudoJson)
-                    meowRepository.upsertMeows(dtos.map { it.toDomain() })
-                }
-                else -> CatLog.w("Processamento para o módulo de dados '$nome' não implementado.")
-            }
-            prefs.updateModuloVersao(nome, novaVersao)
-            CatLog.i("Módulo '$nome' atualizado para a versão $novaVersao.")
-        } catch (e: Exception) {
-            CatLog.e("Falha ao processar o módulo '$nome'", e)
-            // Não re-lança para permitir que outros módulos continuem
+        when (nome) {
+            "poesias" -> poesiaRepository.upsertPoesias(json.decodeFromString<List<PoesiaSync>>(conteudoJson).map { it.toDomain() })
+            "atelier" -> atelierRepository.upsertAteliers(json.decodeFromString<List<AtelierSync>>(conteudoJson).map { it.toDomain() })
+            "informativos" -> informativoRepository.upsertInformativos(json.decodeFromString<List<InformativoSync>>(conteudoJson).map { it.toDomain() })
+            "personagens" -> personagemRepository.upsertPersonagens(json.decodeFromString<List<PersonagemSync>>(conteudoJson).map { it.toDomain() })
+            "meow" -> meowRepository.upsertMeows(json.decodeFromString<List<MeowSync>>(conteudoJson).map { it.toDomain() })
+            else -> CatLog.w("Processamento para o módulo de dados '$nome' não implementado.")
         }
+        prefs.updateModuloVersao(nome, novaVersao)
     }
 
-    private suspend fun processarPacoteImagens(arquivo: String, novaVersao: Int) {
+    private suspend fun processarPacoteImagens(url: String, novaVersao: Int) {
         val arquivoZip = File(appContext.cacheDir, "imagens.zip")
         try {
-            val url = BuildConfig.SYNC_URL + arquivo
-            CatLog.d("Baixando pacote de imagens de $url")
             downloadArquivo(url, arquivoZip)
-
-            val pastaImagensDestino = File(appContext.filesDir, "images")
-            if (!pastaImagensDestino.exists()) {
-                pastaImagensDestino.mkdirs()
-            }
-            descompactarArquivo(arquivoZip, pastaImagensDestino)
-
+            descompactarArquivo(arquivoZip, File(appContext.filesDir, "images"))
             prefs.updateModuloVersao("imagens", novaVersao)
-            CatLog.i("Pacote de imagens atualizado para a versão $novaVersao.")
-        } catch (e: Exception) {
-            CatLog.e("Falha ao processar o pacote de imagens", e)
         } finally {
             if (arquivoZip.exists()) arquivoZip.delete()
         }
@@ -198,38 +177,26 @@ class SyncRepositoryImpl @Inject constructor(
 
     private suspend fun downloadArquivo(url: String, arquivoDestino: File) {
         val response = httpClient.get(url)
-        if (!response.status.isSuccess()) {
-            throw IOException("Falha ao baixar o arquivo $url: ${response.status}")
-        }
+        if (!response.status.isSuccess()) throw IOException("Falha ao baixar o arquivo $url: ${response.status}")
         response.body<ByteReadChannel>().copyAndClose(arquivoDestino.writeChannel())
     }
 
     private fun descompactarArquivo(arquivoZip: File, pastaDestino: File) {
-        if (pastaDestino.exists()) {
-            pastaDestino.deleteRecursively()
-        }
+        if (pastaDestino.exists()) pastaDestino.deleteRecursively()
         pastaDestino.mkdirs()
-
-        ZipInputStream(arquivoZip.inputStream()).use { zipInputStream ->
-            var entry = zipInputStream.nextEntry
+        ZipInputStream(arquivoZip.inputStream()).use { zis ->
+            var entry = zis.nextEntry
             while (entry != null) {
                 val newFile = File(pastaDestino, entry.name)
-                if (!newFile.canonicalPath.startsWith(pastaDestino.canonicalPath + File.separator)) {
-                    throw IOException("Tentativa de Zip Path Traversal: ${entry.name}")
-                }
+                if (!newFile.canonicalPath.startsWith(pastaDestino.canonicalPath + File.separator)) throw IOException("Zip Path Traversal: ${entry.name}")
                 if (entry.isDirectory) {
-                    if (!newFile.isDirectory && !newFile.mkdirs()) {
-                        throw IOException("Falha ao criar diretório ${newFile.absolutePath}")
-                    }
+                    if (!newFile.mkdirs()) throw IOException("Falha ao criar diretório ${newFile.absolutePath}")
                 } else {
-                    val parent = newFile.parentFile
-                    if (parent != null && !parent.isDirectory && !parent.mkdirs()) {
-                        throw IOException("Falha ao criar diretório pai ${parent.absolutePath}")
-                    }
-                    newFile.outputStream().use { fos -> zipInputStream.copyTo(fos) }
+                    newFile.parentFile?.mkdirs()
+                    newFile.outputStream().use { fos -> zis.copyTo(fos) }
                 }
-                zipInputStream.closeEntry()
-                entry = zipInputStream.nextEntry
+                zis.closeEntry()
+                entry = zis.nextEntry
             }
         }
     }

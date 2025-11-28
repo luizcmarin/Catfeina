@@ -48,7 +48,7 @@
           <description value="catverso local" />
           <database-type value="SQLITE" />
           <config-type value="BASIC" />
-          <database-version value="9999.0" />
+          <database-version value="3.5" />
           <driver-source value="BUNDLED" />
           <driver-library value="" />
           <driver value="" />

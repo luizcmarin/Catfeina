@@ -18,7 +18,6 @@ package com.marin.catfeina
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.marin.catfeina.usecases.SchedulePeriodicSyncUseCase
 import com.marin.core.util.CatLog
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -29,9 +28,6 @@ class CatfeinaApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    @Inject
-    lateinit var schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase
-
     override val workManagerConfiguration:
         Configuration by lazy {
         Configuration.Builder()
@@ -41,7 +37,8 @@ class CatfeinaApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        CatLog.d("CatfeinaApplication: onCreate - Agendando SyncWorker.")
-      //  schedulePeriodicSyncUseCase()
+        CatLog.d("CatfeinaApplication: onCreate - Inicializando.")
+        // O agendamento periódico foi removido conforme solicitado.
+        // A verificação de atualização agora será feita sob demanda na inicialização.
     }
 }

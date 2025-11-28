@@ -31,7 +31,7 @@ import javax.inject.Inject
  * da implementação do WorkManager.
  */
 class SchedulePeriodicSyncUseCase @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     operator fun invoke() {
         val syncWorkRequest = PeriodicWorkRequestBuilder<SyncWorker>(

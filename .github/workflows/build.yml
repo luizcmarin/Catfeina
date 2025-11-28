@@ -5,11 +5,12 @@ name: Android CI
 permissions:
   contents: read
 
+# Gatilhos: Executa em pushes para o branch master e em qualquer Pull Request.
 on:
-  pull_request:
-    branches: [ main ]
   push:
-    branches: [ main ]
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,7 +18,7 @@ concurrency:
 
 jobs:
   build:
-    name: "Build & Lint"
+    name: "Build, Lint & Test"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,7 +33,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -42,6 +43,10 @@ jobs:
 
       - name: Run Lint
         run: ./gradlew :app:lintDebug
+
+      # PASSO ADICIONADO: Executa os testes unitários para garantir a qualidade da lógica.
+      - name: Run Unit Tests
+        run: ./gradlew test
 
       - name: Upload Android App (APK)
         uses: actions/upload-artifact@v4

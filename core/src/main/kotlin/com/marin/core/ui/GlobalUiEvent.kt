@@ -20,11 +20,21 @@ package com.marin.core.ui
  * Representa eventos de UI que podem ser acionados em toda a aplicação.
  * Utilizado para comunicação desacoplada entre ViewModels e a UI principal (ex: Scaffold).
  */
-sealed class GlobalUiEvent {
+sealed interface GlobalUiEvent {
     /**
      * Um evento para exibir uma mensagem em um Snackbar.
      * @param message A mensagem a ser exibida.
      * @param actionLabel O texto opcional para um botão de ação no Snackbar.
      */
-    data class ShowSnackbar(val message: String, val actionLabel: String? = null) : GlobalUiEvent()
+    data class ShowSnackbar(val message: String, val actionLabel: String? = null) : GlobalUiEvent
+
+    /**
+     * Eventos relacionados a notificações e avisos importantes na UI.
+     */
+    sealed interface Notificacao : GlobalUiEvent {
+        /**
+         * Indica que há uma nova atualização de conteúdo (dados ou imagens) disponível para sincronização.
+         */
+        data object AtualizacaoDisponivel : Notificacao
+    }
 }

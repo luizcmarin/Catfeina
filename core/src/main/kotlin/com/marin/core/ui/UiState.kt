@@ -1,5 +1,6 @@
 /*
- *  Projeto: Catfeina/Catverso *  Arquivo: core/ui/UiState.kt
+ *  Projeto: Catfeina/Catverso
+ *  Arquivo: core/ui/UiState.kt
  *
  *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
  *
@@ -9,21 +10,27 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota: Um wrapper genérico para estados de UI que precisam carregar dados (MVI).
+ *  Nota: Um wrapper genérico e unificado para estados de UI (MVI).
  *
  */
 
 package com.marin.core.ui
 
 /**
- * Um wrapper genérico para estados de UI que precisam carregar dados.
- * Utilizado no padrão MVI (Model-View-Intent) para representar o estado da tela.
+ * Um wrapper genérico e unificado para representar os estados da UI.
+ * Cobre tanto o carregamento de dados quanto o estado de processos assíncronos.
  */
 sealed interface UiState<out T> {
     /**
-     * O estado de carregamento inicial ou durante uma atualização.
+     * O estado inicial ou de repouso, antes de qualquer operação começar.
      */
-    data object Loading : UiState<Nothing>
+    data object Idle : UiState<Nothing>
+
+    /**
+     * O estado de carregamento, opcionalmente com uma mensagem de progresso.
+     * @param message Uma mensagem opcional que descreve a etapa atual (ex: "Carregando...").
+     */
+    data class Loading(val message: String? = null) : UiState<Nothing>
 
     /**
      * O estado de sucesso, contendo os dados prontos para serem exibidos.

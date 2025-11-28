@@ -40,7 +40,7 @@ class UserPreferencesRepository @Inject constructor(
     private object Keys {
         // Tema e UI
         val TEMA_CHAVE = stringPreferencesKey("ui_theme_key")
-        val MODO_NOTURNO = stringPreferencesKey("ui_night_mode") // Chave atualizada para String
+        val MODO_NOTURNO = stringPreferencesKey("ui_night_mode")
 
         // Sincronização
         fun moduloVersao(nomeModulo: String) = intPreferencesKey("sync_version_${nomeModulo}")
@@ -91,9 +91,15 @@ class UserPreferencesRepository @Inject constructor(
         dataStore.edit { it[Keys.moduloVersao(nomeModulo)] = novaVersao }
     }
 
-    suspend fun setAppUpdateInfo(appUpdate: AppUpdateDto) {
-        val appUpdateJson = json.encodeToString(AppUpdateDto.serializer(), appUpdate)
-        dataStore.edit { it[Keys.APP_UPDATE_INFO] = appUpdateJson }
+    suspend fun setAppUpdateInfo(appUpdate: AppUpdateDto?) {
+        dataStore.edit {
+            if (appUpdate == null) {
+                it.remove(Keys.APP_UPDATE_INFO)
+            } else {
+                val appUpdateJson = json.encodeToString(AppUpdateDto.serializer(), appUpdate)
+                it[Keys.APP_UPDATE_INFO] = appUpdateJson
+            }
+        }
     }
 
     val appUpdateInfo: Flow<AppUpdateDto?> = dataStore.data

@@ -23,13 +23,19 @@ import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marin.catfeina.ui.GlobalUiEventManager
 import com.marin.catfeina.ui.TemaViewModel
 import com.marin.core.tema.CatfeinaTema
 import com.marin.core.tema.ModoNoturno
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var globalUiEventManager: GlobalUiEventManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -38,19 +44,17 @@ class MainActivity : ComponentActivity() {
             val viewModel: TemaViewModel = hiltViewModel()
             val estado by viewModel.uiState.collectAsStateWithLifecycle()
 
-            // A Activity combina a preferência do usuário com o estado do sistema.
             val usarModoEscuro = when (estado.modoNoturno) {
                 ModoNoturno.CLARO -> false
                 ModoNoturno.ESCURO -> true
                 ModoNoturno.SISTEMA -> isSystemInDarkTheme()
             }
 
-            // Delega a aplicação do tema para o Composable do :core, que contém a lógica interna.
             CatfeinaTema(
                 chaveTema = estado.tema.chave,
                 useDarkTheme = usarModoEscuro
             ) {
-                CatfeinaApp()
+                CatfeinaApp(globalUiEventManager = globalUiEventManager)
             }
         }
     }

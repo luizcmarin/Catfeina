@@ -24,19 +24,6 @@ import com.marin.core.util.CatLog
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
-/**
- * Worker do WorkManager responsável por executar a lógica de sincronização de dados em background.
- *
- * Este worker é injetado pelo Hilt e delega a lógica de negócio para o [SyncRepository].
- * Ele é projetado para ser robusto, tratando os resultados da sincronização:
- * - [Result.success] se a sincronização for bem-sucedida.
- * - [Result.retry] se ocorrer uma falha controlada (ex: problema de rede), para que o WorkManager tente novamente.
- * - [Result.failure] se uma exceção inesperada ocorrer, para evitar novas tentativas desnecessárias.
- *
- * @param context O contexto da aplicação.
- * @param workerParams Parâmetros de configuração do Worker.
- * @param syncRepository O repositório que contém a lógica de sincronização.
- */
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
     @Assisted context: Context,

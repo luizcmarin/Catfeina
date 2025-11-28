@@ -10,7 +10,7 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota: Tela de inicialização que gerencia a sincronização de dados e a navegação inicial.
+ *  Nota: Tela de inicialização que gerencia a verificação de atualizações e a navegação inicial.
  *
  */
 package com.marin.catfeina.ui.telas.splash
@@ -23,34 +23,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marin.catfeina.ui.componentes.UpdateDialog
+import com.marin.core.R
 import com.marin.core.ui.CatfeinaLogoAnimation
-import com.marin.core.sync.SyncState
-import com.marin.core.R as CoreR
+import com.marin.core.ui.UiState
 
 @Composable
 fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel(),
     onNavigateToMain: () -> Unit
 ) {
-    val syncState by viewModel.syncState.collectAsState()
-    val appUpdateInfo by viewModel.appUpdateInfo.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val appUpdateInfo by viewModel.appUpdateInfo.collectAsStateWithLifecycle()
 
-    val message = when (val state = syncState) {
-        is SyncState.Executando -> state.message
-        is SyncState.Sucesso -> state.message
-        is SyncState.Falha -> state.message
-    }
-
-    // Navega para a tela principal quando a sincronização terminar
-    LaunchedEffect(syncState) {
-        if (syncState is SyncState.Sucesso || syncState is SyncState.Falha) {
+    LaunchedEffect(uiState) {
+        if (uiState is UiState.Success) {
             onNavigateToMain()
         }
     }
@@ -62,19 +55,21 @@ fun SplashScreen(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CatfeinaLogoAnimation(
                 modifier = Modifier.size(200.dp),
-                drawableId = CoreR.drawable.catfeina_logo_avd
+                drawableId = R.drawable.catfeina_logo_avd
             )
 
-            if (message != null) {
-                Text(text = message, modifier = Modifier.padding(top = 16.dp))
+            if (uiState is UiState.Loading) {
+                val message = (uiState as UiState.Loading).message
+                if (message != null) {
+                    Text(text = message, modifier = Modifier.padding(top = 16.dp))
+                }
             }
         }
     }
 
-    // Exibe o diálogo de atualização se houver informações disponíveis
-    appUpdateInfo?.let { updateInfo ->
+    appUpdateInfo?.let {
         UpdateDialog(
-            updateInfo = updateInfo,
+            updateInfo = it,
             onDismiss = { viewModel.onUpdateDialogDismissed() }
         )
     }

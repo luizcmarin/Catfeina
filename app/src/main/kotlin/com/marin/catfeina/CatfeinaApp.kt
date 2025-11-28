@@ -28,8 +28,10 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -39,42 +41,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.marin.catfeina.ui.GlobalUiEventManager
 import com.marin.core.ui.GlobalUiEvent
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    private val globalUiEventManager: GlobalUiEventManager
-) : ViewModel() {
-    val globalEvents = globalUiEventManager.events
-}
 
 @Composable
 fun CatfeinaApp(
-    viewModel: MainViewModel = hiltViewModel()
+    globalUiEventManager: GlobalUiEventManager
 ) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Ouve os eventos de UI globais
-    LaunchedEffect(key1 = true) {
-        viewModel.globalEvents.collect {
-            when (it) {
-                is GlobalUiEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(
-                        message = it.message,
-                        actionLabel = it.actionLabel
-                    )
+    LaunchedEffect(key1 = globalUiEventManager) {
+        globalUiEventManager.events.collectLatest { event ->
+            scope.launch {
+                when (event) {
+                    is GlobalUiEvent.ShowSnackbar -> {
+                        snackbarHostState.showSnackbar(
+                            message = event.message,
+                            actionLabel = event.actionLabel
+                        )
+                    }
+                    is GlobalUiEvent.Notificacao.AtualizacaoDisponivel -> {
+                        val result = snackbarHostState.showSnackbar(
+                            message = "Novos dados disponíveis",
+                            actionLabel = "SINCRONIZAR",
+                            duration = SnackbarDuration.Indefinite
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            navController.navigate(Screen.Sincronizacao.route)
+                        }
+                    }
                 }
             }
         }
@@ -83,7 +86,11 @@ fun CatfeinaApp(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            // Conteúdo do Drawer (Menu Lateral)
+            CatfeinaDrawerContent(
+                navController = navController,
+                currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route,
+                onCloseDrawer = { scope.launch { drawerState.close() } }
+            )
         }
     ) {
         Scaffold(
@@ -120,18 +127,12 @@ private fun CatfeinaBottomAppBar(navController: NavController) {
                 selected = currentRoute == item.screen.route,
                 onClick = {
                     navController.navigate(item.screen.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {
                                 saveState = true
                             }
                         }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
                         launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
                         restoreState = true
                     }
                 }

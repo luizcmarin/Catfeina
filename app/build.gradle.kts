@@ -140,9 +140,9 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
+            freeCompilerArgs.add("-Xreturn-value-checker=full")
         }
     }
-
     buildFeatures {
         compose = true
         buildConfig = true // Necessário para usar os campos `buildConfigField`.

@@ -1,28 +1,22 @@
-# .github/dependabot.yml
+# Arquivo de configuração para o Dependabot
+# https://docs.github.com/pt/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
 version: 2
 updates:
-  # Manter GitHub Actions atualizadas
-  - package-ecosystem: "github-actions"
-    directory: "/" # Procura em .github/workflows/
-    schedule:
-      interval: "weekly"
-    groups:
-      github-actions:
-        patterns:
-          - "*"
-
-  # Manter dependências Gradle atualizadas
+  # Mantém as dependências do Gradle (libs.versions.toml) atualizadas
   - package-ecosystem: "gradle"
-    directory: "/" # Onde os arquivos build.gradle.kts e libs.versions.toml estão
+    directory: "/"
     schedule:
-      interval: "weekly"
-    groups:
-      gradle-dependencies: # Agrupa todas as dependências do Gradle
-        patterns:
-          - "*" # Padrão para pegar todas as dependências do Gradle
-    labels:
-      - "dependencies"
-      - "kotlin"
+      interval: "daily"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
 
-# Opcional: Configurar limites para o número de PRs abertos pelo Dependabot
-# open-pull-requests-limit: 10
+  # Mantém as GitHub Actions atualizadas
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
