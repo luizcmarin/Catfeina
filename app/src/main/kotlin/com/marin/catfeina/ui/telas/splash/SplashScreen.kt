@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,9 +34,11 @@ import com.marin.catfeina.ui.componentes.UpdateDialog
 import com.marin.core.R
 import com.marin.core.ui.CatfeinaLogoAnimation
 import com.marin.core.ui.UiState
+import com.marin.core.util.placeholder
 
 @Composable
 fun SplashScreen(
+    modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel(),
     onNavigateToMain: () -> Unit
 ) {
@@ -49,7 +52,7 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -73,4 +76,13 @@ fun SplashScreen(
             onDismiss = { viewModel.onUpdateDialogDismissed() }
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SplashScreenPreview() {
+    SplashScreen(
+        modifier = Modifier.placeholder(isLoading = true),
+        onNavigateToMain = {}
+    )
 }

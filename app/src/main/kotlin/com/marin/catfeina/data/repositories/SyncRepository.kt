@@ -85,7 +85,10 @@ class SyncRepositoryImpl @Inject constructor(
                 val versaoLocal = prefs.getModuloVersao(modulo.nome).first()
                 if (modulo.versao > versaoLocal) {
                     CatLog.i("Módulo '${modulo.nome}' precisa ser atualizado (local: $versaoLocal, servidor: ${modulo.versao}).")
-                    processarModulo(modulo.nome, BuildConfig.SYNC_URL + modulo.arquivo, modulo.versao)
+                    // O caminho do arquivo no manifesto pode conter um diretório (ex: "data/"). Usamos apenas o nome do arquivo.
+                    val nomeArquivo = File(modulo.arquivo).name
+                    val url = BuildConfig.SYNC_URL + nomeArquivo
+                    processarModulo(modulo.nome, url, modulo.versao)
                 } else {
                     CatLog.d("Módulo '${modulo.nome}' está atualizado.")
                 }
@@ -95,7 +98,8 @@ class SyncRepositoryImpl @Inject constructor(
                 val versaoImagensLocal = prefs.getModuloVersao("imagens").first()
                 if (imagens.versao > versaoImagensLocal) {
                     CatLog.i("Pacote de imagens precisa ser atualizado (local: $versaoImagensLocal, servidor: ${imagens.versao}).")
-                    processarPacoteImagens(BuildConfig.SYNC_URL + imagens.arquivo, imagens.versao)
+                    val url = BuildConfig.SYNC_URL + "images.zip"
+                    processarPacoteImagens(url, imagens.versao)
                 } else {
                     CatLog.d("Pacote de imagens está atualizado.")
                 }
@@ -158,7 +162,7 @@ class SyncRepositoryImpl @Inject constructor(
             "atelier" -> atelierRepository.upsertAteliers(json.decodeFromString<List<AtelierSync>>(conteudoJson).map { it.toDomain() })
             "informativos" -> informativoRepository.upsertInformativos(json.decodeFromString<List<InformativoSync>>(conteudoJson).map { it.toDomain() })
             "personagens" -> personagemRepository.upsertPersonagens(json.decodeFromString<List<PersonagemSync>>(conteudoJson).map { it.toDomain() })
-            "meow" -> meowRepository.upsertMeows(json.decodeFromString<List<MeowSync>>(conteudoJson).map { it.toDomain() })
+            "meows" -> meowRepository.upsertMeows(json.decodeFromString<List<MeowSync>>(conteudoJson).map { it.toDomain() })
             else -> CatLog.w("Processamento para o módulo de dados '$nome' não implementado.")
         }
         prefs.updateModuloVersao(nome, novaVersao)

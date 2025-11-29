@@ -116,4 +116,16 @@ class UserPreferencesRepository @Inject constructor(
                 }
             }
         }
+
+    suspend fun limparRegistrosSincronizacao() {
+        dataStore.edit { preferences ->
+            val keysToRemove = preferences.asMap().keys.filter {
+                it.name.startsWith("sync_version_")
+            }
+            keysToRemove.forEach { key ->
+                preferences.remove(key)
+            }
+            preferences.remove(Keys.APP_UPDATE_INFO)
+        }
+    }
 }

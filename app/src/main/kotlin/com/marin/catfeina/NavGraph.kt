@@ -74,7 +74,7 @@ fun NavGraph(
             PoesiaReaderScreen() 
         }
         composable(Screen.Informativo.route) { 
-            InformativoScreen(onNavigateBack = { navController.navigateUp() }) 
+            InformativoScreen() 
         }
         composable(Screen.Atelier.route) { 
             AtelierScreen(navController = navController) 
@@ -87,7 +87,6 @@ fun NavGraph(
         }
         composable(Screen.Historico.route) { 
             HistoricoScreen(
-                onNavigateBack = { navController.navigateUp() },
                 onPoesiaClick = { poesiaId ->
                     navController.navigate(Screen.LeitorPoesia.createRoute(poesiaId))
                 }
@@ -97,9 +96,7 @@ fun NavGraph(
             SyncScreen(onSyncComplete = { navController.navigateUp() }) 
         }
         composable(Screen.Configuracoes.route) { 
-            SettingsScreen(
-                temaViewModel = temaViewModel,
-                onNavigateBack = { navController.navigateUp() })
+            SettingsScreen(temaViewModel = temaViewModel)
         }
         composable(Screen.Debug.route) { 
             DebugScreen(navController = navController) 

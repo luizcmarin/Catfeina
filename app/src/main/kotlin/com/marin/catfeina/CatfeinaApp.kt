@@ -95,6 +95,12 @@ fun CatfeinaApp(
     ) {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                CatfeinaTopAppBar(
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    navController = navController
+                )
+            },
             bottomBar = {
                 CatfeinaBottomAppBar(navController = navController)
             }

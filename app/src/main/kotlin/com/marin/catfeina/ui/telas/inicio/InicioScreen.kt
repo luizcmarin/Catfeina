@@ -36,11 +36,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.github.panpf.sketch.AsyncImage
@@ -52,36 +54,90 @@ import com.marin.catfeina.Screen
 import com.marin.catfeina.data.models.Poesia
 import com.marin.core.ui.Icones
 import com.marin.core.util.placeholder
+import kotlinx.coroutines.flow.flowOf
 import java.io.File
 
 @Composable
 fun InicioScreen(
     modifier: Modifier = Modifier,
     viewModel: InicioViewModel = hiltViewModel(),
-    navController: NavHostController
+    navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val poesias = viewModel.poesiasPaginadas.collectAsLazyPagingItems()
 
+    InicioScreenContent(
+        modifier = modifier,
+        uiState = uiState,
+        poesias = poesias,
+        onPoesiaClick = { poesiaId ->
+            navController.navigate(Screen.LeitorPoesia.createRoute(poesiaId))
+        }
+    )
+}
+
+@Composable
+private fun InicioScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: InicioUiState,
+    poesias: LazyPagingItems<Poesia>,
+    onPoesiaClick: (id: Long) -> Unit
+) {
     if (uiState.isLoading) {
         InicioScreenPlaceholder(modifier = modifier)
     } else {
-        InicioScreenSuccess(
-            modifier = modifier,
-            uiState = uiState,
-            poesias = poesias,
-            navController = navController
-        )
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 16.dp)
+        ) {
+            item {
+                uiState.poesiaAleatoria?.let { poesia ->
+                    PoesiaDestaque(poesia) { onPoesiaClick(poesia.id) }
+                }
+            }
+            if (uiState.poesiasFavoritas.isNotEmpty()) {
+                item { BlocoFavoritos(uiState.poesiasFavoritas, onPoesiaClick) }
+            }
+
+            if (poesias.itemCount > 0) {
+                item {
+                    Text(
+                        text = "Poesias",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                    )
+                }
+            }
+
+            items(
+                count = poesias.itemCount,
+                key = { index -> poesias.peek(index)?.id ?: index }
+            ) { index ->
+                val poesia = poesias[index]
+                if (poesia != null) {
+                    PoesiaListItem(poesia, onPoesiaClick)
+                } else {
+                    PoesiaListItemPlaceholder()
+                }
+            }
+
+            if (poesias.loadState.append is LoadState.Loading) {
+                item {
+                    PoesiaListItemPlaceholder()
+                }
+            }
+
+            item { BlocoNovidades() }
+        }
     }
 }
 
 @Composable
 private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().placeholder(isLoading = true),
         contentPadding = PaddingValues(vertical = 16.dp),
     ) {
-        // Placeholder for PoesiaDestaque
         item {
             Column(
                 modifier = Modifier
@@ -93,7 +149,6 @@ private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .aspectRatio(4f / 3f)
                         .clip(RoundedCornerShape(12.dp))
-                        .placeholder(isLoading = true)
                 )
                 Spacer(Modifier.height(16.dp))
                 Box(
@@ -101,7 +156,6 @@ private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
                         .fillMaxWidth(0.6f)
                         .height(28.dp)
                         .align(Alignment.CenterHorizontally)
-                        .placeholder(isLoading = true)
                 )
                 Spacer(Modifier.height(8.dp))
                 Column(
@@ -109,13 +163,12 @@ private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth(0.9f).height(16.dp).placeholder(isLoading = true))
-                    Box(modifier = Modifier.fillMaxWidth(0.95f).height(16.dp).placeholder(isLoading = true))
-                    Box(modifier = Modifier.fillMaxWidth(0.85f).height(16.dp).placeholder(isLoading = true))
+                    Box(modifier = Modifier.fillMaxWidth(0.9f).height(16.dp))
+                    Box(modifier = Modifier.fillMaxWidth(0.95f).height(16.dp))
+                    Box(modifier = Modifier.fillMaxWidth(0.85f).height(16.dp))
                 }
             }
         }
-        // Placeholder for BlocoFavoritos
         item {
             Column(modifier = Modifier.padding(vertical = 8.dp)) {
                 Box(
@@ -123,7 +176,6 @@ private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
                         .padding(horizontal = 16.dp)
                         .width(120.dp)
                         .height(24.dp)
-                        .placeholder(isLoading = true)
                 )
                 Spacer(Modifier.height(16.dp))
                 LazyRow(
@@ -136,7 +188,6 @@ private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
                                 .width(200.dp)
                                 .aspectRatio(4f / 3f)
                                 .clip(RoundedCornerShape(12.dp))
-                                .placeholder(isLoading = true)
                         )
                     }
                 }
@@ -145,82 +196,26 @@ private fun InicioScreenPlaceholder(modifier: Modifier = Modifier) {
 
         item { Spacer(modifier = Modifier.height(16.dp)) }
 
-        // Placeholder for "Poesias" title
         item {
             Box(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .width(100.dp)
                     .height(24.dp)
-                    .placeholder(isLoading = true)
             )
         }
 
-        // Placeholders for list items
         items(5) {
             PoesiaListItemPlaceholder()
         }
     }
 }
 
-
 @Composable
-private fun InicioScreenSuccess(
-    modifier: Modifier = Modifier,
-    uiState: InicioUiState,
-    poesias: LazyPagingItems<Poesia>,
-    navController: NavHostController
-) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 16.dp)
-    ) {
-        item {
-            uiState.poesiaAleatoria?.let { poesia ->
-                PoesiaDestaque(poesia) { navController.navigate(Screen.LeitorPoesia.createRoute(poesia.id)) }
-            }
-        }
-        if (uiState.poesiasFavoritas.isNotEmpty()) {
-            item { BlocoFavoritos(uiState.poesiasFavoritas, navController) }
-        }
-
-        if (poesias.itemCount > 0) {
-            item {
-                Text(
-                    text = "Poesias",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
-                )
-            }
-        }
-
-        items(
-            count = poesias.itemCount,
-            key = { index -> poesias.peek(index)?.id ?: index }
-        ) { index ->
-            val poesia = poesias[index]
-            if (poesia != null) {
-                PoesiaListItem(poesia, navController)
-            } else {
-                PoesiaListItemPlaceholder()
-            }
-        }
-
-        if (poesias.loadState.append is LoadState.Loading) {
-            item {
-                PoesiaListItemPlaceholder()
-            }
-        }
-
-        item { BlocoNovidades() }
-    }
-}
-
-@Composable
-private fun PoesiaListItem(poesia: Poesia, navController: NavHostController) {
+private fun PoesiaListItem(poesia: Poesia, onPoesiaClick: (id: Long) -> Unit) {
     val context = LocalContext.current
     Card(
-        onClick = { navController.navigate(Screen.LeitorPoesia.createRoute(poesia.id)) },
+        onClick = { onPoesiaClick(poesia.id) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -355,7 +350,7 @@ private fun PoesiaDestaque(poesia: Poesia, onPoesiaClick: () -> Unit) {
 }
 
 @Composable
-private fun BlocoFavoritos(favoritas: List<Poesia>, navController: NavHostController) {
+private fun BlocoFavoritos(favoritas: List<Poesia>, onPoesiaClick: (id: Long) -> Unit) {
     val context = LocalContext.current
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text("Favoritos", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
@@ -378,7 +373,7 @@ private fun BlocoFavoritos(favoritas: List<Poesia>, navController: NavHostContro
                         .width(200.dp)
                         .aspectRatio(4f / 3f)
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable { navController.navigate(Screen.LeitorPoesia.createRoute(poesia.id)) },
+                        .clickable { onPoesiaClick(poesia.id) },
                     contentScale = ContentScale.Crop
                 )
             }
@@ -406,4 +401,32 @@ private fun BlocoNovidades() {
             }
         }
     }
+}
+
+@Preview(showBackground = true, name = "Início - Carregando")
+@Composable
+private fun InicioScreenPreview_Loading() {
+    InicioScreenContent(
+        uiState = InicioUiState(isLoading = true),
+        poesias = flowOf(PagingData.empty<Poesia>()).collectAsLazyPagingItems(),
+        onPoesiaClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Início - Com Conteúdo")
+@Composable
+private fun InicioScreenPreview_Success() {
+    val poesiasMock = listOf(
+        Poesia(1, "Poesia 1", "Texto 1", null, "Autor 1", "Nota 1", "Base 1", "Final 1", null, 2, 0L, false, true, 0L, null),
+        Poesia(2, "Poesia 2", "Texto 2", null, "Autor 2", "Nota 2", "Base 2", "Final 2", 1, null, 0L, true, false, 0L, "Nota do usuário")
+    )
+    InicioScreenContent(
+        uiState = InicioUiState(
+            isLoading = false,
+            poesiaAleatoria = poesiasMock[0],
+            poesiasFavoritas = poesiasMock.filter { it.favorita }
+        ),
+        poesias = flowOf(PagingData.from(poesiasMock)).collectAsLazyPagingItems(),
+        onPoesiaClick = {}
+    )
 }

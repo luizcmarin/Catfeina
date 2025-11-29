@@ -24,56 +24,115 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marin.catfeina.R
 import com.marin.core.ui.UiState
 
 @Composable
 fun SyncScreen(
+    modifier: Modifier = Modifier,
     viewModel: SyncViewModel = hiltViewModel(),
     onSyncComplete: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.startSync()
+    }
+
+    SyncScreenContent(
+        modifier = modifier,
+        uiState = uiState,
+        onTryAgain = { viewModel.startSync() },
+        onFinish = onSyncComplete
+    )
+}
+
+@Composable
+private fun SyncScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: UiState<Unit>,
+    onTryAgain: () -> Unit,
+    onFinish: () -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (val state = uiState) {
+        when (uiState) {
             is UiState.Idle -> {
-                Text("Pronto para sincronizar os dados.")
+                CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { viewModel.startSync() }) {
-                    Text("Iniciar Sincronização")
-                }
+                Text("Iniciando sincronização...")
             }
             is UiState.Loading -> {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
-                val message = state.message
-                if (message != null) {
-                    Text(message)
-                }
+                uiState.message?.let { Text(it) }
             }
             is UiState.Success -> {
                 Text("Sincronização concluída com sucesso!")
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onSyncComplete) {
+                Button(onClick = onFinish) {
                     Text("Voltar")
                 }
             }
             is UiState.Error -> {
-                Text(state.message)
+                Text(uiState.message ?: stringResource(R.string.erro_carregar_dados))
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { viewModel.startSync() }) {
+                Button(onClick = onTryAgain) {
                     Text("Tentar Novamente")
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true, name = "Sincronização - Ociosa")
+@Composable
+private fun SyncScreenPreview_Idle() {
+    SyncScreenContent(
+        uiState = UiState.Idle,
+        onTryAgain = {},
+        onFinish = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Sincronização - Carregando")
+@Composable
+private fun SyncScreenPreview_Loading() {
+    SyncScreenContent(
+        uiState = UiState.Loading("Baixando poesias..."),
+        onTryAgain = {},
+        onFinish = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Sincronização - Sucesso")
+@Composable
+private fun SyncScreenPreview_Success() {
+    SyncScreenContent(
+        uiState = UiState.Success(Unit),
+        onTryAgain = {},
+        onFinish = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Sincronização - Erro")
+@Composable
+private fun SyncScreenPreview_Error() {
+    SyncScreenContent(
+        uiState = UiState.Error("Falha na conexão com a internet."),
+        onTryAgain = {},
+        onFinish = {}
+    )
 }

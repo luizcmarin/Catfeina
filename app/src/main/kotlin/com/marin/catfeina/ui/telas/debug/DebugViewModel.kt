@@ -18,6 +18,7 @@ package com.marin.catfeina.ui.telas.debug
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.BuildConfig
+import com.marin.catfeina.data.repositories.UserPreferencesRepository
 import com.marin.catfeina.usecases.GetDbStatsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,8 @@ data class DebugUiState(
 
 @HiltViewModel
 class DebugViewModel @Inject constructor(
-    private val getDbStatsUseCase: GetDbStatsUseCase
+    private val getDbStatsUseCase: GetDbStatsUseCase,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DebugUiState())
@@ -42,6 +44,12 @@ class DebugViewModel @Inject constructor(
     init {
         loadBuildInfo()
         loadDbStats()
+    }
+
+    fun forcarRessincronizacaoCompleta() {
+        viewModelScope.launch {
+            userPreferencesRepository.limparRegistrosSincronizacao()
+        }
     }
 
     private fun loadBuildInfo() {

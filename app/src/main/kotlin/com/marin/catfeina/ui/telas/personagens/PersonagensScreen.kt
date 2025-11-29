@@ -13,7 +13,6 @@
 *  Nota: Composable para a tela de Personagens.
 *
 */
-
 package com.marin.catfeina.ui.telas.personagens
 
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.marin.catfeina.data.models.Personagem
@@ -37,27 +37,35 @@ import com.marin.catfeina.ui.componentes.LoadingWheel
 
 @Composable
 fun PersonagensScreen(
+    modifier: Modifier = Modifier,
     viewModel: PersonagensViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    PersonagensScreenContent(modifier = modifier, uiState = uiState)
+}
 
-    when (val state = uiState) {
+@Composable
+private fun PersonagensScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: PersonagensUiState
+) {
+    when (uiState) {
         is PersonagensUiState.Loading -> LoadingWheel()
         is PersonagensUiState.Error -> ErrorMessage()
         is PersonagensUiState.Success -> {
-            if (state.personagens.isEmpty()) {
+            if (uiState.personagens.isEmpty()) {
                 // TODO: Adicionar um estado para quando a lista está vazia
             } else {
-                PersonagensList(personagens = state.personagens)
+                PersonagensList(modifier = modifier, personagens = uiState.personagens)
             }
         }
     }
 }
 
 @Composable
-fun PersonagensList(personagens: List<Personagem>) {
+fun PersonagensList(modifier: Modifier = Modifier, personagens: List<Personagem>) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(personagens) { personagem ->
@@ -76,4 +84,26 @@ fun PersonagemCard(personagem: Personagem) {
             Text(text = personagem.biografia, style = MaterialTheme.typography.bodyMedium)
         }
     }
+}
+
+@Preview(showBackground = true, name = "Personagens - Carregando")
+@Composable
+private fun PersonagensScreenPreview_Loading() {
+    PersonagensScreenContent(uiState = PersonagensUiState.Loading)
+}
+
+@Preview(showBackground = true, name = "Personagens - Erro")
+@Composable
+private fun PersonagensScreenPreview_Error() {
+    PersonagensScreenContent(uiState = PersonagensUiState.Error)
+}
+
+@Preview(showBackground = true, name = "Personagens - Com Dados")
+@Composable
+private fun PersonagensScreenPreview_Success() {
+    val personagensMock = listOf(
+        Personagem(1, "Romrom", "Mascote oficial do Catfeina, um gato curioso e amigável.", null, 0L),
+        Personagem(2, "Siamês", "Um gato elegante e misterioso, guardião de segredos antigos.", null, 0L)
+    )
+    PersonagensScreenContent(uiState = PersonagensUiState.Success(personagensMock))
 }

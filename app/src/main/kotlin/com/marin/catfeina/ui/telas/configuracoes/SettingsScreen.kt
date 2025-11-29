@@ -1,4 +1,3 @@
-
 /*
 *  Projeto: Catfeina/Catverso
 *  Arquivo: app/src/main/kotlin/com/marin/catfeina/ui/telas/configuracoes/SettingsScreen.kt
@@ -14,7 +13,6 @@
 *  Nota: Composable para a tela de Configurações.
 *
 */
-
 package com.marin.catfeina.ui.telas.configuracoes
 
 import androidx.compose.foundation.background
@@ -33,116 +31,107 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marin.catfeina.R
+import com.marin.catfeina.ui.TemaUiState
 import com.marin.catfeina.ui.TemaViewModel
+import com.marin.core.tema.CatalogoTemas
+import com.marin.core.tema.ChaveTema
 import com.marin.core.tema.ModoNoturno
 import com.marin.core.ui.Icones
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    temaViewModel: TemaViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    modifier: Modifier = Modifier,
+    temaViewModel: TemaViewModel = hiltViewModel()
 ) {
     val temaUiState by temaViewModel.uiState.collectAsStateWithLifecycle()
-    val themes = temaUiState.catalogo
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.configuracoes_titulo)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            Icones.Voltar,
-                            contentDescription = stringResource(R.string.configuracoes_voltar)
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp) // Adiciona padding horizontal geral
-        ) {
-            // --- Seção de Aparência ---
-            item {
-                SectionTitle(stringResource(R.string.configuracoes_aparencia_titulo))
-            }
-            item {
-                SettingRow(
-                    icon = Icones.Lampada,
-                    title = stringResource(R.string.configuracoes_modo_escuro_titulo),
-                    description = stringResource(R.string.configuracoes_modo_escuro_descricao)
-                ) {
-                    SegmentedButton(
-                        items = ModoNoturno.entries.map { it.name.replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else char.toString() } },
-                        selectedIndex = temaUiState.modoNoturno.ordinal,
-                        onItemSelected = { index ->
-                            val modo = ModoNoturno.entries[index]
-                            temaViewModel.definirModoNoturno(modo)
-                        }
-                    )
-                }
-            }
-            item {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            }
-            item {
-                SettingRow(
-                    icon = Icones.PaletaDeCores,
-                    title = stringResource(R.string.configuracoes_tema_sazonal_titulo),
-                    description = stringResource(R.string.configuracoes_tema_sazonal_descricao)
+    SettingsScreenContent(
+        modifier = modifier,
+        temaUiState = temaUiState,
+        onModoNoturnoChange = { modo -> temaViewModel.definirModoNoturno(modo) },
+        onTemaChange = { chave -> temaViewModel.selecionarTema(chave) }
+    )
+}
+
+@Composable
+private fun SettingsScreenContent(
+    modifier: Modifier = Modifier,
+    temaUiState: TemaUiState,
+    onModoNoturnoChange: (ModoNoturno) -> Unit,
+    onTemaChange: (ChaveTema) -> Unit
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        item { SectionTitle(stringResource(R.string.configuracoes_aparencia_titulo)) }
+
+        item {
+            SettingRow(
+                icon = Icones.Lampada,
+                title = stringResource(R.string.configuracoes_modo_escuro_titulo),
+                description = stringResource(R.string.configuracoes_modo_escuro_descricao)
+            ) {
+                SegmentedButton(
+                    items = ModoNoturno.entries.map { it.name.replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else char.toString() } },
+                    selectedIndex = temaUiState.modoNoturno.ordinal,
+                    onItemSelected = { index -> onModoNoturnoChange(ModoNoturno.entries[index]) }
                 )
             }
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.outline,
-                            RoundedCornerShape(12.dp)
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    themes.forEachIndexed { index, theme ->
-                        val isSelected = temaUiState.tema.chave == theme.chave
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .background(
-                                    if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                                    else Color.Transparent
-                                )
-                                .clickable { temaViewModel.selecionarTema(theme.chave) }
-                                .padding(vertical = 12.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = theme.chave.name.take(3),
-                                color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                                else MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        }
+
+        item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
+
+        item {
+            SettingRow(
+                icon = Icones.PaletaDeCores,
+                title = stringResource(R.string.configuracoes_tema_sazonal_titulo),
+                description = stringResource(R.string.configuracoes_tema_sazonal_descricao)
+            )
+        }
+
+        item { Spacer(modifier = Modifier.height(8.dp)) }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                temaUiState.catalogo.forEachIndexed { index, theme ->
+                    val isSelected = temaUiState.tema.chave == theme.chave
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                                else Color.Transparent
                             )
-                        }
-                        if (index < themes.size - 1) {
-                            VerticalDivider(
-                                modifier = Modifier.height(48.dp),
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                        }
+                            .clickable { onTemaChange(theme.chave) }
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = theme.chave.name.take(3),
+                            color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+                            else MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                    if (index < temaUiState.catalogo.size - 1) {
+                        VerticalDivider(
+                            modifier = Modifier.height(48.dp),
+                            color = MaterialTheme.colorScheme.outline
+                        )
                     }
                 }
             }
@@ -239,4 +228,32 @@ private fun SegmentedButton(
             }
         }
     }
+}
+
+@Preview(showBackground = true, name = "Configurações - Primavera/Sistema")
+@Composable
+private fun SettingsScreenPreview_Default() {
+    SettingsScreenContent(
+        temaUiState = TemaUiState(
+            tema = CatalogoTemas.obter(ChaveTema.PRIMAVERA),
+            modoNoturno = ModoNoturno.SISTEMA,
+            catalogo = CatalogoTemas.obterTodos()
+        ),
+        onModoNoturnoChange = {},
+        onTemaChange = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Configurações - Inverno/Escuro")
+@Composable
+private fun SettingsScreenPreview_WinterDark() {
+    SettingsScreenContent(
+        temaUiState = TemaUiState(
+            tema = CatalogoTemas.obter(ChaveTema.INVERNO),
+            modoNoturno = ModoNoturno.ESCURO,
+            catalogo = CatalogoTemas.obterTodos()
+        ),
+        onModoNoturnoChange = {},
+        onTemaChange = {}
+    )
 }

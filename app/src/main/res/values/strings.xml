@@ -71,6 +71,11 @@
     <string name="intent_helper_nenhum_app_compartilhamento">Nenhum app de compartilhamento encontrado.</string>
     <string name="intent_helper_nenhum_app_email">Nenhum app de e-mail encontrado.</string>
 
+    <!-- TopAppBar Menu -->
+    <string name="menu_abrir">Abrir menu de navegação</string>
+    <string name="menu_opcoes">Mais opções</string>
+    <string name="menu_sincronizar">Sincronizar</string>
+
     <!-- Menu Lateral (Drawer) -->
     <string name="drawer_voltar">Voltar</string>
     <string name="drawer_logo_descricao">Logo do Catfeina</string>

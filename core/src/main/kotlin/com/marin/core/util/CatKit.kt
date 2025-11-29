@@ -176,18 +176,6 @@ suspend fun <T> safeQuery(query: suspend () -> T): UiState<T> {
     }
 }
 
-/**
- * Desserializa uma string JSON de forma segura.
- */
-inline fun <reified T> Json.decodeFromStringOrNull(string: String): T? {
-    return try {
-        decodeFromString<T>(string)
-    } catch (e: Exception) {
-        CatLog.e("Falha ao desserializar JSON para o tipo ${T::class.simpleName}", e)
-        null
-    }
-}
-
 // =============================================
 //  Utilitários de Sistema (System Utils)
 // =============================================

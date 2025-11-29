@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,27 +49,47 @@ import com.marin.core.ui.AnimatedAsset
 
 @Composable
 fun BuscaScreen(
+    modifier: Modifier = Modifier,
     viewModel: BuscaViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val searchTerm by viewModel.searchTerm.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    BuscaScreenContent(
+        modifier = modifier,
+        searchTerm = searchTerm,
+        uiState = uiState,
+        onSearchTermChange = { viewModel.onSearchTermChange(it) },
+        onPoesiaClick = { poesiaId ->
+            navController.navigate(Screen.LeitorPoesia.createRoute(poesiaId))
+        }
+    )
+}
+
+@Composable
+private fun BuscaScreenContent(
+    modifier: Modifier = Modifier,
+    searchTerm: String,
+    uiState: BuscaUiState,
+    onSearchTermChange: (String) -> Unit,
+    onPoesiaClick: (Long) -> Unit
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         OutlinedTextField(
             value = searchTerm,
-            onValueChange = { viewModel.onSearchTermChange(it) },
+            onValueChange = onSearchTermChange,
             label = { Text(stringResource(R.string.busca_placeholder)) },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (val state = uiState) {
+        when (uiState) {
             is BuscaUiState.Idle -> {
                 CenteredMessage(assetName = "cat_soneca.lottie", message = stringResource(R.string.busca_ociosa))
             }
@@ -81,12 +102,12 @@ fun BuscaScreen(
                 CenteredMessage(assetName = "cat_erro.lottie", message = stringResource(R.string.busca_erro))
             }
             is BuscaUiState.Success -> {
-                if (state.resultados.isEmpty()) {
+                if (uiState.resultados.isEmpty()) {
                     CenteredMessage(assetName = "cat_triste.lottie", message = stringResource(R.string.busca_sem_resultados))
                 } else {
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(state.resultados) { poesia ->
-                            PoesiaSearchResultItem(poesia = poesia, onClick = { navController.navigate(Screen.LeitorPoesia.createRoute(poesia.id)) })
+                        items(uiState.resultados) { poesia ->
+                            PoesiaSearchResultItem(poesia = poesia, onClick = { onPoesiaClick(poesia.id) })
                             HorizontalDivider()
                         }
                     }
@@ -119,4 +140,53 @@ private fun CenteredMessage(assetName: String, message: String) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = message)
     }
+}
+
+
+@Preview(showBackground = true, name = "Busca - Ociosa")
+@Composable
+private fun BuscaScreenPreview_Idle() {
+    BuscaScreenContent(
+        searchTerm = "",
+        uiState = BuscaUiState.Idle,
+        onSearchTermChange = {},
+        onPoesiaClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Busca - Carregando")
+@Composable
+private fun BuscaScreenPreview_Loading() {
+    BuscaScreenContent(
+        searchTerm = "amor",
+        uiState = BuscaUiState.Loading,
+        onSearchTermChange = {},
+        onPoesiaClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Busca - Sem Resultados")
+@Composable
+private fun BuscaScreenPreview_NoResults() {
+    BuscaScreenContent(
+        searchTerm = "qwerty",
+        uiState = BuscaUiState.Success(emptyList()),
+        onSearchTermChange = {},
+        onPoesiaClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Busca - Com Resultados")
+@Composable
+private fun BuscaScreenPreview_WithResults() {
+    val poesiasMock = listOf(
+        Poesia(1, "Poesia 1", "Texto 1", null, "Autor 1", "Nota 1", "Base 1", "Final 1", null, 2, 0L, false, true, 0L, null),
+        Poesia(2, "Poesia 2", "Texto 2", null, "Autor 2", "Nota 2", "Base 2", "Final 2", 1, null, 0L, true, false, 0L, "Nota do usuário")
+    )
+    BuscaScreenContent(
+        searchTerm = "poesia",
+        uiState = BuscaUiState.Success(poesiasMock),
+        onSearchTermChange = {},
+        onPoesiaClick = {}
+    )
 }
