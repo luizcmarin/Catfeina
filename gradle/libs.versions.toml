@@ -48,7 +48,7 @@ syncAppFolderName = "app"
 # ==============================================================================
 androidGradlePlugin = "8.13.1"
 kotlin = "2.2.21"
-ksp = "2.3.0"
+ksp = "2.3.3"
 hilt = "2.57.2"
 androidxHiltWork = "1.3.0"
 
