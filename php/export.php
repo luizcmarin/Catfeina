@@ -8,7 +8,8 @@ $source_images_dir = 'imagens';
 $sync_export_dir = 'export';
 $final_zip_name = 'CatfeinaSync.zip';
 $sync_manifest_name = 'manifest.json';
-$sync_data_folder = 'data/';
+// Removido o subdiretório 'data' para simplificar a estrutura.
+$sync_data_folder = ''; // Anteriormente 'data/'
 $sync_images_folder = 'images/';
 
 // --- INFORMAÇÕES DA VERSÃO DO APP (OTA) ---
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $final_zip_path = $sync_export_dir . '/' . $final_zip_name;
                 $zip = new ZipArchive();
                 if ($zip->open($final_zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                    $zip->addEmptyDir($sync_data_folder);
+                    // Não é mais necessário criar o diretório 'data'
                     foreach ($modules as $name => $info) {
                         $stmt = $pdo->query("SELECT * FROM {$info['table']}");
                         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -87,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }, $data);
                         $zip->addFromString($sync_data_folder . $info['file'], json_encode($processed_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
                     }
-                    $log_messages[] = ['type' => 'info', 'text' => count($modules) . " arquivos JSON adicionados à pasta '{$sync_data_folder}' no ZIP."];
+                    $log_messages[] = ['type' => 'info', 'text' => count($modules) . " arquivos JSON adicionados à raiz do ZIP."];
 
                     if (is_dir($source_images_dir)) {
                         $zip->addEmptyDir($sync_images_folder);

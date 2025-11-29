@@ -85,9 +85,10 @@ class SyncRepositoryImpl @Inject constructor(
                 val versaoLocal = prefs.getModuloVersao(modulo.nome).first()
                 if (modulo.versao > versaoLocal) {
                     CatLog.i("Módulo '${modulo.nome}' precisa ser atualizado (local: $versaoLocal, servidor: ${modulo.versao}).")
-                    // O caminho do arquivo no manifesto pode conter um diretório (ex: "data/"). Usamos apenas o nome do arquivo.
+                    // O manifesto inclui um "data/" incorreto no caminho. Nós o removemos.
                     val nomeArquivo = File(modulo.arquivo).name
-                    val url = BuildConfig.SYNC_URL + nomeArquivo
+                    // Adicionamos um timestamp para evitar problemas de cache do servidor/CDN.
+                    val url = BuildConfig.SYNC_URL + nomeArquivo + "?t=" + System.currentTimeMillis()
                     processarModulo(modulo.nome, url, modulo.versao)
                 } else {
                     CatLog.d("Módulo '${modulo.nome}' está atualizado.")
@@ -98,7 +99,7 @@ class SyncRepositoryImpl @Inject constructor(
                 val versaoImagensLocal = prefs.getModuloVersao("imagens").first()
                 if (imagens.versao > versaoImagensLocal) {
                     CatLog.i("Pacote de imagens precisa ser atualizado (local: $versaoImagensLocal, servidor: ${imagens.versao}).")
-                    val url = BuildConfig.SYNC_URL + "images.zip"
+                    val url = BuildConfig.SYNC_URL + "images.zip" + "?t=" + System.currentTimeMillis()
                     processarPacoteImagens(url, imagens.versao)
                 } else {
                     CatLog.d("Pacote de imagens está atualizado.")

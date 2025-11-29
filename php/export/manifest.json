@@ -3,27 +3,27 @@
         {
             "nome": "poesias",
             "versao": 100,
-            "arquivo": "data\/poesias.json"
+            "arquivo": "poesias.json"
         },
         {
             "nome": "personagens",
             "versao": 100,
-            "arquivo": "data\/personagens.json"
+            "arquivo": "personagens.json"
         },
         {
             "nome": "meows",
             "versao": 100,
-            "arquivo": "data\/meows.json"
+            "arquivo": "meows.json"
         },
         {
             "nome": "informativos",
             "versao": 100,
-            "arquivo": "data\/informativos.json"
+            "arquivo": "informativos.json"
         },
         {
             "nome": "atelier",
             "versao": 100,
-            "arquivo": "data\/atelier.json"
+            "arquivo": "atelier.json"
         }
     ],
     "imagens": {
