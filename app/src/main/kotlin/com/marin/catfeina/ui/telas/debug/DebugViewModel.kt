@@ -20,9 +20,11 @@ import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.BuildConfig
 import com.marin.catfeina.data.repositories.UserPreferencesRepository
 import com.marin.catfeina.usecases.GetDbStatsUseCase
+import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,8 +70,18 @@ class DebugViewModel @Inject constructor(
 
     private fun loadDbStats() {
         viewModelScope.launch {
-            val stats = getDbStatsUseCase()
-            _uiState.update { it.copy(dbStats = stats) }
+            getDbStatsUseCase().collectLatest { result ->
+                if (result is UiState.Success) {
+                    val stats = result.data
+                    val statsList = listOf(
+                        "Poesias" to stats.totalPoesias,
+                        "Ateliers" to stats.totalAteliers,
+                        "Históricos" to stats.totalHistoricos,
+                        "Informativos" to stats.totalInformativos
+                    )
+                    _uiState.update { it.copy(dbStats = statsList) }
+                }
+            }
         }
     }
 }

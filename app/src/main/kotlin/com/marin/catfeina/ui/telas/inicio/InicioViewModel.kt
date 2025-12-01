@@ -20,47 +20,84 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.marin.catfeina.data.models.Poesia
+import com.marin.catfeina.data.repositories.PoesiaRepository
 import com.marin.catfeina.usecases.GetPoesiasPaginadasUseCase
-import com.marin.catfeina.usecases.GetPoesiaAleatoriaUseCase
-import com.marin.catfeina.usecases.GetPoesiasFavoritasUseCase
+import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-data class InicioUiState(
-    val isLoading: Boolean = true,
-    val poesiaAleatoria: Poesia? = null,
-    val poesiasFavoritas: List<Poesia> = emptyList(),
+// Modelo de dados específico para a UI da tela de Início
+data class PoesiaUiModel(
+    val id: Long,
+    val titulo: String,
+    val resumo: String,
+    val imagem: String?
 )
+
+sealed interface InicioUiState {
+    data class Success(
+        val poesiaDestaque: PoesiaUiModel?,
+        val poesiasFavoritas: List<PoesiaUiModel>,
+        val outrasPoesias: Flow<PagingData<PoesiaUiModel>> // Alterado para o tipo correto
+    ) : InicioUiState
+
+    data class Error(val message: String) : InicioUiState
+    data object Loading : InicioUiState
+}
 
 @HiltViewModel
 class InicioViewModel @Inject constructor(
-    getPoesiasPaginadasUseCase: GetPoesiasPaginadasUseCase,
-    getPoesiaAleatoriaUseCase: GetPoesiaAleatoriaUseCase, // a ser criado
-    getPoesiasFavoritasUseCase: GetPoesiasFavoritasUseCase, // a ser criado
+    private val repository: PoesiaRepository,
+    private val getPoesiasPaginadasUseCase: GetPoesiasPaginadasUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(InicioUiState())
-    val uiState = _uiState.asStateFlow()
-
-    val poesiasPaginadas: Flow<PagingData<Poesia>> = getPoesiasPaginadasUseCase()
-        .cachedIn(viewModelScope)
-
-    init {
-        combine(
-            getPoesiaAleatoriaUseCase(),
-            getPoesiasFavoritasUseCase()
-        ) { aleatoria, favoritas ->
-            _uiState.value = InicioUiState(
-                isLoading = false,
-                poesiaAleatoria = aleatoria,
-                poesiasFavoritas = favoritas
-            )
-        }.launchIn(viewModelScope)
+    // Função auxiliar para converter o modelo de domínio em modelo de UI
+    private fun Poesia.toUiModel(): PoesiaUiModel {
+        return PoesiaUiModel(
+            id = this.id,
+            titulo = repository.extrairTitulo(this),
+            resumo = repository.extrairResumo(this),
+            imagem = repository.extrairImagemPrincipal(this)
+        )
     }
+
+    val uiState: StateFlow<InicioUiState> = combine(
+        repository.getPoesiaAleatoria(),
+        repository.getPoesiasFavoritas(),
+    ) { aleatoriaResult, favoritasResult ->
+        
+        val error = (aleatoriaResult as? UiState.Error)?.message ?: (favoritasResult as? UiState.Error)?.message
+        if(error != null) return@combine InicioUiState.Error(error)
+
+        val aleatoriaState = (aleatoriaResult as? UiState.Success)?.data
+        val favoritasState = (favoritasResult as? UiState.Success)?.data ?: emptyList()
+
+        val favoritas = favoritasState.filter { it.id != aleatoriaState?.id }
+        
+        // O fluxo paginado é criado aqui e passado para o estado
+        val outrasPaginadas = getPoesiasPaginadasUseCase()
+            .map { pagingData -> 
+                pagingData.map { it.toUiModel() } 
+            }
+            .cachedIn(viewModelScope)
+
+        InicioUiState.Success(
+            poesiaDestaque = aleatoriaState?.toUiModel(),
+            poesiasFavoritas = favoritas.map { it.toUiModel() },
+            outrasPoesias = outrasPaginadas
+        )
+
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = InicioUiState.Loading
+    )
 }

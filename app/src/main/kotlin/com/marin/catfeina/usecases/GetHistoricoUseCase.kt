@@ -17,6 +17,7 @@ package com.marin.catfeina.usecases
 
 import com.marin.catfeina.data.models.Historico
 import com.marin.catfeina.data.repositories.HistoricoRepository
+import com.marin.core.ui.UiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -26,7 +27,7 @@ import javax.inject.Inject
 class GetHistoricoUseCase @Inject constructor(
     private val historicoRepository: HistoricoRepository
 ) {
-    operator fun invoke(): Flow<List<Historico>> {
+    operator fun invoke(): Flow<UiState<List<Historico>>> {
         return historicoRepository.getHistoricos()
     }
 }

@@ -17,6 +17,7 @@ package com.marin.catfeina.usecases
 
 import com.marin.catfeina.data.models.Poesia
 import com.marin.catfeina.data.repositories.PoesiaRepository
+import com.marin.core.ui.UiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -26,9 +27,9 @@ import javax.inject.Inject
 class BuscarPoesiasUseCase @Inject constructor(
     private val poesiaRepository: PoesiaRepository
 ) {
-    operator fun invoke(termo: String): Flow<List<Poesia>> {
-        // Adiciona os wildcards aqui para manter a query limpa
-        val termoBusca = if (termo.isBlank()) "" else "%${termo}%"
-        return poesiaRepository.buscarPoesias(termoBusca)
+    operator fun invoke(termo: String): Flow<UiState<List<Poesia>>> {
+        // O repositório já lida com os wildcards da busca LIKE.
+        // Apenas repassamos o termo diretamente.
+        return poesiaRepository.buscarPoesias(termo)
     }
 }

@@ -19,11 +19,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.data.models.Atelier
 import com.marin.catfeina.data.repositories.AtelierRepository
+import com.marin.catfeina.usecases.ExcluirAtelierUseCase
 import com.marin.catfeina.usecases.SalvarAtelierUseCase
+import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,26 +38,35 @@ sealed interface AtelierUiState {
 
 @HiltViewModel
 class AtelierViewModel @Inject constructor(
-    private val atelierRepository: AtelierRepository,
-    private val salvarAtelierUseCase: SalvarAtelierUseCase
+    atelierRepository: AtelierRepository,
+    private val salvarAtelierUseCase: SalvarAtelierUseCase,
+    private val excluirAtelierUseCase: ExcluirAtelierUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AtelierUiState>(AtelierUiState.Loading)
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<AtelierUiState> = atelierRepository.getAteliers()
+        .map { result ->
+            when (result) {
+                is UiState.Loading -> AtelierUiState.Loading
+                is UiState.Success -> AtelierUiState.Success(result.data)
+                is UiState.Error -> AtelierUiState.Error
+                is UiState.Idle -> AtelierUiState.Loading
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = AtelierUiState.Loading
+        )
 
-    init {
+    fun salvarNota(nota: Atelier) {
         viewModelScope.launch {
-            atelierRepository.getAteliers()
-                .catch { _uiState.value = AtelierUiState.Error }
-                .collect { notas ->
-                    _uiState.value = AtelierUiState.Success(notas)
-                }
+            salvarAtelierUseCase(nota)
         }
     }
 
-    fun salvarNota(titulo: String, texto: String) {
+    fun excluirNota(nota: Atelier) {
         viewModelScope.launch {
-            salvarAtelierUseCase(titulo, texto)
+            excluirAtelierUseCase(nota.id)
         }
     }
 }

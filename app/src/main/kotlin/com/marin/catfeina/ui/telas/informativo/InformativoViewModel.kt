@@ -20,11 +20,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.data.models.Informativo
 import com.marin.catfeina.usecases.GetInformativoUseCase
+import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 sealed interface InformativoUiState {
@@ -39,25 +40,25 @@ class InformativoViewModel @Inject constructor(
     getInformativoUseCase: GetInformativoUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<InformativoUiState>(InformativoUiState.Loading)
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        val informativoKey: String? = savedStateHandle.get<String>("informativoKey")
-        if (informativoKey != null) {
-            viewModelScope.launch {
-                getInformativoUseCase(informativoKey)
-                    .catch { _uiState.value = InformativoUiState.Error }
-                    .collect { informativo ->
-                        if (informativo != null) {
-                            _uiState.value = InformativoUiState.Success(informativo)
-                        } else {
-                            _uiState.value = InformativoUiState.Error
-                        }
+    val uiState: StateFlow<InformativoUiState> = getInformativoUseCase(checkNotNull(savedStateHandle["informativoKey"]))
+        .map {
+            when (it) {
+                is UiState.Success -> {
+                    val informativo = it.data
+                    if (informativo != null) {
+                        InformativoUiState.Success(informativo)
+                    } else {
+                        InformativoUiState.Error
                     }
+                }
+                is UiState.Error -> InformativoUiState.Error
+                is UiState.Loading -> InformativoUiState.Loading
+                is UiState.Idle -> InformativoUiState.Loading
             }
-        } else {
-            _uiState.value = InformativoUiState.Error
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = InformativoUiState.Loading
+        )
 }

@@ -23,17 +23,19 @@ import com.marin.catfeina.data.models.Personagem
 import com.marin.catfeina.data.models.toDomain
 import com.marin.catfeina.data.models.toEntity
 import com.marin.catfeina.sqldelight.Tbl_personagemQueries
+import com.marin.core.ui.UiState
+import com.marin.core.util.safeFlowQuery
+import com.marin.core.util.safeQuery
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface PersonagemRepository {
-    fun getPersonagens(): Flow<List<Personagem>>
-    fun getPersonagem(id: Long): Flow<Personagem?>
-    suspend fun upsertPersonagens(personagens: List<Personagem>)
-    fun countPersonagens(): Flow<Long>
+    fun getPersonagens(): Flow<UiState<List<Personagem>>>
+    fun getPersonagem(id: Long): Flow<UiState<Personagem?>>
+    suspend fun upsertPersonagens(personagens: List<Personagem>): UiState<Unit>
+    fun countPersonagens(): Flow<UiState<Long>>
 }
 
 class PersonagemRepositoryImpl @Inject constructor(
@@ -41,38 +43,36 @@ class PersonagemRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : PersonagemRepository {
 
-    override fun getPersonagens(): Flow<List<Personagem>> {
-        return personagemQueries.getPersonagens()
+    override fun getPersonagens(): Flow<UiState<List<Personagem>>> = safeFlowQuery(ioDispatcher) {
+        personagemQueries.getPersonagens()
             .asFlow()
             .mapToList(ioDispatcher)
             .map { it.map { personagem -> personagem.toDomain() } }
     }
 
-    override fun getPersonagem(id: Long): Flow<Personagem?> {
-        return personagemQueries.getPersonagem(id)
+    override fun getPersonagem(id: Long): Flow<UiState<Personagem?>> = safeFlowQuery(ioDispatcher) {
+        personagemQueries.getPersonagem(id)
             .asFlow()
             .mapToOneOrNull(ioDispatcher)
             .map { it?.toDomain() }
     }
 
-    override suspend fun upsertPersonagens(personagens: List<Personagem>) {
-        withContext(ioDispatcher) {
-            personagemQueries.transaction {
-                personagens.forEach { personagem ->
-                    val entity = personagem.toEntity()
-                    personagemQueries.upsertPersonagem(
-                        id = entity.id,
-                        nome = entity.nome,
-                        biografia = entity.biografia,
-                        imagem = entity.imagem,
-                        atualizadoem = entity.atualizadoem
-                    )
-                }
+    override suspend fun upsertPersonagens(personagens: List<Personagem>): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        personagemQueries.transaction {
+            personagens.forEach { personagem ->
+                val entity = personagem.toEntity()
+                personagemQueries.upsertPersonagem(
+                    id = entity.id,
+                    nome = entity.nome,
+                    biografia = entity.biografia,
+                    imagem = entity.imagem,
+                    atualizadoem = entity.atualizadoem
+                )
             }
         }
     }
 
-    override fun countPersonagens(): Flow<Long> {
-        return personagemQueries.countPersonagens().asFlow().mapToOne(ioDispatcher)
+    override fun countPersonagens(): Flow<UiState<Long>> = safeFlowQuery(ioDispatcher) {
+        personagemQueries.countPersonagens().asFlow().mapToOne(ioDispatcher)
     }
 }

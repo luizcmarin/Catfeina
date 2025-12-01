@@ -29,3 +29,10 @@ deleteNota: DELETE FROM tbl_poesianota WHERE poesiaid = ?;
 getNotas: SELECT * FROM tbl_poesianota ORDER BY poesiaid DESC;
 
 getNota: SELECT * FROM tbl_poesianota WHERE poesiaid = ?;
+
+-- Queries para atualizações individuais
+updateFavorita: UPDATE tbl_poesianota SET favorita = ? WHERE poesiaid = ?;
+
+updateLida: UPDATE tbl_poesianota SET lida = ?, dataleitura = ? WHERE poesiaid = ?;
+
+updateNotaUsuario: UPDATE tbl_poesianota SET notausuario = ? WHERE poesiaid = ?;

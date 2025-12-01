@@ -18,11 +18,12 @@ package com.marin.catfeina.usecases
 
 import com.marin.catfeina.data.models.Personagem
 import com.marin.catfeina.data.repositories.PersonagemRepository
+import com.marin.core.ui.UiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetPersonagensUseCase @Inject constructor(
     private val personagemRepository: PersonagemRepository
 ) {
-    operator fun invoke(): Flow<List<Personagem>> = personagemRepository.getPersonagens()
+    operator fun invoke(): Flow<UiState<List<Personagem>>> = personagemRepository.getPersonagens()
 }

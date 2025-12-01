@@ -17,6 +17,7 @@ package com.marin.catfeina.usecases
 
 import com.marin.catfeina.data.models.Poesia
 import com.marin.catfeina.data.repositories.PoesiaRepository
+import com.marin.core.ui.UiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -33,7 +34,7 @@ class GetPoesiaUseCase @Inject constructor(
      * @param id O identificador único da poesia a ser buscada.
      * @return Um Flow que emite a [Poesia] encontrada ou `null` se não existir.
      */
-    operator fun invoke(id: Long): Flow<Poesia?> {
+    operator fun invoke(id: Long): Flow<UiState<Poesia?>> {
         return repository.getPoesiaById(id)
     }
 }

@@ -40,6 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.marin.catfeina.R
+import com.marin.core.util.rememberCliqueSeguro
 
 @Composable
 fun DebugScreen(
@@ -92,7 +93,7 @@ private fun DebugScreenContent(
 
         item {
             Button(
-                onClick = onForceSync,
+                onClick = rememberCliqueSeguro(onClick = onForceSync),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Forçar Ressincronização Completa")

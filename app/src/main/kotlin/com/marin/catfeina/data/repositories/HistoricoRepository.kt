@@ -22,16 +22,18 @@ import com.marin.catfeina.data.models.Historico
 import com.marin.catfeina.data.models.toDomain
 import com.marin.catfeina.data.models.toEntity
 import com.marin.catfeina.sqldelight.Tbl_historicoQueries
+import com.marin.core.ui.UiState
+import com.marin.core.util.safeFlowQuery
+import com.marin.core.util.safeQuery
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface HistoricoRepository {
-    fun getHistoricos(): Flow<List<Historico>>
-    fun countHistoricos(): Flow<Long>
-    suspend fun insertHistorico(historico: Historico)
+    fun getHistoricos(): Flow<UiState<List<Historico>>>
+    fun countHistoricos(): Flow<UiState<Long>>
+    suspend fun insertHistorico(historico: Historico): UiState<Unit>
 }
 
 class HistoricoRepositoryImpl @Inject constructor(
@@ -39,26 +41,24 @@ class HistoricoRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : HistoricoRepository {
 
-    override fun getHistoricos(): Flow<List<Historico>> {
-        return historicoQueries.getHistoricos()
+    override fun getHistoricos(): Flow<UiState<List<Historico>>> = safeFlowQuery(ioDispatcher) {
+        historicoQueries.getHistoricos()
             .asFlow()
             .mapToList(ioDispatcher)
             .map { it.map { historico -> historico.toDomain() } }
     }
 
-    override fun countHistoricos(): Flow<Long> {
-        return historicoQueries.countHistoricos().asFlow().mapToOne(ioDispatcher)
+    override fun countHistoricos(): Flow<UiState<Long>> = safeFlowQuery(ioDispatcher) {
+        historicoQueries.countHistoricos().asFlow().mapToOne(ioDispatcher)
     }
 
-    override suspend fun insertHistorico(historico: Historico) {
-        withContext(ioDispatcher) {
-            val entity = historico.toEntity()
-            historicoQueries.insertHistorico(
-                nometabela = entity.nometabela,
-                conteudoid = entity.conteudoid,
-                titulo = entity.titulo,
-                vistoem = entity.vistoem
-            )
-        }
+    override suspend fun insertHistorico(historico: Historico): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        val entity = historico.toEntity()
+        historicoQueries.insertHistorico(
+            nometabela = entity.nometabela,
+            conteudoid = entity.conteudoid,
+            titulo = entity.titulo,
+            vistoem = entity.vistoem
+        )
     }
 }

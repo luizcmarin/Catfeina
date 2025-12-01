@@ -116,3 +116,6 @@ O schema é definido em arquivos `.sq`.
 - **Mascote Romrom:** Composable customizado com a biblioteca `lottie-compose` e interatividade via `clickable`.
 - **Tela de Depuração:** Acessível em builds `debug`, exibe estatísticas do banco, info da build e permite limpar o banco de dados.
 
+ESTAMOS EM DEZEMBRO DE 2025 E MUITA COISA MUDOU, MENOS TEU BANCO DE DADOS QUE ESTÁ DESATUALIZADO. 
+EMPRE VERIFIQUE A DOCUMENTAÇÃO OFICIAL MAIS ATUAL DA LINGUAGEM KOTLIN E DAS BIBLIOTECAS USADAS.
+O TOML ESTÁ COM AS ULTIMAS VERSÕES LANÇADAS.

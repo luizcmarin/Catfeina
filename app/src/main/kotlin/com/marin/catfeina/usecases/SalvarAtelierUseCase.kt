@@ -19,24 +19,33 @@ import com.marin.catfeina.data.models.Atelier
 import com.marin.catfeina.data.repositories.AtelierRepository
 import com.marin.catfeina.ui.GlobalUiEventManager
 import com.marin.core.ui.GlobalUiEvent
+import com.marin.core.ui.UiState
 import javax.inject.Inject
 
 class SalvarAtelierUseCase @Inject constructor(
     private val atelierRepository: AtelierRepository,
     private val globalUiEventManager: GlobalUiEventManager
 ) {
-    suspend operator fun invoke(titulo: String, texto: String) {
-        val novaNota = Atelier(
-            id = System.currentTimeMillis(), // Usado como ID único e para ordenação
-            titulo = titulo,
-            texto = texto,
-            atualizadoem = System.currentTimeMillis(),
-            fixada = false
-        )
-        atelierRepository.upsertAtelier(novaNota)
+    suspend operator fun invoke(nota: Atelier) {
+        val isNewNote = nota.id == 0L
+        val notaParaSalvar = if (isNewNote) {
+            nota.copy(id = System.currentTimeMillis(), atualizadoem = System.currentTimeMillis())
+        } else {
+            nota.copy(atualizadoem = System.currentTimeMillis())
+        }
 
-        globalUiEventManager.sendEvent(
-            GlobalUiEvent.ShowSnackbar("Nota salva com sucesso!")
-        )
+        when (val result = atelierRepository.upsertAtelier(notaParaSalvar)) {
+            is UiState.Success -> {
+                globalUiEventManager.sendEvent(
+                    GlobalUiEvent.ShowSnackbar("Nota salva com sucesso!")
+                )
+            }
+            is UiState.Error -> {
+                globalUiEventManager.sendEvent(
+                    GlobalUiEvent.ShowSnackbar("Erro ao salvar a nota: ${result.message}")
+                )
+            }
+            else -> Unit // Ignora os outros estados
+        }
     }
 }

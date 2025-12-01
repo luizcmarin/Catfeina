@@ -44,6 +44,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
+import com.marin.catfeina.data.sync.ModuloDto
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -72,7 +73,10 @@ class SyncRepositoryImpl @Inject constructor(
         emit(UiState.Loading("Iniciando sincronização..."))
         syncAll().fold(
             onSuccess = { emit(UiState.Success(Unit)) },
-            onFailure = { emit(UiState.Error(it.message ?: "Erro desconhecido")) }
+            onFailure = { error ->
+                CatLog.e("Falha na sincronização", error)
+                emit(UiState.Error(error.message ?: "Erro desconhecido durante a sincronização"))
+            }
         )
     }
 
@@ -81,29 +85,20 @@ class SyncRepositoryImpl @Inject constructor(
             CatLog.d("Iniciando syncAll... Obtendo manifesto.")
             val manifest = fetchManifest()
 
+            val modulosParaAtualizar = mutableListOf<ModuloDto>()
             for (modulo in manifest.modulos) {
-                val versaoLocal = prefs.getModuloVersao(modulo.nome).first()
-                if (modulo.versao > versaoLocal) {
-                    CatLog.i("Módulo '${modulo.nome}' precisa ser atualizado (local: $versaoLocal, servidor: ${modulo.versao}).")
-                    // O manifesto inclui um "data/" incorreto no caminho. Nós o removemos.
-                    val nomeArquivo = File(modulo.arquivo).name
-                    // Adicionamos um timestamp para evitar problemas de cache do servidor/CDN.
-                    val url = BuildConfig.SYNC_URL + nomeArquivo + "?t=" + System.currentTimeMillis()
-                    processarModulo(modulo.nome, url, modulo.versao)
-                } else {
-                    CatLog.d("Módulo '${modulo.nome}' está atualizado.")
+                if (modulo.versao > prefs.getModuloVersao(modulo.nome).first()) {
+                    modulosParaAtualizar.add(modulo)
                 }
             }
 
-            manifest.imagens?.let { imagens ->
-                val versaoImagensLocal = prefs.getModuloVersao("imagens").first()
-                if (imagens.versao > versaoImagensLocal) {
-                    CatLog.i("Pacote de imagens precisa ser atualizado (local: $versaoImagensLocal, servidor: ${imagens.versao}).")
-                    val url = BuildConfig.SYNC_URL + "images.zip" + "?t=" + System.currentTimeMillis()
-                    processarPacoteImagens(url, imagens.versao)
-                } else {
-                    CatLog.d("Pacote de imagens está atualizado.")
-                }
+            val imagensParaAtualizar = manifest.imagens?.let { it.versao > prefs.getModuloVersao("imagens").first() } ?: false
+
+            if (modulosParaAtualizar.isEmpty() && !imagensParaAtualizar) {
+                CatLog.i("Todos os módulos estão atualizados. Sincronização não necessária.")
+            } else {
+                CatLog.i("Atualizações encontradas. Baixando pacote de sincronização...")
+                processarPacoteSync(modulosParaAtualizar, imagensParaAtualizar, manifest)
             }
 
             manifest.appUpdate?.let {
@@ -119,14 +114,69 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-   override suspend fun verificarAtualizacoes(): ResultadoVerificacao = withContext(ioDispatcher) {
+    private suspend fun processarPacoteSync(
+        modulos: List<ModuloDto>,
+        atualizarImagens: Boolean,
+        manifest: ManifestDto
+    ) {
+        val zipFile = File(appContext.cacheDir, "CatfeinaSync.zip")
+        val unzipDir = File(appContext.cacheDir, "sync_temp")
+
+        try {
+            val url = BuildConfig.SYNC_URL + "CatfeinaSync.zip" + "?t=" + System.currentTimeMillis()
+            downloadArquivo(url, zipFile)
+
+            descompactarArquivo(zipFile, unzipDir)
+
+            // Processa módulos de dados
+            for (modulo in modulos) {
+                CatLog.i("Processando atualização para o módulo '${modulo.nome}' (versão ${modulo.versao}).")
+                val arquivoJson = File(unzipDir, modulo.arquivo)
+                if (arquivoJson.exists()) {
+                    processarModuloLocal(modulo.nome, arquivoJson.readText(), modulo.versao)
+                } else {
+                    throw IOException("Arquivo '${modulo.arquivo}' não encontrado no pacote de sincronização.")
+                }
+            }
+
+            // Processa imagens
+            if (atualizarImagens && manifest.imagens != null) {
+                CatLog.i("Atualizando pacote de imagens para a versão ${manifest.imagens.versao}.")
+                val pastaImagensOrigem = File(unzipDir, manifest.imagens.arquivo)
+                val pastaImagensDestino = File(appContext.filesDir, "images")
+
+                if (pastaImagensOrigem.exists()) {
+                    if (pastaImagensDestino.exists()) pastaImagensDestino.deleteRecursively()
+                    pastaImagensOrigem.renameTo(pastaImagensDestino)
+                    prefs.updateModuloVersao("imagens", manifest.imagens.versao)
+                } else {
+                    CatLog.w("Pasta de imagens '${manifest.imagens.arquivo}' não encontrada no pacote de sincronização.")
+                }
+            }
+
+        } finally {
+            if (zipFile.exists()) zipFile.delete()
+            if (unzipDir.exists()) unzipDir.deleteRecursively()
+            CatLog.d("Limpeza dos arquivos temporários de sincronização concluída.")
+        }
+    }
+
+
+    override suspend fun verificarAtualizacoes(): ResultadoVerificacao = withContext(ioDispatcher) {
         try {
             CatLog.d("Verificando atualizações...")
             val manifest = fetchManifest()
 
-            val dadosDisponiveis = manifest.modulos.any { modulo ->
-                modulo.versao > prefs.getModuloVersao(modulo.nome).first()
-            } || manifest.imagens?.let { it.versao > prefs.getModuloVersao("imagens").first() } == true
+            var dadosDisponiveis = false
+            for (modulo in manifest.modulos) {
+                if (modulo.versao > prefs.getModuloVersao(modulo.nome).first()) {
+                    dadosDisponiveis = true
+                    break
+                }
+            }
+            if (!dadosDisponiveis) {
+                dadosDisponiveis = manifest.imagens?.let { it.versao > prefs.getModuloVersao("imagens").first() } == true
+            }
 
             val appDisponivel = manifest.appUpdate?.let { appUpdate ->
                 appUpdate.versionCode > BuildConfig.VERSION_CODE
@@ -144,7 +194,7 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun fetchManifest(): ManifestDto {
-        val manifestUrl = BuildConfig.SYNC_URL + BuildConfig.SYNC_MANIFEST_NAME
+        val manifestUrl = BuildConfig.SYNC_URL + BuildConfig.SYNC_MANIFEST_NAME + "?t=" + System.currentTimeMillis()
         val response = httpClient.get(manifestUrl)
         if (!response.status.isSuccess()) {
             throw IOException("Falha ao baixar o manifesto: ${response.status}")
@@ -153,11 +203,7 @@ class SyncRepositoryImpl @Inject constructor(
         return json.decodeFromString(manifestJson)
     }
 
-    private suspend fun processarModulo(nome: String, url: String, novaVersao: Int) {
-        val response = httpClient.get(url)
-        if (!response.status.isSuccess()) throw IOException("Falha ao baixar o arquivo do módulo '$nome': ${response.status}")
-        val conteudoJson = response.bodyAsText()
-
+    private suspend fun processarModuloLocal(nome: String, conteudoJson: String, novaVersao: Int) {
         when (nome) {
             "poesias" -> poesiaRepository.upsertPoesias(json.decodeFromString<List<PoesiaSync>>(conteudoJson).map { it.toDomain() })
             "atelier" -> atelierRepository.upsertAteliers(json.decodeFromString<List<AtelierSync>>(conteudoJson).map { it.toDomain() })
@@ -167,42 +213,45 @@ class SyncRepositoryImpl @Inject constructor(
             else -> CatLog.w("Processamento para o módulo de dados '$nome' não implementado.")
         }
         prefs.updateModuloVersao(nome, novaVersao)
-    }
-
-    private suspend fun processarPacoteImagens(url: String, novaVersao: Int) {
-        val arquivoZip = File(appContext.cacheDir, "imagens.zip")
-        try {
-            downloadArquivo(url, arquivoZip)
-            descompactarArquivo(arquivoZip, File(appContext.filesDir, "images"))
-            prefs.updateModuloVersao("imagens", novaVersao)
-        } finally {
-            if (arquivoZip.exists()) arquivoZip.delete()
-        }
+        CatLog.d("Módulo '$nome' atualizado para a versão $novaVersao.")
     }
 
     private suspend fun downloadArquivo(url: String, arquivoDestino: File) {
+        CatLog.d("Baixando arquivo de: $url")
         val response = httpClient.get(url)
         if (!response.status.isSuccess()) throw IOException("Falha ao baixar o arquivo $url: ${response.status}")
         response.body<ByteReadChannel>().copyAndClose(arquivoDestino.writeChannel())
+        CatLog.d("Arquivo salvo em: ${arquivoDestino.absolutePath}")
     }
 
     private fun descompactarArquivo(arquivoZip: File, pastaDestino: File) {
+        CatLog.d("Descompactando '${arquivoZip.name}' para '${pastaDestino.absolutePath}'")
         if (pastaDestino.exists()) pastaDestino.deleteRecursively()
         pastaDestino.mkdirs()
-        ZipInputStream(arquivoZip.inputStream()).use { zis ->
+
+        ZipInputStream(arquivoZip.inputStream().buffered()).use { zis ->
             var entry = zis.nextEntry
             while (entry != null) {
                 val newFile = File(pastaDestino, entry.name)
-                if (!newFile.canonicalPath.startsWith(pastaDestino.canonicalPath + File.separator)) throw IOException("Zip Path Traversal: ${entry.name}")
+
+                // Prevenção contra 'Zip Path Traversal'
+                if (!newFile.canonicalPath.startsWith(pastaDestino.canonicalPath + File.separator)) {
+                    throw IOException("Zip Path Traversal: ${entry.name}")
+                }
+
                 if (entry.isDirectory) {
-                    if (!newFile.mkdirs()) throw IOException("Falha ao criar diretório ${newFile.absolutePath}")
+                    if (!newFile.isDirectory && !newFile.mkdirs()) throw IOException("Falha ao criar diretório ${newFile.absolutePath}")
                 } else {
-                    newFile.parentFile?.mkdirs()
+                    // Garante que o diretório pai exista
+                    newFile.parentFile?.let {
+                        if (!it.isDirectory && !it.mkdirs()) throw IOException("Falha ao criar diretório pai ${it.absolutePath}")
+                    }
                     newFile.outputStream().use { fos -> zis.copyTo(fos) }
                 }
                 zis.closeEntry()
                 entry = zis.nextEntry
             }
         }
+        CatLog.d("Descompactação concluída.")
     }
 }

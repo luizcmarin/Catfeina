@@ -15,23 +15,17 @@
 */
 package com.marin.catfeina.data.models
 
-import com.marin.catfeina.sqldelight.BuscarPoesias
-import com.marin.catfeina.sqldelight.GetPoesia
-import com.marin.catfeina.sqldelight.GetPoesiaAleatoria
-import com.marin.catfeina.sqldelight.GetPoesias
-import com.marin.catfeina.sqldelight.GetPoesiasFavoritas
+import com.marin.catfeina.sqldelight.PoesiaView
 import com.marin.catfeina.sqldelight.Tbl_poesia
 import com.marin.catfeina.sqldelight.Tbl_poesianota
 
+/**
+ * Representa uma poesia completa, combinando os dados da obra e as interações do usuário.
+ * Esta é a classe principal usada em toda a camada de UI.
+ */
 data class Poesia(
     val id: Long,
-    val titulo: String,
-    val texto: String,
-    val imagem: String?,
-    val autor: String?,
-    val nota: String?,
-    val textobase: String,
-    val textofinal: String?,
+    val texto: String, // Conteúdo completo em Markdown
     val anterior: Long?,
     val proximo: Long?,
     val atualizadoem: Long,
@@ -41,131 +35,49 @@ data class Poesia(
     val notausuario: String?
 )
 
-// Mapeadores do Banco de Dados para o Domínio
+// --- FUNÇÕES DE MAPEAMENTO ---
 
-fun GetPoesias.toDomain(): Poesia {
+/**
+ * Converte um objeto da View do banco de dados para o modelo de domínio `Poesia`.
+ * Esta é a principal função de mapeamento para leitura de dados.
+ */
+fun PoesiaView.toDomain(): Poesia {
     return Poesia(
         id = id,
-        titulo = titulo,
         texto = texto,
-        imagem = imagem,
-        autor = autor,
-        nota = nota,
-        textobase = textobase,
-        textofinal = textofinal,
         anterior = anterior,
         proximo = proximo,
         atualizadoem = atualizadoem,
-        favorita = favorita == 1L,
-        lida = lida == 1L,
+        favorita = favorita == 1L, // Converte de Long (0 ou 1) para Boolean
+        lida = lida == 1L,         // Converte de Long (0 ou 1) para Boolean
         dataleitura = dataleitura,
         notausuario = notausuario
     )
 }
 
-fun GetPoesia.toDomain(): Poesia {
-    return Poesia(
-        id = id,
-        titulo = titulo,
-        texto = texto,
-        imagem = imagem,
-        autor = autor,
-        nota = nota,
-        textobase = textobase,
-        textofinal = textofinal,
-        anterior = anterior,
-        proximo = proximo,
-        atualizadoem = atualizadoem,
-        favorita = favorita == 1L,
-        lida = lida == 1L,
-        dataleitura = dataleitura,
-        notausuario = notausuario
-    )
-}
-
-fun GetPoesiaAleatoria.toDomain(): Poesia {
-    return Poesia(
-        id = id,
-        titulo = titulo,
-        texto = texto,
-        imagem = imagem,
-        autor = autor,
-        nota = nota,
-        textobase = textobase,
-        textofinal = textofinal,
-        anterior = anterior,
-        proximo = proximo,
-        atualizadoem = atualizadoem,
-        favorita = favorita == 1L,
-        lida = lida == 1L,
-        dataleitura = dataleitura,
-        notausuario = notausuario
-    )
-}
-
-fun GetPoesiasFavoritas.toDomain(): Poesia {
-    return Poesia(
-        id = id,
-        titulo = titulo,
-        texto = texto,
-        imagem = imagem,
-        autor = autor,
-        nota = nota,
-        textobase = textobase,
-        textofinal = textofinal,
-        anterior = anterior,
-        proximo = proximo,
-        atualizadoem = atualizadoem,
-        favorita = favorita == 1L,
-        lida = lida == 1L,
-        dataleitura = dataleitura,
-        notausuario = notausuario
-    )
-}
-
-fun BuscarPoesias.toDomain(): Poesia {
-    return Poesia(
-        id = id,
-        titulo = titulo,
-        texto = texto,
-        imagem = imagem,
-        autor = autor,
-        nota = nota,
-        textobase = textobase,
-        textofinal = textofinal,
-        anterior = anterior,
-        proximo = proximo,
-        atualizadoem = atualizadoem,
-        favorita = favorita == 1L,
-        lida = lida == 1L,
-        dataleitura = dataleitura,
-        notausuario = notausuario
-    )
-}
-
-// Mapeadores do Domínio para o Banco de Dados
-
+/**
+ * Converte um modelo de domínio `Poesia` para uma entidade da tabela `tbl_poesia`.
+ * Usado ao inserir ou atualizar os dados imutáveis da obra.
+ */
 fun Poesia.toPoesiaEntity(): Tbl_poesia {
     return Tbl_poesia(
         id = id,
-        titulo = titulo,
         texto = texto,
-        imagem = imagem,
-        autor = autor,
-        nota = nota,
-        textobase = textobase,
-        textofinal = textofinal,
         anterior = anterior,
         proximo = proximo,
         atualizadoem = atualizadoem
     )
 }
 
+/**
+ * Converte um modelo de domínio `Poesia` para uma entidade da tabela `tbl_poesianota`.
+ * Usado ao salvar as interações do usuário (favorito, lido, nota).
+ */
 fun Poesia.toPoesiaNotaEntity(): Tbl_poesianota {
     return Tbl_poesianota(
         poesiaid = id,
-        favorita = if (favorita) 1L else 0L,
-        lida = if (lida) 1L else 0L,
+        favorita = if (favorita) 1L else 0L, // Converte de Boolean para Long
+        lida = if (lida) 1L else 0L,         // Converte de Boolean para Long
         dataleitura = dataleitura,
         notausuario = notausuario
     )

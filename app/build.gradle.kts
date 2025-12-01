@@ -44,6 +44,9 @@ android {
         versionCode = libs.versions.versionCode.get().toInt()
         versionName = libs.versions.versionName.get()
 
+        // Define o Hilt Test Runner para testes instrumentados
+        testInstrumentationRunner = "com.marin.catfeina.HiltTestRunner"
+
         buildConfigField(
             "int",
             "VERSION_CODE",
@@ -210,9 +213,22 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
+
+    // Testes
+    testImplementation(libs.bundles.test.unit)
+    androidTestImplementation(libs.bundles.test.instrumentation)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Testes com Hilt
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
+
 }
 
 sqldelight {
+    dependencies {
+        implementation(libs.sqlDelight.driver.sqlite)
+    }
     databases {
         create("CatfeinaDatabase") {
             packageName.set("com.marin.catfeina.sqldelight")

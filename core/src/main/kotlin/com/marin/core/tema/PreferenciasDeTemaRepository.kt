@@ -25,25 +25,11 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PreferenciasDeTemaRepository {
 
-    /**
-     * Um fluxo que emite a [ChaveTema] atual sempre que ela muda.
-     */
     val chaveTema: Flow<ChaveTema>
-
-    /**
-     * Um fluxo que emite a preferência de [ModoNoturno] atual sempre que ela muda.
-     */
     val modoNoturno: Flow<ModoNoturno>
+    val escalaFonte: Flow<Float>
 
-    /**
-     * Salva a [ChaveTema] selecionada pelo usuário.
-     * @param chave A nova chave do tema a ser persistida.
-     */
     suspend fun setChaveTema(chave: ChaveTema)
-
-    /**
-     * Salva a preferência de [ModoNoturno] selecionada pelo usuário.
-     * @param modo O novo modo a ser persistido.
-     */
     suspend fun setModoNoturno(modo: ModoNoturno)
+    suspend fun setEscalaFonte(escala: Float)
 }

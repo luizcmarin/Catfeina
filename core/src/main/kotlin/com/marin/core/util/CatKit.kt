@@ -46,11 +46,19 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import com.marin.core.ui.UiState
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.withTimeout
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -63,15 +71,6 @@ import kotlin.time.Instant
 // =============================================
 //  Utilitários de UI (Compose UI)
 // =============================================
-
-/**
- * Exibe um Toast na tela a partir de um Composable.
- */
-@Composable
-fun ShowToast(message: String) {
-    val context = LocalContext.current
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
 
 /**
  * Renderiza uma String de texto em Markdown como texto formatado.
@@ -88,6 +87,28 @@ fun RenderizadorMarkdown(modifier: Modifier = Modifier, markdown: String) {
         factory = { TextView(it).apply { movementMethod = LinkMovementMethod.getInstance() } },
         update = { it.text = Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT) }
     )
+}
+
+/**
+ * Cria uma lambda de clique com debounce (anti-clique duplo).
+ * Use esta função para envolver a lógica de clique em Composables que já fornecem um parâmetro `onClick`,
+ * como `Button` ou `NavigationBarItem`.
+ *
+ * @param debounceInterval O intervalo em milissegundos para ignorar cliques subsequentes.
+ * @param onClick A ação a ser executada no clique.
+ * @return Uma nova lambda que pode ser passada diretamente para o parâmetro `onClick`.
+ */
+@Composable
+fun rememberCliqueSeguro(debounceInterval: Long = 500L, onClick: () -> Unit): () -> Unit {
+    val lastClickTime = remember { mutableLongStateOf(0L) }
+
+    return {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastClickTime.longValue > debounceInterval) {
+            lastClickTime.longValue = currentTime
+            onClick()
+        }
+    }
 }
 
 // =============================================
@@ -163,17 +184,78 @@ fun Modifier.placeholder(
 // =============================================
 
 /**
- * Executa uma query de banco de dados de forma segura, retornando um UiState.
+ * Executa uma operação suspensa (query de banco de dados, chamada de rede) de forma segura.
+ * Garante a execução em uma thread de background, trata exceções, e implementa lógicas
+ * de timeout e repetição (retry) para maior robustez.
+ *
+ * @param T O tipo de dado esperado como resultado.
+ * @param dispatcher O CoroutineDispatcher no qual a query será executada. Padrão: Dispatchers.IO.
+ * @param timeout O tempo máximo de espera em milissegundos para a operação completa. Padrão: 10_000L.
+ * @param retries O número de tentativas em caso de falha por IOException. Padrão: 3.
+ * @param initialDelay O tempo de espera inicial em milissegundos antes da primeira repetição. Padrão: 200L.
+ * @param query A lambda suspensa que executa a operação.
+ * @return Um `UiState<T>` contendo `Success` com o resultado ou `Error` com a falha.
  */
-suspend fun <T> safeQuery(query: suspend () -> T): UiState<T> {
-    return withContext(Dispatchers.IO) {
-        try {
-            UiState.Success(query())
-        } catch (e: Exception) {
-            CatLog.e("Erro ao executar a query no banco de dados", e)
-            UiState.Error("Ocorreu um erro ao acessar o banco de dados: ${e.message}")
+suspend fun <T> safeQuery(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    timeout: Long = 10_000L,
+    retries: Int = 3,
+    initialDelay: Long = 200L,
+    query: suspend () -> T
+): UiState<T> {
+    return try {
+        withTimeout(timeout) { // 1. Timeout para a operação completa
+            withContext(dispatcher) { // 2. Muda para a thread de background
+                var lastError: IOException? = null
+                for (attempt in 1..retries) { // 3. Lógica de repetição
+                    try {
+                        return@withContext UiState.Success(query()) // Sucesso, retorna imediatamente
+                    } catch (e: IOException) {
+                        lastError = e
+                        CatLog.w("Tentativa $attempt/$retries falhou por IOException: ${e.message}")
+                        if (attempt < retries) {
+                            delay(initialDelay * attempt) // Backoff linear
+                        } else {
+                            throw e // Lança a exceção na última tentativa
+                        }
+                    }
+                }
+                // Este ponto não deve ser alcançado, mas é necessário para o compilador
+                UiState.Error("Falha após todas as tentativas: ${lastError?.message}")
+            }
         }
+    } catch (e: TimeoutCancellationException) {
+        CatLog.e("A operação excedeu o tempo limite.", e)
+        UiState.Error("A operação demorou mais que o esperado.")
+    } catch (e: IOException) {
+        CatLog.e("Erro de I/O após todas as tentativas.", e)
+        UiState.Error("Falha na conexão: ${e.message}")
+    } catch (e: Exception) {
+        CatLog.e("Erro inesperado na safeQuery.", e)
+        UiState.Error("Ocorreu um erro inesperado: ${e.message}")
     }
+}
+
+/**
+ * Executa uma query de banco de dados que retorna um Flow, garantindo a execução
+ * no dispatcher correto e tratando exceções na coleta.
+ *
+ * @param T O tipo de dado emitido pelo Flow.
+ * @param dispatcher O CoroutineDispatcher no qual a coleta do fluxo ocorrerá. Padrão: Dispatchers.IO.
+ * @param query A lambda que retorna o Flow a ser observado.
+ * @return Um `Flow<UiState<T>>` que emite `Success` com os dados ou `Error` em caso de falha.
+ */
+fun <T> safeFlowQuery(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    query: () -> Flow<T>
+): Flow<UiState<T>> {
+    return query()
+        .map<T, UiState<T>> { UiState.Success(it) } // Em caso de sucesso, envolve em UiState.Success
+        .flowOn(dispatcher) // Garante que o fluxo upstream rode na thread de IO
+        .catch { e -> // Se ocorrer uma exceção durante a coleta
+            CatLog.e("Erro na query de fluxo de dados", e)
+            emit(UiState.Error("Ocorreu um erro ao acessar o banco de dados: ${e.message}"))
+        }
 }
 
 // =============================================

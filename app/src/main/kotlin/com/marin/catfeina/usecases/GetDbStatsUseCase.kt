@@ -10,7 +10,7 @@
 *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
 *  dele, é estritamente proibida.
 *
-*  Nota: Caso de uso para obter estatísticas do banco de dados para a tela de depuração.
+*  Nota: Caso de uso para obter estatísticas do banco de dados.
 *
 */
 package com.marin.catfeina.usecases
@@ -18,31 +18,43 @@ package com.marin.catfeina.usecases
 import com.marin.catfeina.data.repositories.AtelierRepository
 import com.marin.catfeina.data.repositories.HistoricoRepository
 import com.marin.catfeina.data.repositories.InformativoRepository
-import com.marin.catfeina.data.repositories.MeowRepository
-import com.marin.catfeina.data.repositories.PersonagemRepository
 import com.marin.catfeina.data.repositories.PoesiaRepository
-import kotlinx.coroutines.flow.first
+import com.marin.core.ui.UiState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
-/**
- * Coleta estatísticas de contagem de registros de todas as tabelas do banco de dados.
- */
+data class DbStats(
+    val totalPoesias: Long = 0,
+    val totalAteliers: Long = 0,
+    val totalHistoricos: Long = 0,
+    val totalInformativos: Long = 0
+)
+
 class GetDbStatsUseCase @Inject constructor(
     private val poesiaRepository: PoesiaRepository,
-    private val personagemRepository: PersonagemRepository,
     private val atelierRepository: AtelierRepository,
     private val historicoRepository: HistoricoRepository,
-    private val informativoRepository: InformativoRepository,
-    private val meowRepository: MeowRepository
+    private val informativoRepository: InformativoRepository
 ) {
-    suspend operator fun invoke(): List<Pair<String, Long>> {
-        return listOf(
-            "Poesias" to poesiaRepository.countPoesias().first(),
-            "Personagens" to personagemRepository.countPersonagens().first(),
-            "Atelier" to atelierRepository.countAteliers().first(),
-            "Histórico" to historicoRepository.countHistoricos().first(),
-            "Informativos" to informativoRepository.countInformativos().first(),
-            "Meows" to meowRepository.countMeows().first()
-        )
+    operator fun invoke(): Flow<UiState<DbStats>> {
+        return combine(
+            poesiaRepository.countPoesias(),
+            atelierRepository.countAteliers(),
+            historicoRepository.countHistoricos(),
+            informativoRepository.countInformativos()
+        ) { poesiaCount, atelierCount, historicoCount, informativoCount ->
+            val pCount = (poesiaCount as? UiState.Success)?.data ?: 0L
+            val aCount = (atelierCount as? UiState.Success)?.data ?: 0L
+            val hCount = (historicoCount as? UiState.Success)?.data ?: 0L
+            val iCount = (informativoCount as? UiState.Success)?.data ?: 0L
+
+            UiState.Success(DbStats(
+                totalPoesias = pCount,
+                totalAteliers = aCount,
+                totalHistoricos = hCount,
+                totalInformativos = iCount
+            ))
+        }
     }
 }

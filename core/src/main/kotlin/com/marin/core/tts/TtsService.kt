@@ -18,12 +18,23 @@ package com.marin.core.tts
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import com.marin.core.Constantes
 import com.marin.core.util.CatLog
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+
+enum class TtsEstado {
+    PARADO,
+    REPRODUZINDO,
+    PAUSADO, // Embora o TTS do Android não tenha um "pause" real, podemos simular
+    ERRO,
+    INICIALIZANDO
+}
 
 @Singleton
 class TtsService @Inject constructor(
@@ -31,66 +42,89 @@ class TtsService @Inject constructor(
 ) : TextToSpeech.OnInitListener {
 
     private var tts: TextToSpeech? = null
-    private var estaInicializado = false
+    private val _estado = MutableStateFlow(TtsEstado.INICIALIZANDO)
+    val estado = _estado.asStateFlow()
+
+    private var textoAtual: String = ""
+    private var ultimoPontoParada: Int = 0
 
     init {
         try {
-            // Inicializa o motor TTS. O resultado será entregue no callback onInit.
-            tts = TextToSpeech(context, this)
+            tts = TextToSpeech(context, this).apply {
+                setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        _estado.value = TtsEstado.REPRODUZINDO
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        _estado.value = TtsEstado.PARADO
+                        ultimoPontoParada = 0 // Reseta ao concluir
+                    }
+
+                    @Deprecated("deprecated in API level 21")
+                    override fun onError(utteranceId: String?) {
+                        _estado.value = TtsEstado.ERRO
+                    }
+                })
+            }
         } catch (e: Exception) {
             CatLog.e("Falha ao instanciar o TextToSpeech", e)
-            estaInicializado = false
+            _estado.value = TtsEstado.ERRO
         }
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            // Tenta definir o idioma para Português do Brasil, usando a constante centralizada.
             val resultado = tts?.setLanguage(Locale.forLanguageTag(Constantes.ptBrLocale))
-
-            // Verifica se o idioma é suportado.
             if (resultado == TextToSpeech.LANG_MISSING_DATA || resultado == TextToSpeech.LANG_NOT_SUPPORTED) {
-                CatLog.e("TTS: A língua portuguesa (pt-BR) não é suportada neste dispositivo.")
-                estaInicializado = false
+                CatLog.e("TTS: A língua portuguesa (pt-BR) não é suportada.")
+                _estado.value = TtsEstado.ERRO
             } else {
-                CatLog.d("Serviço de TTS inicializado com sucesso.")
-                estaInicializado = true
+                CatLog.d("Serviço de TTS inicializado.")
+                _estado.value = TtsEstado.PARADO
             }
         } else {
             CatLog.e("TTS: Falha na inicialização. Código de status: $status")
-            estaInicializado = false
+            _estado.value = TtsEstado.ERRO
         }
     }
 
-    /**
-     * Lê o texto fornecido em voz alta.
-     * @param texto O conteúdo a ser falado.
-     */
-    fun falar(texto: String) {
-        if (estaInicializado) {
-            tts?.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
+    fun reproduzir(texto: String) {
+        if (_estado.value == TtsEstado.PAUSADO && texto == textoAtual) {
+            retomar()
         } else {
-            CatLog.w("TTS não está inicializado. Não é possível falar o texto solicitado.")
+            textoAtual = texto
+            ultimoPontoParada = 0
+            tts?.speak(texto, TextToSpeech.QUEUE_FLUSH, null, "utteranceId")
         }
     }
 
-    /**
-     * Interrompe a fala atual, se estiver ocorrendo.
-     */
+    fun pausar() {
+        // O TTS do Android não tem um pause real. A simulação é feita parando a fala
+        // e guardando a posição para um futuro 'retomar'. 
+        // A implementação de `onUtteranceCompleted` lidaria com o ponto de parada, mas é complexo.
+        // Por simplicidade, vamos apenas parar.
+        tts?.stop()
+        _estado.value = TtsEstado.PAUSADO // Estado simulado
+    }
+
+    private fun retomar() {
+        // Simulação de 'retomar', reiniciando a fala. Uma implementação real exigiria
+        // salvar o progresso da fala, o que é mais complexo.
+        reproduzir(textoAtual)
+    }
+
     fun parar() {
-        if (tts?.isSpeaking == true) {
-            tts?.stop()
-        }
+        tts?.stop()
+        _estado.value = TtsEstado.PARADO
+        ultimoPontoParada = 0
     }
 
-    /**
-     * Libera os recursos do serviço de TTS. Deve ser chamado quando o serviço não for mais necessário.
-     */
     fun finalizar() {
-        parar()
+        tts?.stop()
         tts?.shutdown()
         tts = null
-        estaInicializado = false
+        _estado.value = TtsEstado.PARADO
         CatLog.d("Serviço de TTS finalizado.")
     }
 }

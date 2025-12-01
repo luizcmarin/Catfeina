@@ -15,7 +15,6 @@
 */
 package com.marin.catfeina.ui.telas.historico
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +34,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marin.catfeina.R
 import com.marin.catfeina.data.models.Historico
+import com.marin.core.util.cliqueSeguro
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -95,7 +95,7 @@ private fun HistoricoItem(item: Historico, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(item.titulo) },
         supportingContent = { Text("Visto em: $formattedDate") },
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = Modifier.cliqueSeguro(onClick = onClick)
     )
 }
 

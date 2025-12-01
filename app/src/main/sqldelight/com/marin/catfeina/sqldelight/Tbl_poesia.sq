@@ -9,60 +9,54 @@
 --  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
 --  dele, é estritamente proibida.
 --
---  Nota: Schema e queries para a tabela de poesias (tbl_poesia).
+--  Nota: Schema e queries para a tabela de poesias (tbl_poesia) e sua view unificada.
 
--- Criação da Tabela
+-- Tabela de Poesias (Dados imutáveis da obra)
 CREATE TABLE tbl_poesia (
     id INTEGER NOT NULL PRIMARY KEY,
-    titulo TEXT NOT NULL UNIQUE,
-    textobase TEXT NOT NULL,
-    texto TEXT NOT NULL,
-    textofinal TEXT,
-    imagem TEXT,
-    autor TEXT,
-    nota TEXT,
+    texto TEXT NOT NULL, -- Conteúdo completo em Markdown
     anterior INTEGER,
     proximo INTEGER,
     atualizadoem INTEGER NOT NULL
 );
 
+-- View Unificada: Junta os dados da obra com os metadados do usuário
+CREATE VIEW poesiaView AS
+SELECT
+    p.id,
+    p.texto,
+    p.anterior,
+    p.proximo,
+    p.atualizadoem,
+    COALESCE(pn.favorita, 0) AS favorita,
+    COALESCE(pn.lida, 0) AS lida,
+    pn.dataleitura,
+    pn.notausuario
+FROM tbl_poesia AS p
+LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid;
+
 -- Queries
-upsertPoesia: INSERT OR REPLACE INTO tbl_poesia(id, titulo, textobase, texto, textofinal, imagem, autor, nota, anterior, proximo, atualizadoem) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-deletePoesia: DELETE FROM tbl_poesia WHERE id = ?;
+-- Insere ou atualiza uma poesia na tabela principal.
+upsertPoesia: INSERT OR REPLACE INTO tbl_poesia(id, texto, anterior, proximo, atualizadoem) VALUES(?, ?, ?, ?, ?);
 
+-- Deleta todas as poesias (usado na sincronização).
 deletePoesias: DELETE FROM tbl_poesia;
 
+-- Conta o total de poesias.
 countPoesias: SELECT COUNT(id) FROM tbl_poesia;
 
-getPoesias:
-SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
-FROM tbl_poesia AS p
-LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
-ORDER BY p.atualizadoem DESC
-LIMIT :limit OFFSET :offset;
+-- Busca todas as poesias para a lista principal.
+getPoesias: SELECT * FROM poesiaView ORDER BY atualizadoem DESC;
 
-getPoesia:
-SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
-FROM tbl_poesia AS p
-LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
-WHERE p.id = ?;
+-- Busca uma poesia específica pela View.
+getPoesia: SELECT * FROM poesiaView WHERE id = ?;
 
-getPoesiaAleatoria:
-SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
-FROM tbl_poesia AS p
-LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
-ORDER BY RANDOM() LIMIT 1;
+-- Busca poesias por termo no conteúdo Markdown.
+buscarPoesias: SELECT * FROM poesiaView WHERE texto LIKE '%' || :termo || '%';
 
-getPoesiasFavoritas:
-SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
-FROM tbl_poesia AS p
-INNER JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
-WHERE pn.favorita = 1
-ORDER BY pn.dataleitura DESC;
+-- Busca as poesias favoritas do usuário.
+getPoesiasFavoritas: SELECT * FROM poesiaView WHERE favorita = 1 ORDER BY dataleitura DESC;
 
-buscarPoesias:
-SELECT p.id, p.titulo, p.texto, p.imagem, p.autor, p.nota, p.textobase, p.textofinal, p.anterior, p.proximo, p.atualizadoem, COALESCE(pn.favorita, 0) AS favorita, COALESCE(pn.lida, 0) AS lida, pn.dataleitura, pn.notausuario
-FROM tbl_poesia AS p
-LEFT JOIN tbl_poesianota AS pn ON p.id = pn.poesiaid
-WHERE p.titulo LIKE '%' || :termo || '%' OR p.texto LIKE '%' || :termo || '%';
+-- Busca uma poesia aleatória.
+getPoesiaAleatoria: SELECT * FROM poesiaView ORDER BY RANDOM() LIMIT 1;

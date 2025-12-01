@@ -1,53 +1,67 @@
-/*
- *  Projeto: Catfeina/Catverso
- *  Arquivo: core/tema/Color.kt
- *
- *  Direitos autorais (c) 2025 Marin. Todos os direitos reservados.
- *
- *  Autores: Luiz Carlos Marin / Ivete Gielow Marin / Caroline Gielow Marin
- *
- *  Este arquivo faz parte do projeto Catfeina.
- *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
- *  dele, é estritamente proibida.
- *
- *  Nota: Define a paleta de cores base para toda a aplicação. Os temas são gerados
- *  a partir destas cores, aplicando modificadores.
- *
- */
-
 package com.marin.core.tema
 
 import androidx.compose.ui.graphics.Color
 
-/**
- * Objeto que centraliza as cores fundamentais e semânticas da aplicação.
- * Esta é a única fonte da verdade para as cores. Os temas são construídos
- * como variações (mais claras, mais escuras) destas cores base.
- */
-object CoresBase {
+val md_theme_light_primary = Color(0xFF006D39)
+val md_theme_light_onPrimary = Color(0xFFFFFFFF)
+val md_theme_light_primaryContainer = Color(0xFF96F8B2)
+val md_theme_light_onPrimaryContainer = Color(0xFF00210D)
+val md_theme_light_secondary = Color(0xFF506352)
+val md_theme_light_onSecondary = Color(0xFFFFFFFF)
+val md_theme_light_secondaryContainer = Color(0xFFD3E8D3)
+val md_theme_light_onSecondaryContainer = Color(0xFF0E1F12)
+val md_theme_light_tertiary = Color(0xFF3B6470)
+val md_theme_light_onTertiary = Color(0xFFFFFFFF)
+val md_theme_light_tertiaryContainer = Color(0xFFBFE9F8)
+val md_theme_light_onTertiaryContainer = Color(0xFF001F27)
+val md_theme_light_error = Color(0xFFBA1A1A)
+val md_theme_light_onError = Color(0xFFFFFFFF)
+val md_theme_light_errorContainer = Color(0xFFFFDAD6)
+val md_theme_light_onErrorContainer = Color(0xFF410002)
+val md_theme_light_background = Color(0xFFFCFDF7)
+val md_theme_light_onBackground = Color(0xFF1A1C1A)
+val md_theme_light_surface = Color(0xFFFCFDF7)
+val md_theme_light_onSurface = Color(0xFF1A1C1A)
+val md_theme_light_surfaceVariant = Color(0xFFDEE5DA)
+val md_theme_light_onSurfaceVariant = Color(0xFF424941)
+val md_theme_light_outline = Color(0xFF727970)
+val md_theme_light_inverseOnSurface = Color(0xFFF0F1EB)
+val md_theme_light_inverseSurface = Color(0xFF2F312E)
+val md_theme_light_inversePrimary = Color(0xFF7BDA98)
+val md_theme_light_shadow = Color(0xFF000000)
+val md_theme_light_surfaceTint = Color(0xFF006D39)
+val md_theme_light_outlineVariant = Color(0xFFC2C9BF)
+val md_theme_light_scrim = Color(0xFF000000)
 
-    // --- Cores Primárias Representativas de Cada Tema ---
-    val VerdePrimavera = Color(0xFF4C662B)
-    val AmareloVerao = Color(0xFF6D5E0F)
-    val LaranjaOutono = Color(0xFF8F4C38)
-    val AzulInverno = Color(0xFF415F91)
+val md_theme_dark_primary = Color(0xFF7BDA98)
+val md_theme_dark_onPrimary = Color(0xFF00391A)
+val md_theme_dark_primaryContainer = Color(0xFF005329)
+val md_theme_dark_onPrimaryContainer = Color(0xFF96F8B2)
+val md_theme_dark_secondary = Color(0xFFB7CCB8)
+val md_theme_dark_onSecondary = Color(0xFF233426)
+val md_theme_dark_secondaryContainer = Color(0xFF394B3C)
+val md_theme_dark_onSecondaryContainer = Color(0xFFD3E8D3)
+val md_theme_dark_tertiary = Color(0xFFA4CDDB)
+val md_theme_dark_onTertiary = Color(0xFF043541)
+val md_theme_dark_tertiaryContainer = Color(0xFF214C58)
+val md_theme_dark_onTertiaryContainer = Color(0xFFBFE9F8)
+val md_theme_dark_error = Color(0xFFFFB4AB)
+val md_theme_dark_onError = Color(0xFF690005)
+val md_theme_dark_errorContainer = Color(0xFF93000A)
+val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
+val md_theme_dark_background = Color(0xFF1A1C1A)
+val md_theme_dark_onBackground = Color(0xFFE2E3DE)
+val md_theme_dark_surface = Color(0xFF1A1C1A)
+val md_theme_dark_onSurface = Color(0xFFE2E3DE)
+val md_theme_dark_surfaceVariant = Color(0xFF424941)
+val md_theme_dark_onSurfaceVariant = Color(0xFFC2C9BF)
+val md_theme_dark_outline = Color(0xFF8B9389)
+val md_theme_dark_inverseOnSurface = Color(0xFF1A1C1A)
+val md_theme_dark_inverseSurface = Color(0xFFE2E3DE)
+val md_theme_dark_inversePrimary = Color(0xFF006D39)
+val md_theme_dark_shadow = Color(0xFF000000)
+val md_theme_dark_surfaceTint = Color(0xFF7BDA98)
+val md_theme_dark_outlineVariant = Color(0xFF424941)
+val md_theme_dark_scrim = Color(0xFF000000)
 
-    // --- Cores Secundárias e Terciárias Base ---
-    // (Extraídas do tema Primavera como um padrão neutro)
-    val CinzaVerde = Color(0xFF586249)
-    val VerdeAgua = Color(0xFF386663)
-
-    // --- Cores Funcionais ---
-    val Erro = Color(0xFFBA1A1A)
-    val Branco = Color(0xFFFFFFFF)
-    val Preto = Color(0xFF000000)
-
-    // --- Tons de Cinza Neutros ---
-    val CinzaFundoClaro = Color(0xFFF9FAEF)
-    val CinzaSuperficieClara = Color(0xFFE1E4D5)
-    val CinzaBordaClara = Color(0xFF75796C)
-
-    val CinzaFundoEscuro = Color(0xFF12140E)
-    val CinzaSuperficieEscura = Color(0xFF44483D)
-    val CinzaBordaEscura = Color(0xFF8F9285)
-}
+val seed = Color(0xFF2B8F55)

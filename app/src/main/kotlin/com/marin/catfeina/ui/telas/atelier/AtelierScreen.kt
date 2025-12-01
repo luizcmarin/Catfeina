@@ -17,6 +17,7 @@ package com.marin.catfeina.ui.telas.atelier
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,68 +26,79 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.marin.catfeina.R
 import com.marin.catfeina.data.models.Atelier
 import com.marin.core.ui.Icones
-import com.marin.core.util.placeholder
+import com.marin.core.util.cliqueSeguro
+import com.marin.core.util.rememberCliqueSeguro
 
 @Composable
 fun AtelierScreen(
     modifier: Modifier = Modifier,
-    viewModel: AtelierViewModel = hiltViewModel(),
-    navController: NavController
+    viewModel: AtelierViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showDialog by remember { mutableStateOf(false) }
+    var notaEmEdicao by remember { mutableStateOf<Atelier?>(null) }
 
     AtelierScreenContent(
         modifier = modifier,
         uiState = uiState,
-        showDialog = showDialog,
-        onFabClick = { showDialog = true },
-        onDismissDialog = { showDialog = false },
-        onSaveNote = {
-            viewModel.salvarNota(it.first, it.second)
-            showDialog = false
-        }
+        onFabClick = { notaEmEdicao = Atelier(id = 0, titulo = "", texto = "", atualizadoem = 0, fixada = false) },
+        onNoteClick = { nota -> notaEmEdicao = nota }
     )
+
+    notaEmEdicao?.let {
+        NewNoteDialog(
+            nota = it,
+            onDismiss = { notaEmEdicao = null },
+            onSave = {
+                viewModel.salvarNota(it)
+                notaEmEdicao = null
+            },
+            onDelete = {
+                viewModel.excluirNota(it)
+                notaEmEdicao = null
+            }
+        )
+    }
 }
 
 @Composable
 private fun AtelierScreenContent(
     modifier: Modifier = Modifier,
     uiState: AtelierUiState,
-    showDialog: Boolean,
     onFabClick: () -> Unit,
-    onDismissDialog: () -> Unit,
-    onSaveNote: (Pair<String, String>) -> Unit
+    onNoteClick: (Atelier) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
-            FloatingActionButton(onClick = onFabClick) {
+            FloatingActionButton(onClick = rememberCliqueSeguro(onClick = onFabClick)) {
                 Icon(Icones.Mais, contentDescription = stringResource(R.string.atelier_adicionar_nota))
             }
         }
@@ -102,11 +114,16 @@ private fun AtelierScreenContent(
                 is AtelierUiState.Error -> Text(stringResource(R.string.atelier_erro))
                 is AtelierUiState.Success -> {
                     if (uiState.notas.isEmpty()) {
-                        Text(stringResource(R.string.atelier_sem_notas))
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                           Text(stringResource(R.string.atelier_sem_notas))
+                        }
                     } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(uiState.notas) { nota ->
-                                AtelierNoteItem(nota = nota)
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(8.dp)
+                        ) {
+                            items(uiState.notas, key = { it.id }) { nota ->
+                                AtelierNoteItem(nota = nota, onClick = { onNoteClick(nota) })
                             }
                         }
                     }
@@ -114,65 +131,84 @@ private fun AtelierScreenContent(
             }
         }
     }
+}
 
-    if (showDialog) {
-        NewNoteDialog(
-            onDismiss = onDismissDialog,
-            onSave = onSaveNote
-        )
+@Composable
+private fun AtelierNoteItem(nota: Atelier, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .cliqueSeguro(onClick = onClick)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(nota.titulo, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(nota.texto, maxLines = 3, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 
 @Composable
-private fun AtelierNoteItem(nota: Atelier) {
-    ListItem(
-        headlineContent = { Text(nota.titulo, style = MaterialTheme.typography.titleMedium) },
-        supportingContent = { Text(nota.texto, maxLines = 2, style = MaterialTheme.typography.bodySmall) }
-    )
-}
-
-@Composable
 private fun NewNoteDialog(
+    nota: Atelier,
     onDismiss: () -> Unit,
-    onSave: (Pair<String, String>) -> Unit
+    onSave: (Atelier) -> Unit,
+    onDelete: (Atelier) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    var text by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(nota.titulo) }
+    var text by remember { mutableStateOf(nota.texto) }
+    val isNewNote = nota.id == 0L
+    val focusRequester = remember { FocusRequester() }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.atelier_nova_nota_titulo)) },
+        title = { Text(stringResource(if (isNewNote) R.string.atelier_nova_nota_titulo else R.string.atelier_editar_nota_titulo)) },
         text = {
             Column {
                 TextField(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text(stringResource(R.string.atelier_nova_nota_campo_titulo)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = text,
                     onValueChange = { text = it },
                     label = { Text(stringResource(R.string.atelier_nova_nota_campo_texto)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(150.dp) // Caixa de texto grande
                 )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onSave(title to text) },
+                onClick = rememberCliqueSeguro { 
+                    val updatedNota = if(isNewNote) nota.copy(id = System.currentTimeMillis(), titulo = title, texto = text) else nota.copy(titulo = title, texto = text)
+                    onSave(updatedNota) 
+                },
                 enabled = title.isNotBlank() && text.isNotBlank()
             ) {
                 Text(stringResource(R.string.salvar))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancelar))
+            Column {
+                 if (!isNewNote) {
+                    TextButton(onClick = rememberCliqueSeguro { onDelete(nota) }) {
+                        Text("Excluir", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+                TextButton(onClick = rememberCliqueSeguro(onClick = onDismiss)) {
+                    Text(stringResource(R.string.cancelar))
+                }
             }
         }
     )
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 }
 
 @Preview(showBackground = true)
@@ -184,45 +220,13 @@ private fun AtelierScreenPreview_ComNotas() {
     )
     AtelierScreenContent(
         uiState = AtelierUiState.Success(notas),
-        showDialog = false,
         onFabClick = {},
-        onDismissDialog = {},
-        onSaveNote = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AtelierScreenPreview_SemNotas() {
-    AtelierScreenContent(
-        uiState = AtelierUiState.Success(emptyList()),
-        showDialog = false,
-        onFabClick = {},
-        onDismissDialog = {},
-        onSaveNote = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AtelierScreenPreview_Loading() {
-    AtelierScreenContent(
-        uiState = AtelierUiState.Loading,
-        showDialog = false,
-        onFabClick = {},
-        onDismissDialog = {},
-        onSaveNote = {}
+        onNoteClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun AtelierScreenPreview_ComDialog() {
-    AtelierScreenContent(
-        uiState = AtelierUiState.Success(emptyList()),
-        showDialog = true,
-        onFabClick = {},
-        onDismissDialog = {},
-        onSaveNote = {}
-    )
+    NewNoteDialog(nota = Atelier(1, "Nota 1", "Conteúdo da nota 1", 0L, false), onDismiss = {}, onSave = {}, onDelete = {})
 }

@@ -19,6 +19,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.marin.catfeina.data.sync.AppUpdateDto
@@ -41,6 +42,7 @@ class UserPreferencesRepository @Inject constructor(
         // Tema e UI
         val TEMA_CHAVE = stringPreferencesKey("ui_theme_key")
         val MODO_NOTURNO = stringPreferencesKey("ui_night_mode")
+        val FONT_SCALE = floatPreferencesKey("ui_font_scale")
 
         // Sincronização
         fun moduloVersao(nomeModulo: String) = intPreferencesKey("sync_version_${nomeModulo}")
@@ -72,6 +74,14 @@ class UserPreferencesRepository @Inject constructor(
                 ModoNoturno.SISTEMA // Fallback seguro
             }
         }
+    
+    override val escalaFonte: Flow<Float> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
+        }
+        .map { preferences ->
+            preferences[Keys.FONT_SCALE] ?: 1.0f
+        }
 
     override suspend fun setChaveTema(chave: ChaveTema) {
         dataStore.edit { it[Keys.TEMA_CHAVE] = chave.name }
@@ -79,6 +89,10 @@ class UserPreferencesRepository @Inject constructor(
 
     override suspend fun setModoNoturno(modo: ModoNoturno) {
         dataStore.edit { it[Keys.MODO_NOTURNO] = modo.name }
+    }
+
+    override suspend fun setEscalaFonte(escala: Float) {
+        dataStore.edit { it[Keys.FONT_SCALE] = escala }
     }
 
     fun getModuloVersao(nomeModulo: String): Flow<Int> = dataStore.data

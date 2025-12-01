@@ -23,19 +23,21 @@ import com.marin.catfeina.data.models.Atelier
 import com.marin.catfeina.data.models.toDomain
 import com.marin.catfeina.data.models.toEntity
 import com.marin.catfeina.sqldelight.Tbl_atelierQueries
+import com.marin.core.ui.UiState
+import com.marin.core.util.safeFlowQuery
+import com.marin.core.util.safeQuery
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface AtelierRepository {
-    fun getAteliers(): Flow<List<Atelier>>
-    fun getAtelier(id: Long): Flow<Atelier?>
-    suspend fun upsertAtelier(atelier: Atelier)
-    suspend fun deleteAtelier(id: Long)
-    suspend fun upsertAteliers(ateliers: List<Atelier>)
-    fun countAteliers(): Flow<Long>
+    fun getAteliers(): Flow<UiState<List<Atelier>>>
+    fun getAtelier(id: Long): Flow<UiState<Atelier?>>
+    suspend fun upsertAtelier(atelier: Atelier): UiState<Unit>
+    suspend fun deleteAtelier(id: Long): UiState<Unit>
+    suspend fun upsertAteliers(ateliers: List<Atelier>): UiState<Unit>
+    fun countAteliers(): Flow<UiState<Long>>
 }
 
 class AtelierRepositoryImpl @Inject constructor(
@@ -43,57 +45,51 @@ class AtelierRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : AtelierRepository {
 
-    override fun getAteliers(): Flow<List<Atelier>> {
-        return atelierQueries.getAteliers()
+    override fun getAteliers(): Flow<UiState<List<Atelier>>> = safeFlowQuery(ioDispatcher) {
+        atelierQueries.getAteliers()
             .asFlow()
             .mapToList(ioDispatcher)
             .map { it.map { atelier -> atelier.toDomain() } }
     }
 
-    override fun getAtelier(id: Long): Flow<Atelier?> {
-        return atelierQueries.getAtelier(id)
+    override fun getAtelier(id: Long): Flow<UiState<Atelier?>> = safeFlowQuery(ioDispatcher) {
+        atelierQueries.getAtelier(id)
             .asFlow()
             .mapToOneOrNull(ioDispatcher)
             .map { it?.toDomain() }
     }
 
-    override suspend fun upsertAtelier(atelier: Atelier) {
-        withContext(ioDispatcher) {
-            val entity = atelier.toEntity()
-            atelierQueries.upsertAtelier(
-                id = entity.id,
-                titulo = entity.titulo,
-                texto = entity.texto,
-                atualizadoem = entity.atualizadoem,
-                fixada = entity.fixada
-            )
-        }
+    override suspend fun upsertAtelier(atelier: Atelier): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        val entity = atelier.toEntity()
+        atelierQueries.upsertAtelier(
+            id = entity.id,
+            titulo = entity.titulo,
+            texto = entity.texto,
+            atualizadoem = entity.atualizadoem,
+            fixada = entity.fixada
+        )
     }
 
-    override suspend fun deleteAtelier(id: Long) {
-        withContext(ioDispatcher) {
-            atelierQueries.deleteAtelier(id)
-        }
+    override suspend fun deleteAtelier(id: Long): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        atelierQueries.deleteAtelier(id)
     }
 
-    override suspend fun upsertAteliers(ateliers: List<Atelier>) {
-        withContext(ioDispatcher) {
-            atelierQueries.transaction {
-                ateliers.forEach { atelier ->
-                    val entity = atelier.toEntity()
-                    atelierQueries.upsertAtelier(
-                        id = entity.id,
-                        titulo = entity.titulo,
-                        texto = entity.texto,
-                        atualizadoem = entity.atualizadoem,
-                        fixada = entity.fixada
-                    )
-                }
+    override suspend fun upsertAteliers(ateliers: List<Atelier>): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        atelierQueries.transaction {
+            ateliers.forEach { atelier ->
+                val entity = atelier.toEntity()
+                atelierQueries.upsertAtelier(
+                    id = entity.id,
+                    titulo = entity.titulo,
+                    texto = entity.texto,
+                    atualizadoem = entity.atualizadoem,
+                    fixada = entity.fixada
+                )
             }
         }
     }
 
-    override fun countAteliers(): Flow<Long> {
-        return atelierQueries.countAteliers().asFlow().mapToOne(ioDispatcher)
+    override fun countAteliers(): Flow<UiState<Long>> = safeFlowQuery(ioDispatcher) {
+        atelierQueries.countAteliers().asFlow().mapToOne(ioDispatcher)
     }
 }

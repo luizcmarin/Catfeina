@@ -10,113 +10,72 @@
  *  A reprodução ou distribuição não autorizada deste arquivo, ou de qualquer parte
  *  dele, é estritamente proibida.
  *
- *  Nota: Define o esquema generativo para o tema Primavera, baseado em cores centrais
- *  e modificadores de tema.
+ *  Nota: Define o esquema de cores e tipografia para o tema Primavera.
  *
  */
 
 package com.marin.core.tema
 
-import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import com.marin.core.tema.CoresBase.CinzaBordaClara
-import com.marin.core.tema.CoresBase.CinzaBordaEscura
-import com.marin.core.tema.CoresBase.CinzaFundoClaro
-import com.marin.core.tema.CoresBase.CinzaFundoEscuro
-import com.marin.core.tema.CoresBase.CinzaSuperficieClara
-import com.marin.core.tema.CoresBase.CinzaSuperficieEscura
-import com.marin.core.tema.CoresBase.CinzaVerde
-import com.marin.core.tema.CoresBase.Erro
-import com.marin.core.tema.CoresBase.Preto
-import com.marin.core.tema.CoresBase.VerdeAgua
-import com.marin.core.tema.CoresBase.VerdePrimavera
-import com.marin.core.tema.CoresBase.Branco
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_D_CONTAINER_DARKEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_D_PRIMARY_LIGHTEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_D_SECONDARY_LIGHTEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_D_TERTIARY_LIGHTEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_L_CONTAINER_LIGHTEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_L_PRIMARY_LIGHTEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_L_SECONDARY_LIGHTEN
-import com.marin.core.tema.TemaConstantes.PRIMAVERA_L_TERTIARY_LIGHTEN
+
+// Cores definidas para o tema Primavera, modo claro.
+private val LightColors = lightColorScheme(
+    primary = md_theme_light_primary,
+    onPrimary = md_theme_light_onPrimary,
+    primaryContainer = md_theme_light_primaryContainer,
+    onPrimaryContainer = md_theme_light_onPrimaryContainer,
+    secondary = md_theme_light_secondary,
+    onSecondary = md_theme_light_onSecondary,
+    secondaryContainer = md_theme_light_secondaryContainer,
+    onSecondaryContainer = md_theme_light_onSecondaryContainer,
+    tertiary = md_theme_light_tertiary,
+    onTertiary = md_theme_light_onTertiary,
+    tertiaryContainer = md_theme_light_tertiaryContainer,
+    onTertiaryContainer = md_theme_light_onTertiaryContainer,
+    error = md_theme_light_error,
+    onError = md_theme_light_onError,
+    errorContainer = md_theme_light_errorContainer,
+    onErrorContainer = md_theme_light_onErrorContainer,
+    background = md_theme_light_background,
+    onBackground = md_theme_light_onBackground,
+    surface = md_theme_light_surface,
+    onSurface = md_theme_light_onSurface,
+    surfaceVariant = md_theme_light_surfaceVariant,
+    onSurfaceVariant = md_theme_light_onSurfaceVariant,
+    outline = md_theme_light_outline,
+)
+
+// Cores definidas para o tema Primavera, modo escuro.
+private val DarkColors = darkColorScheme(
+    primary = md_theme_dark_primary,
+    onPrimary = md_theme_dark_onPrimary,
+    primaryContainer = md_theme_dark_primaryContainer,
+    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
+    secondary = md_theme_dark_secondary,
+    onSecondary = md_theme_dark_onSecondary,
+    secondaryContainer = md_theme_dark_secondaryContainer,
+    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+    tertiary = md_theme_dark_tertiary,
+    onTertiary = md_theme_dark_onTertiary,
+    tertiaryContainer = md_theme_dark_tertiaryContainer,
+    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
+    error = md_theme_dark_error,
+    onError = md_theme_dark_onError,
+    errorContainer = md_theme_dark_errorContainer,
+    onErrorContainer = md_theme_dark_onErrorContainer,
+    background = md_theme_dark_background,
+    onBackground = md_theme_dark_onBackground,
+    surface = md_theme_dark_surface,
+    onSurface = md_theme_dark_onSurface,
+    surfaceVariant = md_theme_dark_surfaceVariant,
+    onSurfaceVariant = md_theme_dark_onSurfaceVariant,
+    outline = md_theme_dark_outline,
+)
 
 // Objeto que implementa o EsquemaDoTema para Primavera
 object PrimaveraEsquema : EsquemaDoTema {
-
-    override val lightModeColors = lightColorScheme(
-        primary = VerdePrimavera.lighten(PRIMAVERA_L_PRIMARY_LIGHTEN),
-        onPrimary = Branco,
-        primaryContainer = VerdePrimavera.lighten(PRIMAVERA_L_CONTAINER_LIGHTEN),
-        onPrimaryContainer = VerdePrimavera.darken(0.3f),
-        secondary = CinzaVerde.lighten(PRIMAVERA_L_SECONDARY_LIGHTEN),
-        onSecondary = Branco,
-        secondaryContainer = CinzaVerde.lighten(PRIMAVERA_L_CONTAINER_LIGHTEN),
-        onSecondaryContainer = CinzaVerde.darken(0.3f),
-        tertiary = VerdeAgua.lighten(PRIMAVERA_L_TERTIARY_LIGHTEN),
-        onTertiary = Branco,
-        tertiaryContainer = VerdeAgua.lighten(PRIMAVERA_L_CONTAINER_LIGHTEN),
-        onTertiaryContainer = VerdeAgua.darken(0.3f),
-        error = Erro,
-        onError = Branco,
-        errorContainer = Erro.lighten(0.8f),
-        onErrorContainer = Erro.darken(0.4f),
-        background = CinzaFundoClaro,
-        onBackground = CinzaFundoEscuro,
-        surface = CinzaFundoClaro,
-        onSurface = CinzaFundoEscuro,
-        surfaceVariant = CinzaSuperficieClara,
-        onSurfaceVariant = CinzaSuperficieEscura,
-        outline = CinzaBordaClara,
-        scrim = Preto,
-    )
-
-    override val darkModeColors = darkColorScheme(
-        primary = VerdePrimavera.lighten(PRIMAVERA_D_PRIMARY_LIGHTEN),
-        onPrimary = VerdePrimavera.darken(PRIMAVERA_D_CONTAINER_DARKEN + 0.4f),
-        primaryContainer = VerdePrimavera.darken(PRIMAVERA_D_CONTAINER_DARKEN),
-        onPrimaryContainer = VerdePrimavera.lighten(PRIMAVERA_D_PRIMARY_LIGHTEN + 0.3f),
-        secondary = CinzaVerde.lighten(PRIMAVERA_D_SECONDARY_LIGHTEN),
-        onSecondary = CinzaVerde.darken(PRIMAVERA_D_CONTAINER_DARKEN + 0.4f),
-        secondaryContainer = CinzaVerde.darken(PRIMAVERA_D_CONTAINER_DARKEN),
-        onSecondaryContainer = CinzaVerde.lighten(PRIMAVERA_D_SECONDARY_LIGHTEN + 0.3f),
-        tertiary = VerdeAgua.lighten(PRIMAVERA_D_TERTIARY_LIGHTEN),
-        onTertiary = VerdeAgua.darken(PRIMAVERA_D_CONTAINER_DARKEN + 0.4f),
-        tertiaryContainer = VerdeAgua.darken(PRIMAVERA_D_CONTAINER_DARKEN),
-        onTertiaryContainer = VerdeAgua.lighten(PRIMAVERA_D_TERTIARY_LIGHTEN + 0.3f),
-        error = Erro.lighten(0.3f),
-        onError = Erro.darken(0.5f),
-        errorContainer = Erro.darken(0.4f),
-        onErrorContainer = Erro.lighten(0.8f),
-        background = CinzaFundoEscuro,
-        onBackground = CinzaSuperficieClara,
-        surface = CinzaFundoEscuro,
-        onSurface = CinzaSuperficieClara,
-        surfaceVariant = CinzaSuperficieEscura,
-        onSurfaceVariant = CinzaBordaClara,
-        outline = CinzaBordaEscura,
-        scrim = Preto,
-    )
-
-    // Tipografia específica para o tema Primavera
-    override val typography = Typography(
-        bodyLarge = TextStyle(
-            fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.Normal,
-            fontSize = 17.sp,
-            lineHeight = 25.sp,
-            letterSpacing = 0.5.sp
-        ),
-        titleLarge = TextStyle(
-            fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            lineHeight = 30.sp,
-            letterSpacing = 0.sp
-        )
-    )
+    override val lightModeColors = LightColors
+    override val darkModeColors = DarkColors
+    override val typography = CatfeinaTypography
 }

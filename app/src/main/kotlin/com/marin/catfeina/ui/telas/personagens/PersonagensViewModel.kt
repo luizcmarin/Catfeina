@@ -20,12 +20,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.data.models.Personagem
 import com.marin.catfeina.usecases.GetPersonagensUseCase
+import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 sealed interface PersonagensUiState {
@@ -39,19 +39,18 @@ class PersonagensViewModel @Inject constructor(
     private val getPersonagensUseCase: GetPersonagensUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<PersonagensUiState>(PersonagensUiState.Loading)
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        carregarPersonagens()
-    }
-
-    private fun carregarPersonagens() {
-        getPersonagensUseCase()
-            .onEach { personagens ->
-                _uiState.value = PersonagensUiState.Success(personagens)
+    val uiState: StateFlow<PersonagensUiState> = getPersonagensUseCase()
+        .map { result ->
+            when (result) {
+                is UiState.Success -> PersonagensUiState.Success(result.data)
+                is UiState.Error -> PersonagensUiState.Error
+                is UiState.Loading -> PersonagensUiState.Loading
+                is UiState.Idle -> PersonagensUiState.Loading
             }
-            .catch { _uiState.value = PersonagensUiState.Error }
-            .launchIn(viewModelScope)
-    }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = PersonagensUiState.Loading
+        )
 }

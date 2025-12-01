@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marin.catfeina.data.repositories.PoesiaRepository
 import com.marin.catfeina.ui.GlobalUiEventManager
 import com.marin.catfeina.ui.TemaViewModel
 import com.marin.core.tema.CatfeinaTema
@@ -35,6 +36,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var globalUiEventManager: GlobalUiEventManager
+
+    @Inject
+    lateinit var repository: PoesiaRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -52,9 +56,13 @@ class MainActivity : ComponentActivity() {
 
             CatfeinaTema(
                 chaveTema = estado.tema.chave,
-                useDarkTheme = usarModoEscuro
+                useDarkTheme = usarModoEscuro,
+                escalaFonte = estado.escalaFonte
             ) {
-                CatfeinaApp(globalUiEventManager = globalUiEventManager)
+                CatfeinaApp(
+                    globalUiEventManager = globalUiEventManager,
+                    repository = repository
+                )
             }
         }
     }

@@ -18,11 +18,12 @@ package com.marin.catfeina.usecases
 
 import com.marin.catfeina.data.models.Poesia
 import com.marin.catfeina.data.repositories.PoesiaRepository
+import com.marin.core.ui.UiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetPoesiasFavoritasUseCase @Inject constructor(
     private val poesiaRepository: PoesiaRepository
 ) {
-    operator fun invoke(): Flow<List<Poesia>> = poesiaRepository.getPoesiasFavoritas()
+    operator fun invoke(): Flow<UiState<List<Poesia>>> = poesiaRepository.getPoesiasFavoritas()
 }

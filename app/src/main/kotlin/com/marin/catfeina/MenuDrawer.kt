@@ -17,7 +17,6 @@ package com.marin.catfeina
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,6 +66,8 @@ import com.marin.core.tema.ModoNoturno
 import com.marin.core.ui.AnimatedAsset
 import com.marin.core.ui.Icones
 import com.marin.core.util.IntentHelper
+import com.marin.core.util.cliqueSeguro
+import com.marin.core.util.rememberCliqueSeguro
 import kotlinx.coroutines.launch
 
 @Composable
@@ -80,7 +81,7 @@ fun CatfeinaDrawerContent(
         mutableListOf<@Composable () -> Unit>(
             { NavigationDrawerSection(navController, currentRoute, onCloseDrawer) },
             { ThemeSettingsSection(viewModel) },
-            // { TextSettingsSection(viewModel) }, // TODO: Reativar quando o estado de texto for implementado
+            { TextSettingsSection(viewModel) },
             { ContactSection() },
             { PrivacySection() },
             { AboutSection() },
@@ -165,7 +166,7 @@ private fun NavigationDrawerSection(
                 icon = { Icon(icon, contentDescription = screen.route) },
                 label = { Text(screen.route.replaceFirstChar { it.titlecase() }) },
                 selected = currentRoute == screen.route,
-                onClick = {
+                onClick = rememberCliqueSeguro {
                     scope.launch {
                         onCloseDrawer()
                         navController.navigateToScreen(screen.route)
@@ -218,7 +219,7 @@ private fun ThemeSettingsSection(viewModel: TemaViewModel) {
                             if (isSelected) MaterialTheme.colorScheme.secondaryContainer
                             else Color.Transparent
                         )
-                        .clickable { viewModel.selecionarTema(tema.chave) }
+                        .cliqueSeguro { viewModel.selecionarTema(tema.chave) }
                         .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -241,7 +242,6 @@ private fun ThemeSettingsSection(viewModel: TemaViewModel) {
     }
 }
 
-// TODO: Implementar estado e lógica para TextSettingsSection no TemaViewModel
 @Composable
 private fun TextSettingsSection(viewModel: TemaViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -259,21 +259,13 @@ private fun TextSettingsSection(viewModel: TemaViewModel) {
         ) {
             Text("A", fontSize = 12.sp)
             Slider(
-                value = 0.5f, // Valor Fixo - TODO
-                onValueChange = { }, // Ação Vazia - TODO
-                modifier = Modifier.weight(1f)
+                value = uiState.escalaFonte,
+                onValueChange = { viewModel.definirEscalaFonte(it) },
+                modifier = Modifier.weight(1f),
+                valueRange = 0.8f..1.5f
             )
             Text("A", fontSize = 20.sp)
         }
-        ListItem(
-            headlineContent = { Text(stringResource(R.string.drawer_tela_cheia)) },
-            trailingContent = {
-                Switch(
-                    checked = false, // Valor Fixo - TODO
-                    onCheckedChange = { } // Ação Vazia - TODO
-                )
-            }
-        )
     }
 }
 
@@ -295,7 +287,7 @@ private fun ContactSection() {
             leadingContent = {
                 Icon(Icones.Email, contentDescription = stringResource(R.string.drawer_contato_email))
             },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 IntentHelper.enviarEmail(
                     context = context,
                     email = "luizcmarin@gmail.com",
@@ -309,7 +301,7 @@ private fun ContactSection() {
             leadingContent = {
                 Icon(Icones.Language, contentDescription = stringResource(R.string.drawer_link_jw))
             },
-            modifier = Modifier.clickable { 
+            modifier = Modifier.cliqueSeguro { 
                 IntentHelper.abrirLink(
                     context, 
                     "https://jw.org", 
@@ -431,7 +423,7 @@ private fun LegalSection(
         )
         ListItem(
             headlineContent = { Text(stringResource(R.string.drawer_termos_uso)) },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 scope.launch {
                     onCloseDrawer()
                     navController.navigate(Screen.Informativo.createRoute("termos_de_uso"))
@@ -440,7 +432,7 @@ private fun LegalSection(
         )
         ListItem(
             headlineContent = { Text(stringResource(R.string.drawer_politica_privacidade)) },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 scope.launch {
                     onCloseDrawer()
                     navController.navigate(Screen.Informativo.createRoute("politica_de_privacidade"))
@@ -449,7 +441,7 @@ private fun LegalSection(
         )
         ListItem(
             headlineContent = { Text(stringResource(R.string.drawer_isencao_responsabilidade)) },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 scope.launch {
                     onCloseDrawer()
                     navController.navigate(Screen.Informativo.createRoute("isencao-de-responsabilidade"))
@@ -458,7 +450,7 @@ private fun LegalSection(
         )
         ListItem(
             headlineContent = { Text(stringResource(R.string.drawer_declaracao_conformidade)) },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 scope.launch {
                     onCloseDrawer()
                     navController.navigate(Screen.Informativo.createRoute("declaracao-de-conformidade"))
@@ -467,7 +459,7 @@ private fun LegalSection(
         )
         ListItem(
             headlineContent = { Text(stringResource(R.string.drawer_aviso_conteudo)) },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 scope.launch {
                     onCloseDrawer()
                     navController.navigate(Screen.Informativo.createRoute("aviso-de-conteudo"))
@@ -504,7 +496,7 @@ private fun DebugSection(
             leadingContent = {
                 Icon(Icones.Bug, contentDescription = stringResource(R.string.drawer_menu_depuracao))
             },
-            modifier = Modifier.clickable {
+            modifier = Modifier.cliqueSeguro {
                 scope.launch {
                     onCloseDrawer()
                     navController.navigate(Screen.Debug.route)
@@ -540,7 +532,7 @@ private fun SegmentedButton(
                         if (isSelected) MaterialTheme.colorScheme.secondaryContainer
                         else Color.Transparent
                     )
-                    .clickable { onItemSelected(index) }
+                    .cliqueSeguro { onItemSelected(index) }
                     .padding(vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {

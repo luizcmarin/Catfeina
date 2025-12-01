@@ -17,13 +17,14 @@ package com.marin.catfeina.usecases
 
 import com.marin.catfeina.data.models.Informativo
 import com.marin.catfeina.data.repositories.InformativoRepository
+import com.marin.core.ui.UiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetInformativoUseCase @Inject constructor(
     private val repository: InformativoRepository
 ) {
-    operator fun invoke(key: String): Flow<Informativo?> {
+    operator fun invoke(key: String): Flow<UiState<Informativo?>> {
         return repository.getInformativo(key)
     }
 }

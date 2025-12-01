@@ -20,13 +20,6 @@ object Constantes {
 
     const val ptBrLocale = "pt-BR"
 
-    // Rotas principais de navegação
-    const val ROTA_INICIO = "inicio"
-    const val ROTA_CONFIGURACOES = "configuracoes"
-    const val ROTA_POESIA = "poesia"
-    const val ROTA_SINCRONIZACAO = "sincronizacao"
-    const val ROTA_DEBUG = "debug"
-
     // Banco de dados
     const val CATVERSO_DATABASE_FILE_NAME = "catverso.db"
     const val CATVERSO_DATABASE_FILE_VERSAO = 1

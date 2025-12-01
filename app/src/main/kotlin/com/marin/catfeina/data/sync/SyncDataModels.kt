@@ -91,24 +91,30 @@ data class MeowSync(
 
 // --- Mapeadores de DTO de Sincronização para Modelo de Domínio ---
 
-fun PoesiaSync.toDomain() = Poesia(
-    id = id,
-    titulo = titulo,
-    textobase = textobase,
-    texto = texto,
-    textofinal = textofinal,
-    imagem = imagem,
-    autor = autor,
-    nota = nota,
-    anterior = anterior,
-    proximo = proximo,
-    atualizadoem = atualizadoem,
-    // Campos locais são inicializados com valores padrão
-    favorita = false,
-    lida = false,
-    dataleitura = null,
-    notausuario = null
-)
+fun PoesiaSync.toDomain(): Poesia {
+    val markdownContent = buildString {
+        append("# $titulo\n\n")
+        imagem?.let { append("![]($it)\n\n") }
+        if (textobase.isNotBlank()) append("$textobase\n\n")
+        append(texto)
+        textofinal?.takeIf { it.isNotBlank() }?.let { append("\n\n$it") }
+        autor?.takeIf { it.isNotBlank() }?.let { append("\n\n*${it.trim()}*") }
+        nota?.takeIf { it.isNotBlank() }?.let { append("\n\n> ${it.trim().replace("\n", "\n> ")}") }
+    }.trim()
+
+    return Poesia(
+        id = id,
+        texto = markdownContent,
+        anterior = anterior,
+        proximo = proximo,
+        atualizadoem = atualizadoem,
+        // Campos locais são inicializados com valores padrão
+        favorita = false,
+        lida = false,
+        dataleitura = null,
+        notausuario = null
+    )
+}
 
 fun PersonagemSync.toDomain() = Personagem(
     id = id,

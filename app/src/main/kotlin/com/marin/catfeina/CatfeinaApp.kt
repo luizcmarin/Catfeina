@@ -31,7 +31,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -44,14 +43,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.marin.catfeina.data.repositories.PoesiaRepository
 import com.marin.catfeina.ui.GlobalUiEventManager
 import com.marin.core.ui.GlobalUiEvent
+import com.marin.core.util.rememberCliqueSeguro
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
 fun CatfeinaApp(
-    globalUiEventManager: GlobalUiEventManager
+    globalUiEventManager: GlobalUiEventManager,
+    repository: PoesiaRepository
 ) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -69,14 +71,11 @@ fun CatfeinaApp(
                         )
                     }
                     is GlobalUiEvent.Notificacao.AtualizacaoDisponivel -> {
-                        val result = snackbarHostState.showSnackbar(
-                            message = "Novos dados disponíveis",
-                            actionLabel = "SINCRONIZAR",
-                            duration = SnackbarDuration.Indefinite
+                        snackbarHostState.showSnackbar(
+                            message = "Novos dados disponíveis para sincronização.",
+                            actionLabel = null, // Apenas notifica, sem ação obrigatória.
+                            duration = SnackbarDuration.Short
                         )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            navController.navigate(Screen.Sincronizacao.route)
-                        }
                     }
                 }
             }
@@ -107,6 +106,7 @@ fun CatfeinaApp(
         ) { paddingValues ->
             NavGraph(
                 navController = navController,
+                repository = repository,
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -131,7 +131,7 @@ private fun CatfeinaBottomAppBar(navController: NavController) {
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(item.title) },
                 selected = currentRoute == item.screen.route,
-                onClick = {
+                onClick = rememberCliqueSeguro {
                     navController.navigate(item.screen.route) {
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {

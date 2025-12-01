@@ -17,6 +17,7 @@
     <!-- Botões Globais -->
     <string name="salvar">Salvar</string>
     <string name="cancelar">Cancelar</string>
+    <string name="voltar">Voltar</string>
 
     <!-- Tela do Histórico -->
     <string name="historico_titulo">Histórico</string>
@@ -28,6 +29,7 @@
     <string name="atelier_erro">Ocorreu um erro ao carregar as notas.</string>
     <string name="atelier_sem_notas">Nenhuma nota ainda. Que tal criar uma?</string>
     <string name="atelier_nova_nota_titulo">Nova Nota</string>
+    <string name="atelier_editar_nota_titulo">Editar Nota</string>
     <string name="atelier_nova_nota_campo_titulo">Título</string>
     <string name="atelier_nova_nota_campo_texto">Sua nota aqui...</string>
 
@@ -63,7 +65,9 @@
 
     <!-- Tela do Leitor de Poesia -->
     <string name="leitor_poesia_falar">Ler poesia em voz alta</string>
+    <string name="leitor_poesia_parar">Parar leitura</string>
     <string name="leitor_poesia_erro">Ocorreu um erro ao carregar a poesia.</string>
+    <string name="poesia_imagem_content_description">Imagem da poesia</string>
 
     <!-- IntentHelper -->
     <string name="intent_helper_nenhum_navegador">Nenhum navegador encontrado.</string>

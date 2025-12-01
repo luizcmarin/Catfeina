@@ -19,11 +19,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marin.catfeina.data.models.Historico
 import com.marin.catfeina.usecases.GetHistoricoUseCase
+import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 sealed interface HistoricoUiState {
@@ -34,19 +35,21 @@ sealed interface HistoricoUiState {
 
 @HiltViewModel
 class HistoricoViewModel @Inject constructor(
-    private val getHistoricoUseCase: GetHistoricoUseCase
+    getHistoricoUseCase: GetHistoricoUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<HistoricoUiState>(HistoricoUiState.Loading)
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            getHistoricoUseCase()
-                .catch { _uiState.value = HistoricoUiState.Error }
-                .collect { historico ->
-                    _uiState.value = HistoricoUiState.Success(historico)
-                }
+    val uiState: StateFlow<HistoricoUiState> = getHistoricoUseCase()
+        .map {
+            when (it) {
+                is UiState.Success -> HistoricoUiState.Success(it.data)
+                is UiState.Error -> HistoricoUiState.Error
+                is UiState.Loading -> HistoricoUiState.Loading
+                is UiState.Idle -> HistoricoUiState.Loading
+            }
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = HistoricoUiState.Loading
+        )
 }

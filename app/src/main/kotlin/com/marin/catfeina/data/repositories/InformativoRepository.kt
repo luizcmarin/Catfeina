@@ -22,16 +22,18 @@ import com.marin.catfeina.data.models.Informativo
 import com.marin.catfeina.data.models.toDomain
 import com.marin.catfeina.data.models.toEntity
 import com.marin.catfeina.sqldelight.Tbl_informativoQueries
+import com.marin.core.ui.UiState
+import com.marin.core.util.safeFlowQuery
+import com.marin.core.util.safeQuery
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface InformativoRepository {
-    suspend fun upsertInformativos(informativos: List<Informativo>)
-    fun getInformativo(key: String): Flow<Informativo?>
-    fun countInformativos(): Flow<Long>
+    suspend fun upsertInformativos(informativos: List<Informativo>): UiState<Unit>
+    fun getInformativo(key: String): Flow<UiState<Informativo?>>
+    fun countInformativos(): Flow<UiState<Long>>
 }
 
 class InformativoRepositoryImpl @Inject constructor(
@@ -39,31 +41,29 @@ class InformativoRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : InformativoRepository {
 
-    override suspend fun upsertInformativos(informativos: List<Informativo>) {
-        withContext(ioDispatcher) {
-            informativoQueries.transaction {
-                informativos.forEach { informativo ->
-                    val entity = informativo.toEntity()
-                    informativoQueries.upsertInformativo(
-                        chave = entity.chave,
-                        titulo = entity.titulo,
-                        conteudo = entity.conteudo,
-                        imagem = entity.imagem,
-                        atualizadoem = entity.atualizadoem
-                    )
-                }
+    override suspend fun upsertInformativos(informativos: List<Informativo>): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        informativoQueries.transaction {
+            informativos.forEach { informativo ->
+                val entity = informativo.toEntity()
+                informativoQueries.upsertInformativo(
+                    chave = entity.chave,
+                    titulo = entity.titulo,
+                    conteudo = entity.conteudo,
+                    imagem = entity.imagem,
+                    atualizadoem = entity.atualizadoem
+                )
             }
         }
     }
 
-    override fun getInformativo(key: String): Flow<Informativo?> {
-        return informativoQueries.getInformativo(key)
+    override fun getInformativo(key: String): Flow<UiState<Informativo?>> = safeFlowQuery(ioDispatcher) {
+        informativoQueries.getInformativo(key)
             .asFlow()
             .mapToOneOrNull(ioDispatcher)
             .map { it?.toDomain() }
     }
 
-    override fun countInformativos(): Flow<Long> {
-        return informativoQueries.countInformativos().asFlow().mapToOne(ioDispatcher)
+    override fun countInformativos(): Flow<UiState<Long>> = safeFlowQuery(ioDispatcher) {
+        informativoQueries.countInformativos().asFlow().mapToOne(ioDispatcher)
     }
 }

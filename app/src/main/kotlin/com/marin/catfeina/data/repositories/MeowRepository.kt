@@ -22,17 +22,19 @@ import com.marin.catfeina.data.models.Meow
 import com.marin.catfeina.data.models.toDomain
 import com.marin.catfeina.data.models.toEntity
 import com.marin.catfeina.sqldelight.Tbl_meowQueries
+import com.marin.core.ui.UiState
+import com.marin.core.util.safeFlowQuery
+import com.marin.core.util.safeQuery
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface MeowRepository {
-    fun getMeows(): Flow<List<Meow>>
-    suspend fun upsertMeows(meows: List<Meow>)
-    suspend fun deleteMeows(meows: List<Meow>)
-    fun countMeows(): Flow<Long>
+    fun getMeows(): Flow<UiState<List<Meow>>>
+    suspend fun upsertMeows(meows: List<Meow>): UiState<Unit>
+    suspend fun deleteMeows(meows: List<Meow>): UiState<Unit>
+    fun countMeows(): Flow<UiState<Long>>
 }
 
 class MeowRepositoryImpl @Inject constructor(
@@ -40,39 +42,35 @@ class MeowRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : MeowRepository {
 
-    override fun getMeows(): Flow<List<Meow>> {
-        return meowQueries.getMeows()
+    override fun getMeows(): Flow<UiState<List<Meow>>> = safeFlowQuery(ioDispatcher) {
+        meowQueries.getMeows()
             .asFlow()
             .mapToList(ioDispatcher)
             .map { it.map { meow -> meow.toDomain() } }
     }
 
-    override suspend fun upsertMeows(meows: List<Meow>) {
-        withContext(ioDispatcher) {
-            meowQueries.transaction {
-                meows.forEach { meow ->
-                    val entity = meow.toEntity()
-                    meowQueries.upsertMeow(
-                        id = entity.id,
-                        texto = entity.texto,
-                        atualizadoem = entity.atualizadoem
-                    )
-                }
+    override suspend fun upsertMeows(meows: List<Meow>): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        meowQueries.transaction {
+            meows.forEach { meow ->
+                val entity = meow.toEntity()
+                meowQueries.upsertMeow(
+                    id = entity.id,
+                    texto = entity.texto,
+                    atualizadoem = entity.atualizadoem
+                )
             }
         }
     }
 
-    override suspend fun deleteMeows(meows: List<Meow>) {
-        withContext(ioDispatcher) {
-            meowQueries.transaction {
-                meows.forEach { meow ->
-                    meowQueries.deleteMeow(meow.id)
-                }
+    override suspend fun deleteMeows(meows: List<Meow>): UiState<Unit> = safeQuery(dispatcher = ioDispatcher) {
+        meowQueries.transaction {
+            meows.forEach { meow ->
+                meowQueries.deleteMeow(meow.id)
             }
         }
     }
 
-    override fun countMeows(): Flow<Long> {
-        return meowQueries.countMeows().asFlow().mapToOne(ioDispatcher)
+    override fun countMeows(): Flow<UiState<Long>> = safeFlowQuery(ioDispatcher) {
+        meowQueries.countMeows().asFlow().mapToOne(ioDispatcher)
     }
 }
