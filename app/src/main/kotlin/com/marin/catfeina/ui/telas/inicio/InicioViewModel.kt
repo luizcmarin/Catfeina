@@ -23,6 +23,8 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.marin.catfeina.data.models.Poesia
 import com.marin.catfeina.data.repositories.PoesiaRepository
+import com.marin.catfeina.usecases.GetPoesiaAleatoriaUseCase
+import com.marin.catfeina.usecases.GetPoesiasFavoritasUseCase
 import com.marin.catfeina.usecases.GetPoesiasPaginadasUseCase
 import com.marin.core.ui.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,7 +58,9 @@ sealed interface InicioUiState {
 @HiltViewModel
 class InicioViewModel @Inject constructor(
     private val repository: PoesiaRepository,
-    private val getPoesiasPaginadasUseCase: GetPoesiasPaginadasUseCase
+    getPoesiaAleatoriaUseCase: GetPoesiaAleatoriaUseCase,
+    getPoesiasFavoritasUseCase: GetPoesiasFavoritasUseCase,
+    getPoesiasPaginadasUseCase: GetPoesiasPaginadasUseCase
 ) : ViewModel() {
 
     // Função auxiliar para converter o modelo de domínio em modelo de UI
@@ -69,30 +73,27 @@ class InicioViewModel @Inject constructor(
         )
     }
 
+    private val outrasPoesiasFlow = getPoesiasPaginadasUseCase()
+        .map { pagingData -> pagingData.map { it.toUiModel() } }
+        .cachedIn(viewModelScope)
+
     val uiState: StateFlow<InicioUiState> = combine(
-        repository.getPoesiaAleatoria(),
-        repository.getPoesiasFavoritas(),
+        getPoesiaAleatoriaUseCase(),
+        getPoesiasFavoritasUseCase(),
     ) { aleatoriaResult, favoritasResult ->
-        
+
         val error = (aleatoriaResult as? UiState.Error)?.message ?: (favoritasResult as? UiState.Error)?.message
-        if(error != null) return@combine InicioUiState.Error(error)
+        if (error != null) return@combine InicioUiState.Error(error)
 
         val aleatoriaState = (aleatoriaResult as? UiState.Success)?.data
         val favoritasState = (favoritasResult as? UiState.Success)?.data ?: emptyList()
 
         val favoritas = favoritasState.filter { it.id != aleatoriaState?.id }
-        
-        // O fluxo paginado é criado aqui e passado para o estado
-        val outrasPaginadas = getPoesiasPaginadasUseCase()
-            .map { pagingData -> 
-                pagingData.map { it.toUiModel() } 
-            }
-            .cachedIn(viewModelScope)
 
         InicioUiState.Success(
             poesiaDestaque = aleatoriaState?.toUiModel(),
             poesiasFavoritas = favoritas.map { it.toUiModel() },
-            outrasPoesias = outrasPaginadas
+            outrasPoesias = outrasPoesiasFlow
         )
 
     }.stateIn(

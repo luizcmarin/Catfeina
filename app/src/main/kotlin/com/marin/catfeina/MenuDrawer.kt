@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -151,29 +153,39 @@ private fun NavigationDrawerSection(
     onCloseDrawer: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val drawerNavItems = listOf(Screen.Inicio, Screen.Busca, Screen.Atelier, Screen.Personagens)
+    val drawerNavItems = listOf(
+        Screen.Inicio,
+        Screen.Poesias,
+        Screen.Busca,
+        Screen.Atelier,
+        Screen.Personagens
+    )
 
     Column(modifier = Modifier.padding(horizontal = 8.dp)) {
         drawerNavItems.forEach { screen ->
-            val icon = when (screen) {
-                is Screen.Inicio -> Icones.Inicio
-                is Screen.Busca -> Icones.Pesquisa
-                is Screen.Atelier -> Icones.Atelier
-                is Screen.Personagens -> Icones.Personagem
-                else -> Icones.SemImagem
+            val navInfo = when (screen) {
+                is Screen.Inicio -> Pair(Icones.Inicio, "Destaques")
+                is Screen.Poesias -> Pair(Icons.Outlined.AutoStories, "Poesias")
+                is Screen.Busca -> Pair(Icones.Pesquisa, "Busca")
+                is Screen.Atelier -> Pair(Icones.Atelier, "Atelier")
+                is Screen.Personagens -> Pair(Icones.Personagem, "Personagens")
+                else -> null
             }
-            NavigationDrawerItem(
-                icon = { Icon(icon, contentDescription = screen.route) },
-                label = { Text(screen.route.replaceFirstChar { it.titlecase() }) },
-                selected = currentRoute == screen.route,
-                onClick = rememberCliqueSeguro {
-                    scope.launch {
-                        onCloseDrawer()
-                        navController.navigateToScreen(screen.route)
-                    }
-                },
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
+
+            navInfo?.let { (icon, title) ->
+                NavigationDrawerItem(
+                    icon = { Icon(icon, contentDescription = title) },
+                    label = { Text(title) },
+                    selected = currentRoute == screen.route,
+                    onClick = rememberCliqueSeguro {
+                        scope.launch {
+                            onCloseDrawer()
+                            navController.navigateToScreen(screen.route)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
         }
     }
 }
@@ -304,7 +316,7 @@ private fun ContactSection() {
             modifier = Modifier.cliqueSeguro { 
                 IntentHelper.abrirLink(
                     context, 
-                    "https://jw.org", 
+                    "https.jw.org",
                     mensagemErro = noBrowser
                 ) 
             }

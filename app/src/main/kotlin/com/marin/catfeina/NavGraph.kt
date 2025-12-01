@@ -32,6 +32,7 @@ import com.marin.catfeina.ui.telas.informativo.InformativoScreen
 import com.marin.catfeina.ui.telas.inicio.InicioScreen
 import com.marin.catfeina.ui.telas.leitorpoesia.PoesiaReaderScreen
 import com.marin.catfeina.ui.telas.personagens.PersonagensScreen
+import com.marin.catfeina.ui.telas.poesias.PoesiasScreen
 import com.marin.catfeina.ui.telas.sincronizacao.SyncScreen
 import com.marin.catfeina.ui.telas.splash.SplashScreen
 
@@ -39,6 +40,7 @@ import com.marin.catfeina.ui.telas.splash.SplashScreen
 sealed class Screen(val route: String) {
     data object Splash : Screen("splash")
     data object Inicio : Screen("inicio")
+    data object Poesias : Screen("poesias")
     data object LeitorPoesia : Screen("leitor_poesia/{poesiaId}") {
         fun createRoute(poesiaId: Long) = "leitor_poesia/$poesiaId"
     }
@@ -77,6 +79,9 @@ fun NavGraph(
         }
         composable(Screen.Inicio.route) {
             InicioScreen(navController = navController)
+        }
+        composable(Screen.Poesias.route) {
+            PoesiasScreen(navController = navController)
         }
         composable(Screen.LeitorPoesia.route) {
             PoesiaReaderScreen(navController = navController)

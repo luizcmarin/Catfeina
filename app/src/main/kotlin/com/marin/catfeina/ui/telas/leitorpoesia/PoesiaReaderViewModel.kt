@@ -47,7 +47,6 @@ class PoesiaReaderViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val poesiaId: Long = checkNotNull(savedStateHandle["poesiaId"]).toString().toLong()
-    private var poesiaAtual: Poesia? = null
 
     val uiState: StateFlow<PoesiaReaderUiState> = combine(
         getPoesiaByIdUseCase(poesiaId),
@@ -57,7 +56,6 @@ class PoesiaReaderViewModel @Inject constructor(
             is UiState.Success -> {
                 val poesia = poesiaResult.data
                 if (poesia != null) {
-                    poesiaAtual = poesia
                     val titulo = poesiaRepository.extrairTitulo(poesia)
                     PoesiaReaderUiState.Success(poesia, titulo, ttsState)
                 } else {
@@ -74,25 +72,25 @@ class PoesiaReaderViewModel @Inject constructor(
     )
 
     fun toggleFavorita() = viewModelScope.launch {
-        poesiaAtual?.let { poesia ->
+        (uiState.value as? PoesiaReaderUiState.Success)?.poesia?.let { poesia ->
             poesiaRepository.updateFavorita(poesia.id, !poesia.favorita)
         }
     }
 
     fun toggleLida() = viewModelScope.launch {
-        poesiaAtual?.let { poesia ->
+        (uiState.value as? PoesiaReaderUiState.Success)?.poesia?.let { poesia ->
             poesiaRepository.updateLida(poesia.id, !poesia.lida)
         }
     }
 
     fun salvarNota(nota: String) = viewModelScope.launch {
-        poesiaAtual?.let { poesia ->
+        (uiState.value as? PoesiaReaderUiState.Success)?.poesia?.let { poesia ->
             poesiaRepository.updateNotaUsuario(poesia.id, nota)
         }
     }
 
     fun onPlayPauseClick() {
-        poesiaAtual?.let { poesia ->
+        (uiState.value as? PoesiaReaderUiState.Success)?.poesia?.let { poesia ->
             val estadoAtual = ttsService.estado.value
             if (estadoAtual == TtsEstado.REPRODUZINDO) {
                 ttsService.pausar()

@@ -30,10 +30,5 @@
         "versao": 100,
         "arquivo": "images\/"
     },
-    "app_update": {
-        "versionCode": 210,
-        "versionName": "2.1.0-catverso",
-        "changelog": "• Correção de bugs na tela de leitura.\n• Novas poesias de Outono!",
-        "url": "https:\/\/github.com\/luizcmarin\/Catfeina\/releases\/download\/2.1.0-catverso\/catfeina-2.1.0-catverso.apk"
-    }
+    "app_update": {}
 }
