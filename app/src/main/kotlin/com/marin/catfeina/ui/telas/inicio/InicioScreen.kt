@@ -25,11 +25,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,16 +42,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.request.ImageRequest
 import com.marin.catfeina.Screen
+import com.marin.core.ui.Icones
 import com.marin.core.util.cliqueSeguro
 
 @Composable
@@ -66,9 +73,7 @@ fun InicioScreen(
                 }
             }
             is InicioUiState.Error -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(state.message)
-                }
+                EmptyStatePlaceholder(message = state.message)
             }
             is InicioUiState.Success -> {
                 InicioScreenContent(
@@ -86,31 +91,64 @@ private fun InicioScreenContent(
     onPoesiaClick: (Long) -> Unit
 ) {
     val outrasPoesias = uiState.outrasPoesias.collectAsLazyPagingItems()
+    val scrollState = rememberScrollState()
 
+    val isPagingLoading = outrasPoesias.loadState.refresh is LoadState.Loading
+    val isTrulyEmpty = uiState.poesiaDestaque == null && uiState.poesiasFavoritas.isEmpty() && outrasPoesias.itemCount == 0
+
+    if (isTrulyEmpty && !isPagingLoading) {
+        EmptyStatePlaceholder(message = "Nenhuma poesia por aqui. Sincronize os dados no menu lateral.")
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(vertical = 16.dp)
+        ) {
+            uiState.poesiaDestaque?.let {
+                PoesiaDestaque(poesia = it, onClick = { onPoesiaClick(it.id) })
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            if (uiState.poesiasFavoritas.isNotEmpty()) {
+                PoesiaFavoritosList(
+                    titulo = "Favoritas",
+                    poesias = uiState.poesiasFavoritas,
+                    onPoesiaClick = onPoesiaClick
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            if (outrasPoesias.itemCount > 0 || isPagingLoading) {
+                PoesiaPaginadaList(
+                    titulo = "Recentes",
+                    poesias = outrasPoesias,
+                    onPoesiaClick = onPoesiaClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyStatePlaceholder(message: String) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 16.dp)
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        uiState.poesiaDestaque?.let {
-            PoesiaDestaque(poesia = it, onClick = { onPoesiaClick(it.id) })
-        }
-
+        Icon(
+            imageVector = Icones.SemImagem,
+            contentDescription = null,
+            modifier = Modifier.size(100.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        )
         Spacer(modifier = Modifier.height(24.dp))
-
-        if (uiState.poesiasFavoritas.isNotEmpty()) {
-            PoesiaFavoritosList(
-                titulo = "Favoritas",
-                poesias = uiState.poesiasFavoritas,
-                onPoesiaClick = onPoesiaClick
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        PoesiaPaginadaList(
-            titulo = "Recentes",
-            poesias = outrasPoesias,
-            onPoesiaClick = onPoesiaClick
+        Text(
+            text = message,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -189,7 +227,6 @@ fun PoesiaPaginadaList(
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

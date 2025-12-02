@@ -49,6 +49,9 @@ countPoesias: SELECT COUNT(id) FROM tbl_poesia;
 -- Busca todas as poesias para a lista principal.
 getPoesias: SELECT * FROM poesiaView ORDER BY atualizadoem DESC;
 
+-- Busca poesias para a paginação.
+getPoesiasPaginadas: SELECT * FROM poesiaView ORDER BY atualizadoem DESC LIMIT :limit OFFSET :offset;
+
 -- Busca uma poesia específica pela View.
 getPoesia: SELECT * FROM poesiaView WHERE id = ?;
 

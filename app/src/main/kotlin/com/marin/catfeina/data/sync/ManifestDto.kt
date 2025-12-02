@@ -18,12 +18,6 @@ package com.marin.catfeina.data.sync
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Representa a estrutura raiz do arquivo `manifest.json`.
- * @param modulos Lista de módulos de dados a serem sincronizados (ex: poesias, personagens).
- * @param imagens Informações sobre o pacote de imagens a ser sincronizado.
- * @param appUpdate Informações sobre uma atualização opcional do aplicativo.
- */
 @Serializable
 data class ManifestDto(
     @SerialName("modulos")
@@ -36,12 +30,6 @@ data class ManifestDto(
     val appUpdate: AppUpdateDto? = null
 )
 
-/**
- * Representa um módulo de dados individual dentro do manifesto.
- * @param nome Nome identificador do módulo (ex: "poesias").
- * @param versao A versão atual dos dados deste módulo no servidor.
- * @param arquivo O nome do arquivo JSON que contém os dados deste módulo.
- */
 @Serializable
 data class ModuloDto(
     @SerialName("nome")
@@ -54,11 +42,6 @@ data class ModuloDto(
     val arquivo: String
 )
 
-/**
- * Representa as informações sobre o pacote de imagens de fundo.
- * @param versao A versão atual do pacote de imagens no servidor.
- * @param arquivo O nome do arquivo ZIP que contém as imagens.
- */
 @Serializable
 data class ImagensDto(
     @SerialName("versao")
@@ -68,24 +51,17 @@ data class ImagensDto(
     val arquivo: String
 )
 
-/**
- * Representa os detalhes de uma atualização disponível para o aplicativo.
- * @param versionCode O `versionCode` da nova versão.
- * @param versionName O `versionName` da nova versão.
- * @param changelog As notas de lançamento ou o que há de novo.
- * @param url O link para baixar a nova versão do APK.
- */
 @Serializable
 data class AppUpdateDto(
     @SerialName("versionCode")
-    val versionCode: Int,
+    val versionCode: Int? = null,
 
     @SerialName("versionName")
-    val versionName: String,
+    val versionName: String? = null,
 
     @SerialName("changelog")
-    val changelog: String,
+    val changelog: String? = null,
 
     @SerialName("url")
-    val url: String
+    val url: String? = null
 )

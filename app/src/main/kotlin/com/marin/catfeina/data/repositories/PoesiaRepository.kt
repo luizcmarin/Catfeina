@@ -98,7 +98,7 @@ class PoesiaRepositoryImpl @Inject constructor(
     override fun getPoesiasPaginadas(): Flow<PagingData<Poesia>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false),
-            pagingSourceFactory = { PoesiaPagingSource(poesiaQueries) }
+            pagingSourceFactory = { PoesiaPagingSource(poesiaQueries, ioDispatcher) }
         ).flow.map { pagingData ->
             pagingData.map { poesiaView -> poesiaView.toDomain() }
         }
@@ -109,7 +109,7 @@ class PoesiaRepositoryImpl @Inject constructor(
     }
 
     override fun extrairImagemPrincipal(poesia: Poesia): String? {
-        val regex = Regex("!\\[.*?]\\((.*?)\\)")
+        val regex = Regex("""!\[.*?]\((.*?)\)""")
         return regex.find(poesia.texto)?.groupValues?.get(1)
     }
 
@@ -119,13 +119,13 @@ class PoesiaRepositoryImpl @Inject constructor(
 
     override fun limparMarkdownParaTts(poesia: Poesia): String {
         return poesia.texto
-            .replace(Regex("!\\[.*?]\\(.*?\\)"), "") // Remove imagens
-            .replace(Regex("#?#?#?#?#? "), "") // Remove títulos
-            .replace(Regex("(\\*\\*|__)(?=\\S)(.+?[*_]*)(?<=\\S)\\1"), "$2") // Remove negrito
-            .replace(Regex("([*_])(?=\\S)(.+?)(?<=\\S)\\1"), "$2") // Remove itálico
-            .replace(Regex("(~~)(?=\\S)(.+?)(?<=\\S)\\1"), "$2") // Remove tachado
-            .replace(Regex("`(.+?)`"), "$1") // Remove código inline
-            .replace(Regex(">"), "") // Remove citações
+            .replace(Regex("""!\[.*?]\(.*?\)"""), "") // Remove imagens
+            .replace(Regex("""#?#?#?#?#? """"), "") // Remove títulos
+            .replace(Regex("""(\*\*|__)(?=\S)(.+?[*_]*)(?<=\S)\1"""), "$2") // Remove negrito
+            .replace(Regex("""([*_])(?=\S)(.+?)(?<=\S)\1"""), "$2") // Remove itálico
+            .replace(Regex("""(~~)(?=\S)(.+?)(?<=\S)\1"""), "$2") // Remove tachado
+            .replace(Regex("""`(.+?)`"""), "$1") // Remove código inline
+            .replace(Regex(""">"""), "") // Remove citações
             .trim()
     }
 
@@ -159,7 +159,8 @@ class PoesiaRepositoryImpl @Inject constructor(
 }
 
 class PoesiaPagingSource(
-    private val poesiaQueries: Tbl_poesiaQueries
+    private val poesiaQueries: Tbl_poesiaQueries,
+    private val ioDispatcher: CoroutineDispatcher
 ) : PagingSource<Int, PoesiaView>() {
 
     override fun getRefreshKey(state: PagingState<Int, PoesiaView>): Int? {
@@ -171,13 +172,11 @@ class PoesiaPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PoesiaView> {
         return try {
             val pageNumber = params.key ?: 0
-            val pageSize = params.loadSize
+            val pageSize = params.loadSize.toLong()
+            val offset = (pageNumber * pageSize).toLong()
 
-            val poesias = withContext(Dispatchers.IO) {
-                // A query getPoesias agora não aceita limit/offset, então usamos uma alternativa
-                // ou simplesmente buscamos todos para este exemplo simplificado.
-                // O ideal seria ter uma query paginada na view.
-                poesiaQueries.getPoesias().executeAsList()
+            val poesias = withContext(ioDispatcher) {
+                poesiaQueries.getPoesiasPaginadas(limit = pageSize, offset = offset).executeAsList()
             }
 
             val prevKey = if (pageNumber > 0) pageNumber - 1 else null

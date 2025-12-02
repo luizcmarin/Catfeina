@@ -102,7 +102,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
 
             manifest.appUpdate?.let {
-                if (it.versionCode > BuildConfig.VERSION_CODE) prefs.setAppUpdateInfo(it) else prefs.setAppUpdateInfo(null)
+                it.versionCode?.let { it1 -> if (it1 > BuildConfig.VERSION_CODE) prefs.setAppUpdateInfo(it) else prefs.setAppUpdateInfo(null) }
             }
 
             CatLog.i("syncAll concluído com sucesso!")
@@ -179,7 +179,7 @@ class SyncRepositoryImpl @Inject constructor(
             }
 
             val appDisponivel = manifest.appUpdate?.let { appUpdate ->
-                appUpdate.versionCode > BuildConfig.VERSION_CODE
+                appUpdate.versionCode!! > BuildConfig.VERSION_CODE
             } ?: false
 
             CatLog.i("Verificação de atualizações concluída. Dados: $dadosDisponiveis, App: $appDisponivel")

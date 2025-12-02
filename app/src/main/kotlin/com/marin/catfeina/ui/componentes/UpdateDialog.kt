@@ -46,15 +46,17 @@ fun UpdateDialog(
         title = { Text(text = stringResource(R.string.dialogo_atualizacao_titulo)) },
         text = {
             Column {
-                Text(stringResource(R.string.dialogo_atualizacao_mensagem, updateInfo.versionName))
-                Text(updateInfo.changelog, modifier = Modifier.padding(top = 8.dp))
+                Text(stringResource(R.string.dialogo_atualizacao_mensagem, updateInfo.versionName ?: ""))
+                Text(updateInfo.changelog ?: "", modifier = Modifier.padding(top = 8.dp))
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(updateInfo.url))
-                    context.startActivity(intent)
+                    updateInfo.url?.let { url ->
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
                     onDismiss()
                 }
             ) {

@@ -68,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $manifest_modulos[] = ['nome' => $name, 'versao' => (int)($versions_from_db[$name] ?? 100), 'arquivo' => $sync_data_folder . $info['file']];
                 }
                 $manifest_imagens = ['versao' => (int)($versions_from_db['imagens'] ?? 100), 'arquivo' => $sync_images_folder];
-                $manifest_content_array = ['modulos' => $manifest_modulos, 'imagens' => $manifest_imagens, 'app_update' => $app_update_info];
+          //      $manifest_content_array = ['modulos' => $manifest_modulos, 'imagens' => $manifest_imagens, 'app_update' => $app_update_info];
+                $manifest_content_array = ['modulos' => $manifest_modulos, 'imagens' => $manifest_imagens];
                 $manifest_json_content = json_encode($manifest_content_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                 file_put_contents($sync_export_dir . '/' . $sync_manifest_name, $manifest_json_content);
                 $log_messages[] = ['type' => 'success', 'text' => "Arquivo '{$sync_manifest_name}' gerado com sucesso."];
