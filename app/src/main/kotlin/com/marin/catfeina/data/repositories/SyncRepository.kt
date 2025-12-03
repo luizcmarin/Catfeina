@@ -145,12 +145,40 @@ class SyncRepositoryImpl @Inject constructor(
                 val pastaImagensOrigem = File(unzipDir, manifest.imagens.arquivo)
                 val pastaImagensDestino = File(appContext.filesDir, "images")
 
-                if (pastaImagensOrigem.exists()) {
-                    if (pastaImagensDestino.exists()) pastaImagensDestino.deleteRecursively()
-                    pastaImagensOrigem.renameTo(pastaImagensDestino)
+                // --- DIAGNÓSTICO DETALHADO ---
+                CatLog.d("[DIAGNOSTICO] Verificando pasta de imagens de origem: ${pastaImagensOrigem.absolutePath}")
+                if (pastaImagensOrigem.exists() && pastaImagensOrigem.isDirectory) {
+                    CatLog.d("[DIAGNOSTICO] Pasta de origem EXISTE.")
+                    val files = pastaImagensOrigem.listFiles()
+                    if (files.isNullOrEmpty()) {
+                        CatLog.w("[DIAGNOSTICO] A pasta de origem está VAZIA.")
+                    } else {
+                        CatLog.d("[DIAGNOSTICO] ${files.size} arquivos encontrados na origem. Primeiros 5: ${files.take(5).joinToString { it.name }}")
+                    }
+
+                    CatLog.d("[DIAGNOSTICO] Verificando pasta de destino: ${pastaImagensDestino.absolutePath}")
+                    if (pastaImagensDestino.exists()) {
+                        CatLog.d("[DIAGNOSTICO] Pasta de destino existe. Deletando antes de copiar.")
+                        pastaImagensDestino.deleteRecursively()
+                    }
+
+                    CatLog.d("[DIAGNOSTICO] Copiando arquivos de '${pastaImagensOrigem.absolutePath}' para '${pastaImagensDestino.absolutePath}'...")
+                    val success = pastaImagensOrigem.copyRecursively(pastaImagensDestino, overwrite = true)
+                    if (success) {
+                        CatLog.d("[DIAGNOSTICO] Cópia concluída com SUCESSO. Verificando destino...")
+                        val destFiles = pastaImagensDestino.listFiles()
+                        if (destFiles.isNullOrEmpty()) {
+                            CatLog.e("[DIAGNOSTICO] ERRO: Destino está VAZIO após cópia bem-sucedida.")
+                        } else {
+                            CatLog.d("[DIAGNOSTICO] ${destFiles.size} arquivos encontrados no destino. Primeiros 5: ${destFiles.take(5).joinToString { it.name }}")
+                        }
+                    } else {
+                        CatLog.e("[DIAGNOSTICO] ERRO: A operação copyRecursively retornou 'false'.")
+                    }
+
                     prefs.updateModuloVersao("imagens", manifest.imagens.versao)
                 } else {
-                    CatLog.w("Pasta de imagens '${manifest.imagens.arquivo}' não encontrada no pacote de sincronização.")
+                    CatLog.e("[DIAGNOSTICO] ERRO CRÍTICO: Pasta de imagens de origem NÃO EXISTE ou não é um diretório: ${pastaImagensOrigem.absolutePath}")
                 }
             }
 

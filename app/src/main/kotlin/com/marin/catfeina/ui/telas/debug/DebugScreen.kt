@@ -17,6 +17,7 @@ package com.marin.catfeina.ui.telas.debug
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,14 +32,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.marin.catfeina.R
 import com.marin.core.util.rememberCliqueSeguro
 
@@ -50,30 +52,15 @@ fun DebugScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val poesiasPaginadas = uiState.poesiasPaginadas.collectAsLazyPagingItems()
 
-    DebugScreenContent(
-        modifier = modifier,
-        uiState = uiState,
-        onForceSync = {
-            viewModel.forcarRessincronizacaoCompleta()
-            Toast.makeText(context, "Registros de sincronização foram limpos!", Toast.LENGTH_SHORT).show()
-        }
-    )
-}
-
-@Composable
-private fun DebugScreenContent(
-    modifier: Modifier = Modifier,
-    uiState: DebugUiState,
-    onForceSync: () -> Unit
-) {
     LazyColumn(modifier = modifier.padding(16.dp)) {
         item {
             Text(stringResource(R.string.debug_build_info), style = MaterialTheme.typography.titleLarge)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
         }
-        items(uiState.buildInfo) {
-            InfoRow(label = it.first, value = it.second)
+        items(uiState.buildInfo) { (label, value) ->
+            InfoRow(label = label, value = value)
         }
 
         item {
@@ -81,8 +68,31 @@ private fun DebugScreenContent(
             Text(stringResource(R.string.debug_db_stats), style = MaterialTheme.typography.titleLarge)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
         }
-        items(uiState.dbStats) {
-            InfoRow(label = it.first, value = it.second.toString())
+        items(uiState.dbStats) { (label, value) ->
+            InfoRow(label = label, value = value.toString())
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Diagnóstico de Imagens", style = MaterialTheme.typography.titleLarge)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+        item {
+            InfoRow(label = "Caminho das Imagens", value = uiState.imageDiagnostics.imagePath)
+            InfoRow(label = "Total de Imagens na Pasta", value = uiState.imageDiagnostics.imageCount.toString())
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Verificação de Poesias com Imagens", style = MaterialTheme.typography.titleMedium)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+
+        items(poesiasPaginadas.itemCount) { index ->
+            val poesia = poesiasPaginadas[index]
+            if (poesia != null && !poesia.imagem.isNullOrBlank()) {
+                PoesiaStatusRow(poesia)
+            }
         }
 
         item {
@@ -93,7 +103,10 @@ private fun DebugScreenContent(
 
         item {
             Button(
-                onClick = rememberCliqueSeguro(onClick = onForceSync),
+                onClick = rememberCliqueSeguro(onClick = {
+                    viewModel.forcarRessincronizacaoCompleta()
+                    Toast.makeText(context, "Registros de sincronização foram limpos!", Toast.LENGTH_SHORT).show()
+                }),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Forçar Ressincronização Completa")
@@ -108,29 +121,28 @@ private fun InfoRow(label: String, value: String) {
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = label, fontWeight = FontWeight.Bold)
-        Text(text = value)
+        Text(text = label, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        Text(text = value, modifier = Modifier.weight(1f))
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun DebugScreenPreview() {
-    val buildInfo = listOf(
-        "Build Type" to "debug",
-        "Version Name" to "1.0.0",
-        "Version Code" to "1",
-        "Build Time" to "01/01/2025 12:00:00",
-        "Sync URL" to "https://example.com"
-    )
-    val dbStats = listOf(
-        "Poesias" to 100L,
-        "Atelier" to 5L,
-        "Personagens" to 10L
-    )
-
-    DebugScreenContent(
-        uiState = DebugUiState(buildInfo = buildInfo, dbStats = dbStats),
-        onForceSync = {}
-    )
+private fun PoesiaStatusRow(poesia: PoesiaStatus) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text("[${poesia.id}] ${poesia.titulo}", fontWeight = FontWeight.Bold)
+        InfoRow(label = "Arquivo Esperado", value = poesia.imagem ?: "N/A")
+        InfoRow(label = "Caminho Completo", value = poesia.caminhoCompleto)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "Status", fontWeight = FontWeight.Bold)
+            Text(
+                text = if (poesia.existe) "ENCONTRADO" else "NÃO ENCONTRADO",
+                color = if (poesia.existe) Color.Green else Color.Red,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+    }
 }

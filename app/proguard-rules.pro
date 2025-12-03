@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Manter a classe JDBCType, que é referenciada dinamicamente pelo driver do SQLite.
+-keep class java.sql.JDBCType

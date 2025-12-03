@@ -56,6 +56,7 @@ import com.github.panpf.sketch.request.ImageRequest
 import com.marin.catfeina.Screen
 import com.marin.core.ui.Icones
 import com.marin.core.util.cliqueSeguro
+import java.io.File
 
 @Composable
 fun InicioScreen(
@@ -156,6 +157,7 @@ private fun EmptyStatePlaceholder(message: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PoesiaDestaque(poesia: PoesiaUiModel, onClick: () -> Unit) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,8 +166,9 @@ fun PoesiaDestaque(poesia: PoesiaUiModel, onClick: () -> Unit) {
     ) {
         Column {
             poesia.imagem?.let {
+                val imageFile = File(context.filesDir, "images/$it")
                 AsyncImage(
-                    request = ImageRequest(LocalContext.current, it),
+                    request = ImageRequest(context, imageFile.absolutePath),
                     contentDescription = poesia.titulo,
                     modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
                     contentScale = ContentScale.Crop
@@ -231,11 +234,13 @@ fun PoesiaPaginadaList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PoesiaListItem(poesia: PoesiaUiModel, onClick: () -> Unit) {
+    val context = LocalContext.current
     Card(modifier = Modifier.width(200.dp).cliqueSeguro(onClick = onClick)) {
         Column {
             poesia.imagem?.let {
+                val imageFile = File(context.filesDir, "images/$it")
                 AsyncImage(
-                    request = ImageRequest(LocalContext.current, it),
+                    request = ImageRequest(context, imageFile.absolutePath),
                     contentDescription = poesia.titulo,
                     modifier = Modifier.fillMaxWidth().aspectRatio(1f),
                     contentScale = ContentScale.Crop
