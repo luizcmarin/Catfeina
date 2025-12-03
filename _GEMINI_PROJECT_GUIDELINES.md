@@ -87,7 +87,7 @@ O schema é definido em arquivos `.sq`.
 - **`tbl_meow`**: `id`, `texto`, `atualizadoem` (frases do mascote).
 - **`tbl_personagem`**: `id`, `nome`, `biografia`, `imagem`, `atualizadoem`.
 - **`tbl_poesianota`**: `poesiaid` (PK), `favorita`, `lida`, `dataleitura`, `notausuario`.
-- **`tbl_poesia`**: `id`, `titulo`, `textobase`, `texto`, `textofinal`, `imagem`, `autor`, `nota`, `anterior`, `proximo`, `atualizadoem`.
+- **`tbl_poesia`**: `id`, `texto`, `anterior`, `proximo`, `atualizadoem`.
 
 ---
 

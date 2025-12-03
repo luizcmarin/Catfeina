@@ -3,75 +3,6 @@ require_once '../includes/db.php';
 
 header('Content-Type: application/json');
 
-// --- FUNÇÕES AUXILIARES PARA MARKDOWN ---
-
-/**
- * Monta o conteúdo Markdown a partir dos campos do formulário.
- */
-function compor_markdown_da_poesia($data) {
-    $markdown = [];
-
-    if (!empty($data['titulo'])) {
-        $markdown[] = '# ' . trim($data['titulo']);
-        $markdown[] = "\n";
-    }
-
-    // Combina os campos de texto em um só, como no app.
-    if (!empty($data['texto'])) {
-        $markdown[] = trim($data['texto']);
-    }
-
-    $meta = [];
-    if (!empty($data['autor'])) {
-        $meta[] = '*Autor: ' . trim($data['autor']) . '*';
-    }
-    if (!empty($data['nota'])) {
-        $meta[] = '*Nota: ' . trim($data['nota']) . '*';
-    }
-
-    if (!empty($meta)) {
-        $markdown[] = "\n---";
-        $markdown = array_merge($markdown, $meta);
-    }
-
-    return implode("\n", $markdown);
-}
-
-/**
- * Desmonta o conteúdo Markdown para preencher os campos do formulário.
- */
-function decompor_markdown_para_poesia($markdown_texto) {
-    $linhas = explode("\n", $markdown_texto);
-    $dados = [
-        'titulo' => '',
-        'texto' => '',
-        'autor' => '',
-        'nota' => ''
-    ];
-    $parte_atual = 'titulo'; // titulo, corpo, meta
-    $corpo_texto = [];
-
-    foreach ($linhas as $linha) {
-        $linha_trim = trim($linha);
-        if (strpos($linha_trim, '# ') === 0 && $parte_atual === 'titulo') {
-            $dados['titulo'] = substr($linha_trim, 2);
-            $parte_atual = 'corpo';
-        } elseif ($linha_trim === '---') {
-            $parte_atual = 'meta';
-        } elseif ($parte_atual === 'corpo') {
-            if($linha_trim !== '') $corpo_texto[] = $linha;
-        } elseif ($parte_atual === 'meta') {
-            if (strpos($linha_trim, '*Autor:') === 0) {
-                $dados['autor'] = trim(str_replace('*', '', substr($linha_trim, 7)));
-            } elseif (strpos($linha_trim, '*Nota:') === 0) {
-                $dados['nota'] = trim(str_replace('*', '', substr($linha_trim, 6)));
-            }
-        }
-    }
-    $dados['texto'] = implode("\n", $corpo_texto);
-    return $dados;
-}
-
 // --- LÓGICA PRINCIPAL ---
 
 $response = ['status' => 'error', 'message' => 'Ação inválida.'];
@@ -81,7 +12,7 @@ if ($action) {
     switch ($action) {
         case 'add':
             try {
-                $texto_markdown = compor_markdown_da_poesia($_POST);
+                $texto_markdown = $_POST['texto'] ?? '';
                 $novo_id = ($_POST['id'] ?? $pdo->query('SELECT MAX(id) FROM tbl_poesia')->fetchColumn() + 1);
 
                 $sql = "INSERT INTO tbl_poesia (id, texto, anterior, proximo, atualizadoem) VALUES (?, ?, ?, ?, ?)";
@@ -91,7 +22,7 @@ if ($action) {
                     $texto_markdown,
                     $_POST['anterior'] ?: null,
                     $_POST['proximo'] ?: null,
-                    time() // Salva como timestamp
+                    time()
                 ]);
                 $response = ['status' => 'success', 'message' => 'Poesia adicionada com sucesso!', 'id' => $novo_id];
             } catch (PDOException $e) {
@@ -120,12 +51,8 @@ if ($action) {
                     $stmt->execute([$_GET['id']]);
                     $poesia = $stmt->fetch(PDO::FETCH_ASSOC);
                     if ($poesia) {
-                        $dados_poesia = decompor_markdown_para_poesia($poesia['texto']);
-                        // Adiciona os outros campos ao resultado
-                        $dados_poesia['id'] = $poesia['id'];
-                        $dados_poesia['anterior'] = $poesia['anterior'];
-                        $dados_poesia['proximo'] = $poesia['proximo'];
-                        $response = ['status' => 'success', 'data' => $dados_poesia];
+                        // CORREÇÃO: Envia o registro completo, sem desmontar o campo 'texto'.
+                        $response = ['status' => 'success', 'data' => $poesia];
                     } else {
                         $response = ['status' => 'error', 'message' => 'Poesia não encontrada.'];
                     }
@@ -140,14 +67,14 @@ if ($action) {
         case 'update':
              if (isset($_POST['id'])) {
                 try {
-                    $texto_markdown = compor_markdown_da_poesia($_POST);
+                    $texto_markdown = $_POST['texto'] ?? '';
                     $sql = "UPDATE tbl_poesia SET texto = ?, anterior = ?, proximo = ?, atualizadoem = ? WHERE id = ?";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([
                         $texto_markdown,
                         $_POST['anterior'] ?: null,
                         $_POST['proximo'] ?: null,
-                        time(), // Salva como timestamp
+                        time(),
                         $_POST['id']
                     ]);
                     $response = ['status' => 'success', 'message' => 'Poesia atualizada com sucesso!'];

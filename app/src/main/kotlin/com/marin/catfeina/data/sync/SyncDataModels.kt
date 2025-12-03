@@ -26,17 +26,12 @@ import kotlinx.serialization.Serializable
 
 /**
  * DTO para um registro de poesia vindo do JSON da rede.
+ * CORREÇÃO: A estrutura agora espelha o JSON simplificado, com um único campo `texto` contendo o Markdown.
  */
 @Serializable
 data class PoesiaSync(
     @SerialName("id") val id: Long,
-    @SerialName("titulo") val titulo: String,
-    @SerialName("textobase") val textobase: String,
     @SerialName("texto") val texto: String,
-    @SerialName("textofinal") val textofinal: String? = null,
-    @SerialName("imagem") val imagem: String? = null,
-    @SerialName("autor") val autor: String? = null,
-    @SerialName("nota") val nota: String? = null,
     @SerialName("anterior") val anterior: Long? = null,
     @SerialName("proximo") val proximo: Long? = null,
     @SerialName("atualizadoem") val atualizadoem: Long
@@ -91,20 +86,14 @@ data class MeowSync(
 
 // --- Mapeadores de DTO de Sincronização para Modelo de Domínio ---
 
+/**
+ * CORREÇÃO: O mapeador agora simplesmente passa o campo `texto` (que já vem em Markdown) para o modelo de domínio,
+ * sem a necessidade de reconstruir o conteúdo.
+ */
 fun PoesiaSync.toDomain(): Poesia {
-    val markdownContent = buildString {
-        append("# $titulo\n\n")
-        imagem?.let { append("![]($it)\n\n") }
-        if (textobase.isNotBlank()) append("$textobase\n\n")
-        append(texto)
-        textofinal?.takeIf { it.isNotBlank() }?.let { append("\n\n$it") }
-        autor?.takeIf { it.isNotBlank() }?.let { append("\n\n*${it.trim()}*") }
-        nota?.takeIf { it.isNotBlank() }?.let { append("\n\n> ${it.trim().replace("\n", "\n> ")}") }
-    }.trim()
-
     return Poesia(
         id = id,
-        texto = markdownContent,
+        texto = texto, // O conteúdo já vem formatado em Markdown
         anterior = anterior,
         proximo = proximo,
         atualizadoem = atualizadoem,

@@ -30,12 +30,12 @@ import com.marin.catfeina.data.models.toDomain
 import com.marin.catfeina.data.models.toPoesiaEntity
 import com.marin.catfeina.sqldelight.PoesiaView
 import com.marin.catfeina.sqldelight.Tbl_poesiaQueries
+import com.marin.catfeina.sqldelight.Tbl_poesianota
 import com.marin.catfeina.sqldelight.Tbl_poesianotaQueries
 import com.marin.core.ui.UiState
 import com.marin.core.util.safeFlowQuery
 import com.marin.core.util.safeQuery
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -120,7 +120,7 @@ class PoesiaRepositoryImpl @Inject constructor(
     override fun limparMarkdownParaTts(poesia: Poesia): String {
         return poesia.texto
             .replace(Regex("""!\[.*?]\(.*?\)"""), "") // Remove imagens
-            .replace(Regex("""#?#?#?#?#? """"), "") // Remove títulos
+            .replace(Regex("""#?#?#?#?#? """), "") // Remove títulos
             .replace(Regex("""(\*\*|__)(?=\S)(.+?[*_]*)(?<=\S)\1"""), "$2") // Remove negrito
             .replace(Regex("""([*_])(?=\S)(.+?)(?<=\S)\1"""), "$2") // Remove itálico
             .replace(Regex("""(~~)(?=\S)(.+?)(?<=\S)\1"""), "$2") // Remove tachado
@@ -130,16 +130,70 @@ class PoesiaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateFavorita(id: Long, favorita: Boolean): UiState<Unit> = safeQuery(ioDispatcher) {
-        poesiaNotaQueries.updateFavorita(if (favorita) 1L else 0L, id)
+        val notaExistente = poesiaNotaQueries.getNota(id).executeAsOneOrNull()
+        val nota = notaExistente ?: Tbl_poesianota(
+            poesiaid = id,
+            favorita = 0, // O valor será sobrescrito pelo `copy`
+            lida = 0,
+            dataleitura = null,
+            notausuario = null
+        )
+
+        val notaAtualizada = nota.copy(favorita = if (favorita) 1L else 0L)
+
+        poesiaNotaQueries.upsertNota(
+            poesiaid = notaAtualizada.poesiaid,
+            favorita = notaAtualizada.favorita,
+            lida = notaAtualizada.lida,
+            dataleitura = notaAtualizada.dataleitura,
+            notausuario = notaAtualizada.notausuario
+        )
     }
 
     override suspend fun updateLida(id: Long, lida: Boolean): UiState<Unit> = safeQuery(ioDispatcher) {
-        val timestamp = if (lida) System.currentTimeMillis() else null
-        poesiaNotaQueries.updateLida(if (lida) 1L else 0L, timestamp, id)
+        val notaExistente = poesiaNotaQueries.getNota(id).executeAsOneOrNull()
+        val nota = notaExistente ?: Tbl_poesianota(
+            poesiaid = id,
+            favorita = 0,
+            lida = 0, // O valor será sobrescrito pelo `copy`
+            dataleitura = null, // O valor será sobrescrito pelo `copy`
+            notausuario = null
+        )
+
+        val timestamp = if (lida) System.currentTimeMillis() else nota.dataleitura
+        val notaAtualizada = nota.copy(
+            lida = if (lida) 1L else 0L,
+            dataleitura = timestamp
+        )
+
+        poesiaNotaQueries.upsertNota(
+            poesiaid = notaAtualizada.poesiaid,
+            favorita = notaAtualizada.favorita,
+            lida = notaAtualizada.lida,
+            dataleitura = notaAtualizada.dataleitura,
+            notausuario = notaAtualizada.notausuario
+        )
     }
 
     override suspend fun updateNotaUsuario(id: Long, nota: String?): UiState<Unit> = safeQuery(ioDispatcher) {
-        poesiaNotaQueries.updateNotaUsuario(nota, id)
+        val notaExistente = poesiaNotaQueries.getNota(id).executeAsOneOrNull()
+        val baseNota = notaExistente ?: Tbl_poesianota(
+            poesiaid = id,
+            favorita = 0,
+            lida = 0,
+            dataleitura = null,
+            notausuario = null // O valor será sobrescrito pelo `copy`
+        )
+
+        val notaAtualizada = baseNota.copy(notausuario = nota)
+
+        poesiaNotaQueries.upsertNota(
+            poesiaid = notaAtualizada.poesiaid,
+            favorita = notaAtualizada.favorita,
+            lida = notaAtualizada.lida,
+            dataleitura = notaAtualizada.dataleitura,
+            notausuario = notaAtualizada.notausuario
+        )
     }
 
     override suspend fun upsertPoesias(poesias: List<Poesia>): UiState<Unit> = safeQuery(ioDispatcher) {
@@ -173,7 +227,7 @@ class PoesiaPagingSource(
         return try {
             val pageNumber = params.key ?: 0
             val pageSize = params.loadSize.toLong()
-            val offset = (pageNumber * pageSize).toLong()
+            val offset = (pageNumber * pageSize)
 
             val poesias = withContext(ioDispatcher) {
                 poesiaQueries.getPoesiasPaginadas(limit = pageSize, offset = offset).executeAsList()

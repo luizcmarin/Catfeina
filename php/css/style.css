@@ -1,1 +1,17 @@
 /* Estilos personalizados */
+
+/* Força espaçamento extra no preview do EasyMDE */
+.editor-preview p,
+.editor-preview-side p {
+    margin-bottom: 2em !important;
+}
+
+/* Define um fundo SUTIL para a linha ativa no editor */
+.CodeMirror-activeline-background {
+    background: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Desabilita o feedback visual do corretor ortográfico */
+.CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word) {
+    background: transparent !important;
+}
