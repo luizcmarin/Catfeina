@@ -64,7 +64,7 @@ workRuntimeKtx = "2.11.0"
 navigation = "2.9.6"
 
 # Jetpack Compose & UI
-composeBom = "2025.11.01"
+composeBom = "2025.12.00"
 
 # Jetpack Data
 sqlDelight = "2.2.1"
