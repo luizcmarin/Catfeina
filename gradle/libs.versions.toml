@@ -88,7 +88,7 @@ junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.13.0"
-animationGraphics = "1.9.5"
+animationGraphics = "1.10.0"
 
 kotlinx-coroutines = "1.10.2"
 androidx-test-runner = "1.7.0"
